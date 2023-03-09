@@ -1,10 +1,11 @@
 import './App.css';
+import Navbar from './layout/navbar/Navbar';
 
 function App() {
   return (
-    <div className="App">
-     <h1>Auction App</h1>
-    </div>
+    <>
+      <Navbar />
+    </>
   );
 }
 
