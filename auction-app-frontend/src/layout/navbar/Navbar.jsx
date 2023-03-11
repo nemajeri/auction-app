@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SocialMeadiaIcons } from '../../components/social-icons/SocialMediaIcons';
+import { SocialMediaIcons } from '../../components/social-icons/SocialMediaIcons';
 import './navbar.css';
 
 const Navbar = () => {
@@ -9,7 +9,7 @@ const Navbar = () => {
     <div className='navbar__black'>
       <div className='navbar__container'>
         <div>
-          <SocialMeadiaIcons />
+          <SocialMediaIcons />
         </div>
         {user === '' ? (
           <div className='navbar__account'>
