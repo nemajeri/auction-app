@@ -3,7 +3,7 @@ import { ImFacebook, ImTwitter, ImInstagram } from 'react-icons/im';
 import { TiSocialGooglePlus } from 'react-icons/ti';
 import './socialMediaIcons.css'
 
-export const SocialMeadiaIcons = () => {
+export const SocialMediaIcons = () => {
   return (
     <div className='icons__list'>
       <div>
