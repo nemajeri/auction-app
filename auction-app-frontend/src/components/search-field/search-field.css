@@ -1,0 +1,16 @@
+.search {
+    position: relative;
+    min-width: 500px;
+}
+
+.search .search__icon {
+    position: absolute;
+    top: 1.5rem;
+    right: 1rem;
+    width: 25px;
+    height: 20px;
+}
+
+.search > input {
+    height: 55px;
+}

@@ -45,3 +45,44 @@ body {
   background-color: var(--white-100);
 }
 
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='date'],
+input[type='number'],
+input[type='image'],
+select,
+textarea {
+  width: 100%;
+  padding: 15px 20px;
+  margin: 5px 0;
+  display: inline-block;
+  border: 1px solid var(--grey-100);
+  box-sizing: border-box;
+}
+
+input::placeholder {
+  color: var(--grey-100);
+  font-family: var(--font-family);
+}
+
+.logo {
+  display: flex;
+  gap: 15px;
+
+}
+
+
+.logo > h1 {
+  display: flex;
+  justify-content: center;
+  color: var(--purple);
+  font-weight: 100;
+}
+
+.logo__icon {
+  fill: var(--purple);
+  width: 30px;
+  height: 50px;
+  transform: scaleX(-1);
+}
