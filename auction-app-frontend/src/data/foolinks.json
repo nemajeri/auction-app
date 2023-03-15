@@ -22,15 +22,15 @@
       "heading": "GET IN TOUCH",
       "data": [
         {
-          "number": "Call Us at +123 797-567-2535",
+          "contact": "Call Us at +123 797-567-2535",
           "key": "number"
         },
         {
-          "email": "support@auction.com",
+          "contact": "support@auction.com",
           "key": "email"
         },
         {
-          "component": "SocialMeadiaIcons",
+          "contact": "SocialMediaIcons",
           "key": "component"
         }
       ]

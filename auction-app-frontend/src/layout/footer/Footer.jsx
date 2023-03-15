@@ -1,35 +1,34 @@
 import React from 'react';
 import './footer.css';
 import foolinks from '../../data/foolinks.json';
-import FooterItem from '../../components/footer-item/FooterItem';
+import { SocialMediaIcons } from '../../components/social-icons/SocialMediaIcons';
 
 const Footer = () => {
-  const renderLinks = () =>
-    foolinks[0].links.map((link) => (
-      <div key={link.title}>
-        <a href={link.url}>{link.title}</a>
-      </div>
-    ));
-
-  const renderData = () =>
-    foolinks[1].data.map((item) => (
-      <div key={item.key}>
-        <FooterItem item={item} />
-      </div>
-    ));
-
   return (
     <div className='footer'>
       <div className='footer__container'>
-        {Object.entries(foolinks).map(([key, value]) => (
-          <div key={key}>
-            <div>
-              <h4>{value.heading}</h4>
-              {value.links && renderLinks()}
+        <div>
+        <h4>{foolinks[0]?.heading}</h4>
+          {foolinks[0]?.links.map((link) => (
+            <div key={link.title}>
+              <a href={link.url}>{link.title}</a>
             </div>
-            <div>{value.data && renderData()}</div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <div>
+          <h4>{foolinks[1]?.heading}</h4>
+          {foolinks[1]?.data.map((item) => {
+            if (item.key === 'component') {
+              return <SocialMediaIcons key={item.key} />;
+            } else {
+              return (
+                <div key={item.key}>
+                  <p>{item.contact}</p>
+                </div>
+              );
+            }
+          })}
+        </div>
       </div>
     </div>
   );

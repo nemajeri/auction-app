@@ -23,10 +23,11 @@
 .footer a {
     color: var(--grey-100);
     line-height: 38px;
+    text-decoration: none;
 }
 
 .footer p {
     color: var(--grey-100);
-    line-height: 23px;
+    line-height: 25px;
     padding-bottom: 15px;
 }
