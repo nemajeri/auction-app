@@ -1,0 +1,15 @@
+.icons__list {
+    display: flex;
+    gap: 10px;
+}
+
+.icons__list > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 0 10px;
+    background-color: var(--grey-300);
+}
