@@ -1,0 +1,33 @@
+.footer {
+    background-color: var(--grey-500);
+    padding-bottom: 150px;
+    padding-top: 30px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.footer__container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 900px;
+    margin: auto;
+  }
+  
+
+.footer h4 {
+    color: var(--grey-300);
+    margin: 15px 0;
+}
+
+.footer a {
+    color: var(--grey-100);
+    line-height: 38px;
+    text-decoration: none;
+}
+
+.footer p {
+    color: var(--grey-100);
+    line-height: 25px;
+    padding-bottom: 15px;
+}

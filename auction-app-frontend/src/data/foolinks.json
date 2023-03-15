@@ -1,0 +1,39 @@
+[
+    {
+      "column": "1",
+      "heading": "AUCTION",
+      "links": [
+        {
+          "title": "About us",
+          "url": "/about-us"
+        },
+        {
+          "title": "Terms and conditions",
+          "url": "/terms-and-conditions"
+        },
+        {
+          "title": "Privacy and Policy",
+          "url": "/privacy-and-policy"
+        }
+      ]
+    },
+    {
+      "column": "2",
+      "heading": "GET IN TOUCH",
+      "data": [
+        {
+          "contact": "Call Us at +123 797-567-2535",
+          "key": "number"
+        },
+        {
+          "contact": "support@auction.com",
+          "key": "email"
+        },
+        {
+          "contact": "SocialMediaIcons",
+          "key": "component"
+        }
+      ]
+    }
+  ]
+  
