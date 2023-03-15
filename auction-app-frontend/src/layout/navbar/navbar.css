@@ -7,7 +7,7 @@
 .navbar__container {
   display: flex;
   justify-content: space-between;
-  max-width: 1500px;
+  max-width: 1300px;
   margin: auto;
   overflow: hidden;
   padding: 0.7rem 2rem;
@@ -22,4 +22,40 @@
   text-decoration: none;
   color: var(--white-100);
   font-weight: bold;
+}
+
+.navbar__white {
+  z-index: 1;
+  width: 100%;
+  background-color: var(--white-100);
+  padding: 5px 0;
+}
+
+.navbar__container--white {
+  display: flex;
+  justify-content: space-evenly;
+  max-width: 1400px;
+  margin: auto;
+  overflow: hidden;
+  padding: 0.7rem 2rem;
+}
+
+.navbar__container--search_and-links {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar__navigation {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+
+.navbar__navigation > a {
+  text-decoration: none;
+}
+
+.navbar__navigation > a.active-link {
+  font-weight: bold;
+  color: var(--purple);
 }
