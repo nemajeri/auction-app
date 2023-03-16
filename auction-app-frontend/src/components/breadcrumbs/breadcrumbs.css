@@ -1,0 +1,26 @@
+.breadcrumbs {
+    width: 100%;
+    background-color: var(--white-200);
+    padding: 25px 0;
+  }
+
+.breadcrumbs__container {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.breadcrumbs__path {
+    display: flex;
+}
+
+.breadcrumbs__path p {
+    margin: 0 15px;
+    color: var(--grey-100);
+}
+
+.breadcrumbs__path span:first-child {
+    color: var(--grey-100);
+}

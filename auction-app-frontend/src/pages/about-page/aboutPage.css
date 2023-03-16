@@ -1,0 +1,43 @@
+.about-us__page--content {
+    display: flex;
+    gap: 12rem;
+    justify-content: space-between;
+}
+
+.about-page__text {
+    text-align: left;
+    max-width: 45%;
+}
+
+.about-page__text p {
+    margin-bottom: 0.8rem;
+    color: var(--grey-200);
+}
+
+.about-page__main--image {
+    height: 3.125rem;
+    width: 40%;
+}
+
+.about-page__main--image > img {
+    height: 20.5rem;
+    width: 100%;
+}
+
+.about-page__main--image .about-page__images {
+    width: 100%;
+    display: flex;
+    gap: 0.7rem;
+    margin-top: 0.3rem;
+}
+
+.about-page__images img {
+    height: 9.375rem;
+    width: 100%;
+}
+
+.wrapper h1 {
+    font-weight: 400;
+    margin: 10px 0;
+    font-size: 2.8rem;
+}
