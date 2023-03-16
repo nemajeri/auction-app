@@ -10,8 +10,6 @@ export const NavigationProvider = ({ children }) => {
     setPreviousPath(location.pathname); 
   };
 
-  console.log(previousPath)
-
   return (
     <NavigationContext.Provider value={{ previousPath, handleNavigation }}>
       {children}
