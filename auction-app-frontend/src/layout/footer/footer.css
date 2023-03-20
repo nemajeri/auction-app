@@ -2,8 +2,6 @@
     background-color: var(--grey-500);
     padding-bottom: 150px;
     padding-top: 30px;
-    position: fixed;
-    bottom: 0;
     width: 100%;
 }
 

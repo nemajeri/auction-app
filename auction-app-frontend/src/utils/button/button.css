@@ -1,0 +1,13 @@
+button {
+    background-color: var(--white-200);
+    border: 3px solid var(--purple);
+    padding: 12px 36px;
+    cursor: pointer;
+}
+
+button span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
