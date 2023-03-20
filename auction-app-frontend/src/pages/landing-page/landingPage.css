@@ -7,27 +7,3 @@
     gap: 9rem;
 }
 
-.landing-page__tabs {
-    border-bottom: 1px solid var(--grey-100);
-    display: flex;
-    gap: 25px;
-    margin: 3rem 0;
-}
-
-.landing-page__tab {
-    padding-bottom: 5px;
-    cursor: pointer;
-}
-
-.landing-page__tab > h2 {
-    font-weight: 100;
-    font-size: 1.2rem;
-}
-
-.landing-page__tab--selected {
-    border-bottom: 2px solid var(--purple);
-}
-
-.landing-page__tab--selected > h2 {
-    font-weight: bold;
-}

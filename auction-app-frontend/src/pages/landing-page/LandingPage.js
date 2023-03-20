@@ -10,6 +10,7 @@ import { getProducts } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
 import { HIGHLIGHTED_PRODUCT } from '../../utils/constants';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import Tabs from '../../components/tabs/Tabs';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals' },
@@ -51,19 +52,7 @@ const LandingPage = () => {
           <Categories categories={categories} />
           {!loading && <HighlightedProduct highlightedProduct={HIGHLIGHTED_PRODUCT} />}
         </section>
-        <section className='landing-page__tabs'>
-          {tabs.map((tab) => (
-            <div
-              key={tab.id}
-              className={`landing-page__tab ${
-                selectedTab === tab.id ? 'landing-page__tab--selected' : ''
-              }`}
-              onClick={() => handleTabClick(tab.id)}
-            >
-              <h2>{tab.label}</h2>
-            </div>
-          ))}
-        </section>
+        <Tabs selectedTab={selectedTab} handleTabClick={handleTabClick} tabs={tabs}/>
         <GridViewProducts products={products} />
       </div>
     </div>
@@ -71,3 +60,5 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+
