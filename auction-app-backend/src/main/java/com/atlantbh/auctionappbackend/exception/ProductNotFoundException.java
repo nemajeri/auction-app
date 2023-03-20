@@ -1,2 +1,7 @@
-package com.atlantbh.auctionappbackend.exception;public class ProductNotFoundException {
+package com.atlantbh.auctionappbackend.exception;
+
+public class ProductNotFoundException extends RuntimeException {
+    public ProductNotFoundException(Long id) {
+        super("Product with Id " + id + " not found.");
+    }
 }

@@ -1,12 +1,11 @@
-package com.atlantbh.auctionappbackend.service.serviceImpl;
+package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.mapper.ProductMapper;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
-import com.atlantbh.auctionappbackend.service.ProductService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -17,15 +16,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service()
-@RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService {
+@AllArgsConstructor
+public class ProductService {
 
     private final ProductRepository productRepository;
 
     private final ProductMapper productMapper;
 
-    @Override
-    public List<ProductDTO> getProducts() {
+    public List<ProductDTO> getAllProducts() {
         List<Product> products = productRepository.findAll();
 
         if (products.isEmpty())
@@ -40,7 +38,6 @@ public class ProductServiceImpl implements ProductService {
         return productDTOs;
     }
 
-    @Override
     public ProductDTO getProductById(Long id) throws ProductNotFoundException {
         Optional<Product> optionalProduct = productRepository.findById(id);
 
