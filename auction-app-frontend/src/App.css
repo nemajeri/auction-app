@@ -86,3 +86,14 @@ input::placeholder {
   height: 50px;
   transform: scaleX(-1);
 }
+
+.wrapper {
+  min-height: 100%;
+  max-width: 1200px;
+  position: relative;
+  margin: 5rem auto;
+}
+
+.content {
+  padding: 30px 0;
+}

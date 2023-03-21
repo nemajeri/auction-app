@@ -1,0 +1,21 @@
+.product-overview-page__gallery--and_details {
+    display: flex;
+    align-items: center;
+    gap: 9rem;
+}
+
+.product-overview-page__gallery--and_details .tabs {
+    margin: 2rem 0;
+}
+
+.product-overview-page__gallery--and_details .tab--selected {
+    text-align: center;
+    width: 100px;
+}
+
+.product-overview-page__gallery--and_details .tab--selected > h2 {
+    font-weight: bold;
+    color: var(--purple);
+    font-size: 1rem;
+    padding-bottom: 6px;
+}

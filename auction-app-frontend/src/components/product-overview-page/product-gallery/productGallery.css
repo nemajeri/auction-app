@@ -1,0 +1,14 @@
+.gallery {
+    width: 130rem;
+}
+
+.gallery img{
+    width: 100%;
+    cursor: pointer;
+}
+
+.gallery__product--images {
+    display: flex;
+    width: 19%;
+    gap: 7px;
+}
