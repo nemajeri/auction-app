@@ -16,6 +16,8 @@ public class ProductMapper {
         productDTO.setImages(product.getImages());
         productDTO.setStartDate(product.getStartDate());
         productDTO.setEndDate(product.getEndDate());
+        productDTO.setNumberOfBids(product.getNumberOfBids());
+        productDTO.setHighestBid(product.getHighestBid());
         return productDTO;
     }
 
@@ -27,7 +29,8 @@ public class ProductMapper {
         product.setStartPrice(productDTO.getStartPrice());
         product.setImages(productDTO.getImages());
         product.setStartDate(productDTO.getStartDate());
-        product.setEndDate(productDTO.getEndDate());
+        product.setNumberOfBids(productDTO.getNumberOfBids());
+        product.setHighestBid(productDTO.getHighestBid());
         return product;
     }
 }

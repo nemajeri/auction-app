@@ -5,10 +5,16 @@
 .gallery img{
     width: 100%;
     cursor: pointer;
+    height: 30rem;
+    object-fit: cover;
 }
 
 .gallery__product--images {
     display: flex;
     width: 19%;
     gap: 7px;
+}
+
+.gallery__product--images img {
+    height: 8rem;
 }
