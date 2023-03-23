@@ -10,21 +10,28 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import { ProductOverviewPage } from './pages/index';
+import { useBreadcrumbs } from './hooks/useBreadcrumbs';
+import { NavigationProvider } from './utils/NavigationProvider';
 
 function App() {
+  const ProductOverviewPageWithBreadcrumbs =
+    useBreadcrumbs(ProductOverviewPage);
 
   const router = createBrowserRouter([
     {
       path: productOverviewPagePath,
-      element: <ProductOverviewPage />,
-      handle: { crumb: () => <Link to={`/${productOverviewPagePath}`}>About Us</Link> },
+      element: <ProductOverviewPageWithBreadcrumbs />,
+      handle: {
+        crumb: () => <Link to={`/${productOverviewPagePath}`}>BIYLACLESEN Womens 3-in-1 Snowboard Jacket Winter Coats</Link>, //need to change this hardcoded value using 
+      },
     },
   ]);
 
   return (
     <>
-      <Navbar />
-      <RouterProvider router={router}>
+      <NavigationProvider>
+        <Navbar />
+        <RouterProvider router={router}>
           <Routes>
             <Route
               path={productOverviewPagePath}
@@ -32,7 +39,8 @@ function App() {
             />
           </Routes>
         </RouterProvider>
-      <Footer />
+        <Footer />
+      </NavigationProvider>
     </>
   );
 }

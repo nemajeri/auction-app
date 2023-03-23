@@ -1,3 +1,7 @@
+.product-overview-page__wrapper {
+    margin: 1rem auto;
+}
+
 .product-overview-page__gallery--and_details {
     display: flex;
     align-items: center;

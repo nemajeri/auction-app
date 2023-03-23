@@ -8,6 +8,7 @@ import {
 import { getProduct } from '../../utils/api/productsApi';
 import { calculateTimeLeft } from '../../utils/helperFunctions';
 import './productOverviewPage.css';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 
 const tabs = [{ id: 'details', label: 'Details' }];
 
@@ -39,8 +40,12 @@ const ProductOverviewPage = () => {
     setSelectedTab(id);
   };
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className='wrapper'>
+    <div className='wrapper product-overview-page__wrapper'>
       <div className='content'>
         <section className='product-overview-page__gallery--and_details'>
           <ProductGallery images={images} />
