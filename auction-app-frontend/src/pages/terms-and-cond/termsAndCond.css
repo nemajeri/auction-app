@@ -1,0 +1,19 @@
+.terms-and-cond__page--wrapper{
+    max-width: 800px;
+}
+
+.terms-and-cond__page--wrapper h4 {
+    color: var(--grey-500);
+    margin: 1rem 0;
+    font-size: 1.5rem;
+}
+
+.terms-and-cond__page--wrapper p {
+    color: var(--grey-200);
+    margin-bottom: 0.8rem;
+}
+
+.terms-and-cond__page--wrapper li {
+    color: var(--grey-200);
+    margin: 0.8rem 1rem;
+}
