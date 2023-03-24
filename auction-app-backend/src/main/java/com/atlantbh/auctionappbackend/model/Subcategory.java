@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "subcategory", schema = "auction_app_schema")
 public class Subcategory {
 
     @Id
@@ -19,7 +19,10 @@ public class Subcategory {
 
     @Column(name = "subcategory_name", nullable = false)
     private String subCategoryName;
+    @Column(name = "items_count", nullable = false)
+    private int itemsCount;
 
-    @Column(name = "category_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category;
 }
