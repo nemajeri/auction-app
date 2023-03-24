@@ -25,6 +25,6 @@ public class Product {
     @Column(name = "images", nullable = false)
     private String images;
 
-    @Column(name = "subcategoryId", nullable = false)
+    @Column(name = "subcategory_id", nullable = false)
     private Subcategory subcategory;
 }

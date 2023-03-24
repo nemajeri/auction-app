@@ -20,6 +20,6 @@ public class Subcategory {
     @Column(name = "subcategory_name", nullable = false)
     private String subCategoryName;
 
-    @Column(name = "categoryId", nullable = false)
+    @Column(name = "category_id", nullable = false)
     private Category category;
 }
