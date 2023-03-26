@@ -1,0 +1,35 @@
+.shop-page__wrapper {
+    margin: 2rem auto 5rem auto;
+}
+
+.shop-page__content {
+    display: flex;
+    gap: 30px;
+}
+
+.shop-page__grid-view {
+    display: grid;
+    grid-template-columns: 280px 280px 280px;
+    gap: 30px;
+    margin: 0;
+}
+
+.shop-page__products {
+    flex-direction: column;
+    display: flex;
+}
+
+.shop-page__explore--more_button {
+    width: 25%;
+    background-color: var(--purple);
+    padding: 15px 20px;
+    color: var(--white-200);
+    border: none;
+    margin: 3rem auto;
+    cursor: pointer;
+}
+
+.shop-page__explore--more_button p {
+    font-size: 1rem;
+    font-weight: 600;
+}
