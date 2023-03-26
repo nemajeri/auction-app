@@ -2,7 +2,6 @@ package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.dto.SubcategoryDTO;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
-import com.atlantbh.auctionappbackend.response.SubcategoriesResponse;
 import com.atlantbh.auctionappbackend.service.SubcategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,10 +29,5 @@ public class SubcategoryController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-    }
-
-    @GetMapping
-    public ResponseEntity<Set<SubcategoriesResponse>> getSubcategories() {
-        return ResponseEntity.ok(subcategoryService.getSubcategories());
     }
 }
