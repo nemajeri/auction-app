@@ -5,8 +5,9 @@ import {
   aboutUsPath,
   privacyPolicyPath,
   termsAndCondPath,
+  shopPagePath,
 } from './utils/paths';
-import { TermsAndCondPage, AboutPage, PrivacyPolicyPage } from './pages/index';
+import { TermsAndCondPage, AboutPage, PrivacyPolicyPage, ShopPage } from './pages/index';
 import {
   Route,
   Routes,
@@ -23,6 +24,10 @@ function App() {
   const PrivacyPolicyPageWithBreadcrumbs = useBreadcrumbs(PrivacyPolicyPage);
 
   const router = createBrowserRouter([
+    {
+      path: shopPagePath,
+      element: <ShopPage />,
+    },
     {
       path: aboutUsPath,
       element: <AboutPageWithBreadcrumbs />,
