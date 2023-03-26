@@ -10,5 +10,5 @@ import java.util.Set;
 
 @Repository
 public interface SubcategoryRepository extends JpaRepository<Subcategory, Long> {
-    Set<SubcategoryDTO> findAllByCategory(Category category);
+    Set<Subcategory> findAllByCategory(Category category);
 }
