@@ -1,7 +1,7 @@
 .categories-accordion__wrapper {
     padding: 30px;
     border: 1px solid var(--grey-100);
-    width: 25%;
+    width: 100%;
 }
 
 .categories-accordion__wrapper h3 {

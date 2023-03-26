@@ -16,7 +16,11 @@ const CategoriesAccordion = () => {
     <>
       <div className='categories-accordion__wrapper'>
         <h3>PRODUCT CATEGORIES</h3>
-        <div className='categories-accordion__category' data-category='fashion' onClick={handleOpening}>
+        <div
+          className='categories-accordion__category'
+          data-category='fashion'
+          onClick={handleOpening}
+        >
           <h4>Fashion</h4>
           <p>{openedItems['fashion'] ? '-' : '+'}</p>
         </div>
@@ -31,7 +35,11 @@ const CategoriesAccordion = () => {
           </div>
         </div>
 
-        <div className='categories-accordion__category' data-category='electronics' onClick={handleOpening}>
+        <div
+          className='categories-accordion__category'
+          data-category='electronics'
+          onClick={handleOpening}
+        >
           <h4>Electronics</h4>
           <p>{openedItems['electronics'] ? '-' : '+'}</p>
         </div>
@@ -48,6 +56,6 @@ const CategoriesAccordion = () => {
       </div>
     </>
   );
-}
+};
 
 export default CategoriesAccordion;
