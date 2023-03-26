@@ -5,11 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SubcategoryResponse implements Comparable<SubcategoryResponse> {
+public class SubcategoryResponse {
     private Long id;
     private String subCategoryName;
-    @Override
-    public int compareTo(SubcategoryResponse o) {
-        return this.subCategoryName.compareTo(o.subCategoryName);
-    }
 }
