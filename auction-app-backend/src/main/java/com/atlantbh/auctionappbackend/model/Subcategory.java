@@ -16,14 +16,13 @@ public class Subcategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "subcategory_name", nullable = false)
     private String subCategoryName;
 
-    @Formula("(SELECT COUNT(*) FROM auction_app_schema.product p WHERE p.subcategory_id = id)")
+    @Formula("(SELECT COUNT(*) FROM auction_app_schema.product p WHERE p.category_id = id)")
     private Integer numberOfProducts;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-
 }
