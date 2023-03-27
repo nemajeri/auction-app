@@ -1,61 +1,56 @@
-import { useState } from 'react';
+import React from 'react';
 import './categoriesAccordion.css';
 
-const CategoriesAccordion = () => {
-  const [openedItems, setOpenedItems] = useState({});
-
-  const handleOpening = (event) => {
-    const category = event.target.dataset.category;
-    setOpenedItems((prevState) => ({
-      ...prevState,
-      [category]: !prevState[category],
-    }));
-  };
-
+const CategoriesAccordion = ({
+  openedCategory,
+  handleOpeningAndFetchingSubcategories,
+  categories,
+  subcategories,
+}) => {
   return (
-    <>
-      <div className='categories-accordion__wrapper'>
-        <h3>PRODUCT CATEGORIES</h3>
-        <div
-          className='categories-accordion__category'
-          data-category='fashion'
-          onClick={handleOpening}
-        >
-          <h4>Fashion</h4>
-          <p>{openedItems['fashion'] ? '-' : '+'}</p>
+    categories && (
+      <>
+        <div className='categories-accordion__wrapper'>
+          <h3>PRODUCT CATEGORIES</h3>
+          {categories.map((category) => (
+            <div key={category.id}>
+              <div
+                className='categories-accordion__category'
+                data-category={`${category.categoryName}`}
+                onClick={handleOpeningAndFetchingSubcategories(category.id)}
+              >
+                <h4>{category.categoryName}</h4>
+                <p>{openedCategory[`${category.categoryName}`] ? '-' : '+'}</p>
+              </div>
+              <div
+                className={`categories-accordion__subcategories ${
+                  !openedCategory[`${category.categoryName}`] && 'hidden'
+                }`}
+              >
+                {subcategories
+                  .filter((subcategory) => subcategory.categoryId === category.id)
+                  .map((subcategory) => {
+                    return (
+                      <div
+                        className='categories-accordion__subcategory'
+                        key={subcategory.id}
+                      >
+                        <input type='checkbox' />
+                        <p>
+                          {subcategory.subCategoryName}&nbsp;(
+                          {subcategory.numberOfProducts})
+                        </p>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          ))}
         </div>
-        <div
-          className={`categories-accordion__subcategories ${
-            !openedItems['fashion'] && 'hidden'
-          }`}
-        >
-          <div className='categories-accordion__subcategory'>
-            <input type='checkbox' />
-            <p>Bag&nbsp;(50)</p>
-          </div>
-        </div>
-
-        <div
-          className='categories-accordion__category'
-          data-category='electronics'
-          onClick={handleOpening}
-        >
-          <h4>Electronics</h4>
-          <p>{openedItems['electronics'] ? '-' : '+'}</p>
-        </div>
-        <div
-          className={`categories-accordion__subcategories ${
-            !openedItems['electronics'] && 'hidden'
-          }`}
-        >
-          <div className='categories-accordion__subcategory'>
-            <input type='checkbox' />
-            <p>Phone&nbsp;(20)</p>
-          </div>
-        </div>
-      </div>
-    </>
+      </>
+    )
   );
 };
 
 export default CategoriesAccordion;
+

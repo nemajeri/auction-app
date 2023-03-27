@@ -4,7 +4,7 @@ import Button from '../../../utils/Button';
 import { CiHeart } from 'react-icons/ci';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 
-const Product = () => {
+const Product = ({ product:{id, productName, startPrice, images} }) => {
   const onWishlistBtnClick = () => {
     console.log('Clicked on wishlist button');
   };
@@ -13,8 +13,11 @@ const Product = () => {
     console.log('Clicked on bid button');
   };
 
+  const productImages = images.replace(/[{}]/g, '').split(',').map(str => str.replace(/['"]+/g, ''));
+
+
   return (
-    <div className='product'>
+    <div className='product' key={id}>
       <div className='product__img--container'>
         <div className='product__img--overlay'>
           <div>
@@ -37,14 +40,14 @@ const Product = () => {
           </div>
         </div>
         <img
-          src='https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80'
+          src={productImages[0]}
           alt='products'
         />
       </div>
       <div className='product__details'>
-        <h3>Shoe Collection</h3>
+        <h3>{productName}</h3>
         <p>
-          Start From &nbsp;<span>$59.99</span>
+          Start From &nbsp;<span>${startPrice}</span>
         </p>
       </div>
     </div>

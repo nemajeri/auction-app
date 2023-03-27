@@ -1,17 +1,14 @@
-import React from 'react'
-import Product from  '../product/Product'
+import React from 'react';
+import Product from '../product/Product';
 
-const ShopPageProducts = () => {
+const ShopPageProducts = ({ products }) => {
   return (
     <>
-        <Product />
-        <Product />
-        <Product />
-        <Product />
-        <Product />
-        <Product />
+      {products.map((product, index) => (
+        <Product product={product} key={index} />
+      ))}
     </>
-  )
-}
+  );
+};
 
-export default ShopPageProducts
+export default ShopPageProducts;
