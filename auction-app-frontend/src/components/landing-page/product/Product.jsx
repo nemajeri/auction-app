@@ -2,9 +2,10 @@ import React from 'react';
 import './product.css';
 
 const Product = ({ product: { productName, startPrice, images } }) => {
+  const productImage= images.replace(/[{}]/g, '').split(',').map(str => str.replace(/['"]+/g, ''));
   return (
     <div className='product'>
-      <img src={images} alt='products' />
+      <img src={productImage[0]} alt='products' />
       <div className='product__details'>
         <h3>{productName}</h3>
         <p>
