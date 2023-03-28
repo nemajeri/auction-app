@@ -9,9 +9,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 public class ProductService {
@@ -22,18 +19,18 @@ public class ProductService {
 
         Page<Product> pagedResult = productRepository.findAll(pageable);
 
-        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getDescription(), product.getStartPrice(), product.getCategory().getId()));
+        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages() ,product.getCategory().getId()));
 
         return response;
     }
 
 
 
-    public Page<ProductsResponse> getAllProductsFromCategory(Integer pageNumber, Integer pageSize, Long CategoryId) {
+    public Page<ProductsResponse> getAllProductsFromCategory(Integer pageNumber, Integer pageSize, Long CategoryId, String searchTerm) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<Product> pagedResult = productRepository.findAllByCategory_Id(CategoryId, pageable);
+        Page<Product> pagedResult = productRepository.findAllByCategory_IdAndProductNameContaining(CategoryId, pageable, searchTerm);
 
-        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getDescription(), product.getStartPrice(), product.getCategory().getId()));
+        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(),product.getImages(), product.getCategory().getId()));
 
         return response;
     }

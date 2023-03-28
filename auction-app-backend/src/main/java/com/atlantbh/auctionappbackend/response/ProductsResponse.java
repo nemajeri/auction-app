@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class ProductsResponse {
     private Long id;
     private String productName;
-    private String description;
     private Float startPrice;
+    private String images;
     private Long categoryId;
 }

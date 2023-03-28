@@ -1,6 +1,5 @@
 package com.atlantbh.auctionappbackend.controller;
 
-import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.AllArgsConstructor;
@@ -20,7 +19,7 @@ public class ProductController {
 
     @GetMapping("/items")
     public ResponseEntity<Page<ProductsResponse>> getAllProducts(@RequestParam(defaultValue = "0") Integer pageNumber,
-                                                                 @RequestParam(defaultValue = "8") Integer pageSize){
+                                                                 @RequestParam(defaultValue = "8") Integer pageSize) {
         Page<ProductsResponse> productsList = productService.getAllProducts(pageNumber, pageSize);
 
         return ResponseEntity.ok(productsList);
@@ -30,8 +29,9 @@ public class ProductController {
     public ResponseEntity<Page<ProductsResponse>> getAllProductsFromCategory(
             @RequestParam(defaultValue = "0") Integer pageNumber,
             @RequestParam(defaultValue = "9") Integer pageSize,
-            @RequestParam Long categoryId) {
-        Page<ProductsResponse> productsList = productService.getAllProductsFromCategory(pageNumber, pageSize, categoryId);
+            @RequestParam Long categoryId,
+            @RequestParam(defaultValue = "") String searchTerm) {
+        Page<ProductsResponse> productsList = productService.getAllProductsFromCategory(pageNumber, pageSize, categoryId, searchTerm);
 
         return ResponseEntity.ok(productsList);
     }
