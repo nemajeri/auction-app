@@ -23,12 +23,20 @@ public class ProductService {
 
     private final ProductMapper productMapper;
 
-    public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
+    public List<ProductDTO> getNewProducts(int page, int size) {
+        int offset = page * size;
+        List<Product> products = productRepository.getNewArrivalsProducts(offset, size);
+        ModelMapper modelMapper = new ModelMapper();
+        Type listType = new TypeToken<List<ProductDTO>>() {
+        }.getType();
+        List<ProductDTO> productDTOs = modelMapper.map(products, listType);
 
-        if (products.isEmpty())
-            return new ArrayList<>() {
-            };
+        return productDTOs;
+    }
+
+    public List<ProductDTO> getLastProducts(int page, int size) {
+        int offset = page * size;
+        List<Product> products = productRepository.getLastChanceProducts(offset, size);
 
         ModelMapper modelMapper = new ModelMapper();
         Type listType = new TypeToken<List<ProductDTO>>() {

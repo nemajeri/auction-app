@@ -5,11 +5,9 @@ import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController()
@@ -19,9 +17,18 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping()
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    @GetMapping("/sorted-products")
+    public ResponseEntity<List<ProductDTO>> getProducts(
+            @RequestParam(required = false) String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size) {
+        if ("new-arrival".equals(filter)) {
+            return ResponseEntity.ok(productService.getNewProducts(page, size));
+        } else if ("last-chance".equals(filter)) {
+            return ResponseEntity.ok(productService.getLastProducts(page, size));
+        } else {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
     }
 
     @GetMapping(path = "/{id}")
