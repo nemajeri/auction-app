@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Categories,
   HighlightedProduct,
   LandingPageProducts,
 } from '../../components/landing-page/index';
 import './landingPage.css';
-import {
-  getSortedNewAndLastProducts,
-} from '../../utils/api/productsApi';
+import { getSortedNewAndLastProducts } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
 import { HIGHLIGHTED_PRODUCT } from '../../utils/constants';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
@@ -24,45 +22,60 @@ const LandingPage = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const [pageNumber, setPageNumber] = useState(0);
+  const [highlightedProducts, seHighlightedProducts] = useState([]);
+  const currentPageNumber = useRef(0);
+
+  const uniqueProducts = Array.from(
+    new Set(products?.map((product) => product.id))
+  ).map((productId) => products?.find((product) => product.id === productId));
 
   useEffect(() => {
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
-    fetchProductsAndCategories(selectedFilter, pageNumber);
-  }, [pageNumber, selectedTab]);
+    fetchProductsAndCategories(selectedFilter, currentPageNumber.current);
+  }, [selectedTab]);
 
-  async function fetchProductsAndCategories(filter, pageNumber) {
+  async function fetchProductsAndCategories(filter, currentPageNumber) {
     let categories = await getCategories();
     setCategories(categories.data);
 
-    let products = await getSortedNewAndLastProducts(filter, pageNumber);
+    let products = await getSortedNewAndLastProducts(filter, currentPageNumber);
     setProducts(products.data);
     setLoading(false);
   }
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
   const handleTabClick = async (id) => {
+    setLoading(true);
     setSelectedTab(id);
+    currentPageNumber.current = 0;
+    setHasMore(true);
     const selectedFilter = tabs.find((tab) => tab.id === id).filter;
     const response = await getSortedNewAndLastProducts(selectedFilter, 0);
     setProducts(response.data);
+    setLoading(false);
   };
 
   const fetchNextPage = async () => {
     setLoading(true);
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
-    const response = await getSortedNewAndLastProducts(selectedFilter, pageNumber);
-    if (response.data.length < 8) {
-      setHasMore(false);
-    } else {
-      setHasMore(true);
-    }
-    setProducts((prevProducts) => [...prevProducts, ...response.data]);
-    setPageNumber((prevPageNumber) => prevPageNumber + 1);
-    setLoading(false);
+
+    currentPageNumber.current += 1;
+
+    setTimeout(() => {
+      getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current)
+        .then((response) => {
+          if (response.data.length === 0) {
+            setHasMore(false);
+          } else {
+            setHasMore(true);
+            setProducts((prevProducts) => [...prevProducts, ...response.data]);
+          }
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching next page:', error);
+          setLoading(false);
+        });
+    }, 500);
   };
 
   return (
@@ -80,9 +93,10 @@ const LandingPage = () => {
           tabs={tabs}
         />
         <LandingPageProducts
-          products={products}
+          products={uniqueProducts}
           fetchNextPage={fetchNextPage}
           hasMore={hasMore}
+          loading={loading}
         />
       </div>
     </div>

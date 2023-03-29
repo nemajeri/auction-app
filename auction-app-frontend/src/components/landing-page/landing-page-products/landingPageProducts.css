@@ -1,0 +1,15 @@
+
+#scrollableDiv::-webkit-scrollbar {
+    display: none;
+  }
+  
+
+  #scrollableDiv {
+    scrollbar-width: none; 
+  }
+  
+
+  #scrollableDiv::-ms-overflow-style {
+    -ms-overflow-style: none;
+  }
+  

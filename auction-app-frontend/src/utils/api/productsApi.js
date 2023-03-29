@@ -1,7 +1,7 @@
 import { API } from "../constants"
 
-export const getSortedNewAndLastProducts = (filter, page) => {
-    return API.get(`/products/sorted-products?filter=${filter}&page=${page}`);
+export const getSortedNewAndLastProducts = (filter, pageNumber) => {
+    return API.get(`/products/sorted-products?filter=${filter}&pageNumber=${pageNumber}`);
 }
 
 export const getProducts = () => {
