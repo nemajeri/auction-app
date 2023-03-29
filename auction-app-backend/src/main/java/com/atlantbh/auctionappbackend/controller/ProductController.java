@@ -20,12 +20,13 @@ public class ProductController {
     @GetMapping("/sorted-products")
     public ResponseEntity<List<ProductDTO>> getProducts(
             @RequestParam(required = false) String filter,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "8") int size) {
+        System.out.println(pageNumber + " page number");
         if ("new-arrival".equals(filter)) {
-            return ResponseEntity.ok(productService.getNewProducts(page, size));
+            return ResponseEntity.ok(productService.getNewProducts(pageNumber, size));
         } else if ("last-chance".equals(filter)) {
-            return ResponseEntity.ok(productService.getLastProducts(page, size));
+            return ResponseEntity.ok(productService.getLastProducts(pageNumber, size));
         } else {
             return ResponseEntity.badRequest().body(Collections.emptyList());
         }

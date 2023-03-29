@@ -27,6 +27,9 @@ public class Product {
 
     @Column(name = "images", nullable = false)
     private String images;
+
+    @Column(name="is_highlighted", nullable = false)
+    private boolean isHighlighted;
 }
 
 

@@ -11,7 +11,6 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +22,9 @@ public class ProductService {
 
     private final ProductMapper productMapper;
 
-    public List<ProductDTO> getNewProducts(int page, int size) {
-        int offset = page * size;
-        List<Product> products = productRepository.getNewArrivalsProducts(offset, size);
+    public List<ProductDTO> getNewProducts(int pageNumber, int size) {
+        int offset = pageNumber * size;
+        List<Product> products = productRepository.getNewArrivalsProducts(size, offset);
         ModelMapper modelMapper = new ModelMapper();
         Type listType = new TypeToken<List<ProductDTO>>() {
         }.getType();
@@ -34,9 +33,9 @@ public class ProductService {
         return productDTOs;
     }
 
-    public List<ProductDTO> getLastProducts(int page, int size) {
-        int offset = page * size;
-        List<Product> products = productRepository.getLastChanceProducts(offset, size);
+    public List<ProductDTO> getLastProducts(int pageNumber, int size) {
+        int offset = pageNumber * size;
+        List<Product> products = productRepository.getLastChanceProducts(size, offset);
 
         ModelMapper modelMapper = new ModelMapper();
         Type listType = new TypeToken<List<ProductDTO>>() {
