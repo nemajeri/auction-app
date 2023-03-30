@@ -26,7 +26,7 @@ const ProductOverviewPage = () => {
     getProduct(id)
       .then((response) => {
         setProduct(response.data);
-        setImages(response.data.images.replace(/[{}]/g, '').split(',').map(str => str.replace(/['"]+/g, '')));
+        setImages(response.data.images);
         setTimeLeft(calculateTimeLeft(response.data));
         setLoading(false);
       })
