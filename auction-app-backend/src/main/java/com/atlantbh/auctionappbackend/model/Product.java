@@ -8,6 +8,8 @@ import org.hibernate.annotations.Formula;
 import javax.persistence.*;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "product", schema="auction_app_schema")
@@ -28,14 +30,16 @@ public class Product {
     @Column(name = "start_price", nullable = false)
     private Float startPrice;
 
-    @Column(name = "images", nullable = false)
-    private String images;
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image")
+    private List<String> images;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private Date startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate;
+    private Date endDate;
 
     @Formula("(SELECT COUNT(*) FROM auction_app_schema.bid b INNER JOIN auction_app_schema.product p ON p.id = b.product_id WHERE b.product_id = p.id)")
     private BigInteger numberOfBids;

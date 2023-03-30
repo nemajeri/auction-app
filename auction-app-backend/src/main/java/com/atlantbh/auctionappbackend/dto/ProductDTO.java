@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 
 
 import java.math.BigInteger;
-import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,11 +22,11 @@ public class ProductDTO {
 
     private Float startPrice;
 
-    private String images;
+    private List<String> images;
 
-    private LocalDateTime startDate;
+    private Date startDate;
 
-    private LocalDateTime endDate;
+    private Date endDate;
 
     private BigInteger numberOfBids;
 
