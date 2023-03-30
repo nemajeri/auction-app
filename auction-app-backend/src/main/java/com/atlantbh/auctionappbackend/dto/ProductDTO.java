@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -18,5 +20,7 @@ public class ProductDTO {
 
     private Float startPrice;
 
-    private String images;
+    private List<String> images;
+
+    private boolean isHighlighted;
 }

@@ -4,6 +4,8 @@ import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.model.Product;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 @Component
 public class ProductMapper {
 
@@ -14,6 +16,7 @@ public class ProductMapper {
         productDTO.setDescription(product.getDescription());
         productDTO.setStartPrice(product.getStartPrice());
         productDTO.setImages(product.getImages());
+        productDTO.setHighlighted(product.isHighlighted());
         return productDTO;
     }
 
@@ -24,6 +27,7 @@ public class ProductMapper {
         product.setDescription(productDTO.getDescription());
         product.setStartPrice(productDTO.getStartPrice());
         product.setImages(productDTO.getImages());
+        product.setHighlighted(productDTO.isHighlighted());
         return product;
     }
 }

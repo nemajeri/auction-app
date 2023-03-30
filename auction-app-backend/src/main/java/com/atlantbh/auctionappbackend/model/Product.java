@@ -5,9 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
-@Table
+@Table(name = "product")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,8 +26,10 @@ public class Product {
     @Column(name = "start_price", nullable = false)
     private Float startPrice;
 
-    @Column(name = "images", nullable = false)
-    private String images;
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image")
+    private List<String> images;
 
     @Column(name="is_highlighted", nullable = false)
     private boolean isHighlighted;

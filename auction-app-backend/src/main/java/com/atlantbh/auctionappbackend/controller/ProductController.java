@@ -1,7 +1,6 @@
 package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
-import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,27 +16,20 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/sorted-products")
+    @GetMapping("/sorted-&-paginated-products")
     public ResponseEntity<List<ProductDTO>> getProducts(
             @RequestParam(required = false) String filter,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "8") int size) {
-        System.out.println(pageNumber + " page number");
-        if ("new-arrival".equals(filter)) {
-            return ResponseEntity.ok(productService.getNewProducts(pageNumber, size));
-        } else if ("last-chance".equals(filter)) {
-            return ResponseEntity.ok(productService.getLastProducts(pageNumber, size));
-        } else {
-            return ResponseEntity.badRequest().body(Collections.emptyList());
-        }
-    }
-
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable("id") Long id) {
-        try {
-            return ResponseEntity.ok(productService.getProductById(id));
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.notFound().build();
+        switch (filter) {
+            case "new-arrival":
+                return ResponseEntity.ok(productService.getNewProducts(pageNumber, size));
+            case "last-chance":
+                return ResponseEntity.ok(productService.getLastProducts(pageNumber, size));
+            case "all":
+                return ResponseEntity.ok(productService.getAllProducts());
+            default:
+                return ResponseEntity.badRequest().body(Collections.emptyList());
         }
     }
 }
