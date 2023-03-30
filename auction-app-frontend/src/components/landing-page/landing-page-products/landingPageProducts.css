@@ -1,15 +1,20 @@
 
-#scrollableDiv::-webkit-scrollbar {
+.product__scrollable-viewport::-webkit-scrollbar {
     display: none;
   }
   
 
-  #scrollableDiv {
+.product__scrollable-viewport {
     scrollbar-width: none; 
-  }
+}
   
 
-  #scrollableDiv::-ms-overflow-style {
+.product__scrollable-viewport::-ms-overflow-style {
     -ms-overflow-style: none;
-  }
+}
+
+.product__scrollable-viewport {
+    height: calc(100vh - 150px);
+    overflow: auto;
+}
   

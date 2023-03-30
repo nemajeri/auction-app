@@ -6,9 +6,8 @@ import {
 } from '../../components/landing-page/index';
 import './landingPage.css';
 import { getSortedNewAndLastProducts } from '../../utils/api/productsApi';
+import { getAllProducts } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
-import { HIGHLIGHTED_PRODUCT } from '../../utils/constants';
-import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import Tabs from '../../components/tabs/Tabs';
 
 const tabs = [
@@ -22,7 +21,7 @@ const LandingPage = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const [highlightedProducts, seHighlightedProducts] = useState([]);
+  const [highlightedProducts, setHighlightedProducts] = useState([]);
   const currentPageNumber = useRef(0);
 
   const uniqueProducts = Array.from(
@@ -38,8 +37,16 @@ const LandingPage = () => {
     let categories = await getCategories();
     setCategories(categories.data);
 
-    let products = await getSortedNewAndLastProducts(filter, currentPageNumber);
-    setProducts(products.data);
+    let sortedProducts = await getSortedNewAndLastProducts(
+      filter,
+      currentPageNumber
+    );
+
+    let allProducts = await getAllProducts();
+    setHighlightedProducts(
+      allProducts.data.filter((product) => product.highlighted === true)
+    );
+    setProducts(sortedProducts.data);
     setLoading(false);
   }
 
@@ -84,7 +91,7 @@ const LandingPage = () => {
         <section className='landing-page__categories--and_product'>
           <Categories categories={categories} />
           {!loading && (
-            <HighlightedProduct highlightedProduct={HIGHLIGHTED_PRODUCT} />
+            <HighlightedProduct highlightedProduct={highlightedProducts[0]} />
           )}
         </section>
         <Tabs

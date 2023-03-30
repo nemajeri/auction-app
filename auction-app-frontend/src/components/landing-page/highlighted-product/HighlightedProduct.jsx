@@ -3,7 +3,7 @@ import './highlightedProduct.css';
 import Button from '../../../utils/Button';
 
 const HighlightedProduct = ({
-  highlightedProduct: { name, price, description, image },
+  highlightedProduct,
 }) => {
   const handleButtonClicked = () => {
     console.log('clicked');
@@ -12,12 +12,12 @@ const HighlightedProduct = ({
   return (
     <div className='highlighted-product'>
       <div className='highlighted-product__text'>
-        <h2>{name}</h2>
-        <span>Start From {price}$</span>
-        <p>{description}</p>
+        <h2>{highlightedProduct.productName}</h2>
+        <span>Start From {highlightedProduct.startPrice}$</span>
+        <p>{highlightedProduct.description}</p>
         <Button children={'BID NOW'} onClick={handleButtonClicked} className={'highlighted-product__button'}/>
       </div>
-      <img src={image} alt='highlighted-product' />
+      <img src={highlightedProduct.images[0]} alt='highlighted-product' />
     </div>
   );
 };
