@@ -5,8 +5,9 @@ import {
   aboutUsPath,
   privacyPolicyPath,
   termsAndCondPath,
+  landingPagePath
 } from './utils/paths';
-import { TermsAndCondPage, AboutPage, PrivacyPolicyPage } from './pages/index';
+import { TermsAndCondPage, AboutPage, PrivacyPolicyPage, LandingPage } from './pages/index';
 import {
   Route,
   Routes,
@@ -23,6 +24,11 @@ function App() {
   const PrivacyPolicyPageWithBreadcrumbs = useBreadcrumbs(PrivacyPolicyPage);
 
   const router = createBrowserRouter([
+    {
+      path: landingPagePath,
+      element: <LandingPage />,
+      handle: { crumb: () => <Link to={`/${landingPagePath}`}>About Us</Link> }
+    },
     {
       path: aboutUsPath,
       element: <AboutPageWithBreadcrumbs />,
@@ -52,6 +58,10 @@ function App() {
         <Navbar />
         <RouterProvider router={router}>
           <Routes>
+          <Route
+              path={landingPagePath}
+              element={<LandingPage />}
+            />
             <Route path={aboutUsPath} element={<AboutPageWithBreadcrumbs />} />
             <Route
               path={privacyPolicyPath}

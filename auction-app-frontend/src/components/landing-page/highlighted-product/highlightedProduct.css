@@ -1,0 +1,42 @@
+.highlighted-product {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+
+.highlighted-product__text {
+    text-align: left;
+}
+
+.highlighted-product__text h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.highlighted-product__text > span {
+    font-size: 2rem;
+    color: var(--purple);
+}
+
+.highlighted-product__text p {
+    margin-top: 1rem;
+    margin-bottom: 3rem;
+    color: var(--grey-200);
+}
+
+.highlighted-product img {
+    max-width: 20rem;
+}
+
+.highlighted-product__button {
+    background-color: var(--white-200);
+    border: 3px solid var(--purple);
+    padding: 12px 36px;
+    cursor: pointer;
+}
+
+.highlighted-product__button span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}

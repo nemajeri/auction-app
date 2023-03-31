@@ -1,0 +1,21 @@
+.categories {
+    min-width: 25%;
+}
+
+.categories h3 {
+    color: var(--purple);
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.categories div {
+    background-color: var(--white-400);
+    border-bottom: 1px solid var(--grey-100);
+    text-align: left;
+    padding: 15px 10px;
+}
+
+.categories a {
+    color: var(--black);
+    text-decoration: none;
+}
