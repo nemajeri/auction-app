@@ -12,8 +12,11 @@
     text-align: left;
 }
 
-.product__details h3 {
+.product__details a {
     font-size: 1.5rem;
+    text-decoration: none;
+    color: var(--black);
+    font-weight: bold;
 }
 
 .product__details p {

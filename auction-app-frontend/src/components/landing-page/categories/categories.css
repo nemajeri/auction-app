@@ -14,3 +14,8 @@
     text-align: left;
     padding: 15px 10px;
 }
+
+.categories a {
+    color: var(--black);
+    text-decoration: none;
+}

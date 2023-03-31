@@ -1,12 +1,13 @@
 import React from 'react';
 import './product.css';
+import { Link } from 'react-router-dom';
 
-const Product = ({ product: { productName, startPrice, images } }) => {
+const Product = ({ product: { id, productName, startPrice, images } }) => {
   return (
     <div className='product'>
       <img src={images[0]} alt='products' />
       <div className='product__details'>
-        <h3>{productName}</h3>
+        <Link to={`/product/${id}`}>{productName}</Link>
         <p>
           Start From &nbsp;<span>${startPrice}</span>
         </p>

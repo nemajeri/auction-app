@@ -1,5 +1,6 @@
 import React from 'react';
 import './categories.css';
+import { Link } from 'react-router-dom';
 
 
 const Categories = ({ categories }) => {
@@ -8,7 +9,9 @@ const Categories = ({ categories }) => {
       <h3>CATEGORIES</h3>
       {categories.map((category) => (
         <div key={category.id}>
-          <span>{category.categoryName}</span>
+          <Link to={`/shop/${encodeURIComponent(category.categoryName).toLowerCase()}`}>
+            <span>{category.categoryName}</span>
+          </Link>
         </div>
       ))}
     </div>
