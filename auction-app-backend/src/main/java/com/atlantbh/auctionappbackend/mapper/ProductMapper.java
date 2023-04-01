@@ -18,6 +18,7 @@ public class ProductMapper {
         productDTO.setEndDate(product.getEndDate());
         productDTO.setNumberOfBids(product.getNumberOfBids());
         productDTO.setHighestBid(product.getHighestBid());
+        productDTO.setHighlighted(product.isHighlighted());
         return productDTO;
     }
 
@@ -31,6 +32,7 @@ public class ProductMapper {
         product.setStartDate(productDTO.getStartDate());
         product.setNumberOfBids(productDTO.getNumberOfBids());
         product.setHighestBid(productDTO.getHighestBid());
+        product.setHighlighted(productDTO.isHighlighted());
         return product;
     }
 }

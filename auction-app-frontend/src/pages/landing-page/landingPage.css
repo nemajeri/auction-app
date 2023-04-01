@@ -1,0 +1,9 @@
+.landing-page__wrapper {
+    margin: 1rem auto;
+}
+
+.landing-page__categories--and_product {
+    display: flex;
+    gap: 9rem;
+}
+

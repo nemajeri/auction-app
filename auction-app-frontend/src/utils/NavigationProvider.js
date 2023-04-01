@@ -16,3 +16,4 @@ export const NavigationProvider = ({ children }) => {
     </NavigationContext.Provider>
   );
 };
+

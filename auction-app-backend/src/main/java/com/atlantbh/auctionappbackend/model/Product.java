@@ -47,5 +47,8 @@ public class Product {
     @Formula("(SELECT b.price FROM auction_app_schema.bid b WHERE b.product_id = id ORDER BY b.price DESC LIMIT 1)")
     private BigDecimal highestBid;
 
+    @Column(name="is_highlighted", nullable = false)
+    private boolean isHighlighted;
+
 }
 
