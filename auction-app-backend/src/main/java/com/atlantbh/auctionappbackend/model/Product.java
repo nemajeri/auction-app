@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -36,16 +36,16 @@ public class Product {
     private List<String> images;
 
     @Column(name = "start_date", nullable = false)
-    private Date startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date", nullable = false)
-    private Date endDate;
+    private LocalDateTime endDate;
 
-    @Formula("(SELECT COUNT(*) FROM auction_app_schema.bid b INNER JOIN auction_app_schema.product p ON p.id = b.product_id WHERE b.product_id = p.id)")
+    @Formula("(SELECT COUNT(*) FROM auction_app_schema.bid b WHERE b.product_id = id)")
     private BigInteger numberOfBids;
 
-    @Formula("(SELECT b.price FROM auction_app_schema.product p INNER JOIN auction_app_schema.bid b ON p.id =b.product_id ORDER BY b.price DESC LIMIT 1)")
-    private BigInteger highestBid;
+    @Formula("(SELECT b.price FROM auction_app_schema.bid b WHERE b.product_id = id ORDER BY b.price DESC LIMIT 1)")
+    private BigDecimal highestBid;
 
 }
 
