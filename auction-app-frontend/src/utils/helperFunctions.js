@@ -6,10 +6,10 @@ export const calculateTimeLeft = (product) => {
     (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-const differenceInWeeks = Math.floor(differenceInDays / 7);
+  const differenceInWeeks = Math.floor(differenceInDays / 7);
 
   if (differenceInWeeks > 0 && differenceInDays > 0) {
     return `${differenceInWeeks} weeks ${differenceInDays} days`;
-  } 
+  }
   return;
 };
