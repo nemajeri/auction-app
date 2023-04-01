@@ -1,1 +1,1 @@
-export const productOverviewPagePath = '/product';
+export const productOverviewPagePath = '/product/:id';

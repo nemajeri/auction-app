@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import './productOverviewPage.css';
 import {
   ProductDetails,
@@ -18,8 +18,7 @@ const ProductOverviewPage = () => {
   const [images, setImages] = useState([]);
   const [timeLeft, setTimeLeft] = useState('');
   const [loading, setLoading] = useState(true);
-  // const { id } = useParams();
-  const id = 1;
+ const { id } = useParams();
 
 
   useEffect(() => {

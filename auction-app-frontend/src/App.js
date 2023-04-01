@@ -22,7 +22,7 @@ function App() {
       path: productOverviewPagePath,
       element: <ProductOverviewPageWithBreadcrumbs />,
       handle: {
-        crumb: () => <Link to={`/${productOverviewPagePath}`}>BIYLACLESEN Womens 3-in-1 Snowboard Jacket Winter Coats</Link>, //need to change this hardcoded value using 
+        crumb: () => <Link to={`/${productOverviewPagePath}`}>Example Product</Link>,
       },
     },
   ]);
