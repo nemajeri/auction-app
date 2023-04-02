@@ -7,7 +7,12 @@ import {
   termsAndCondPath,
   shopPagePath,
 } from './utils/paths';
-import { TermsAndCondPage, AboutPage, PrivacyPolicyPage, ShopPage } from './pages/index';
+import {
+  TermsAndCondPage,
+  AboutPage,
+  PrivacyPolicyPage,
+  ShopPage,
+} from './pages/index';
 import {
   Route,
   Routes,
@@ -16,7 +21,7 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import { useBreadcrumbs } from './hooks/useBreadcrumbs';
-import { NavigationProvider } from './utils/NavigationProvider';
+import { AppContextProvider } from './utils/AppContextProvider ';
 
 function App() {
   const AboutPageWithBreadcrumbs = useBreadcrumbs(AboutPage);
@@ -53,11 +58,15 @@ function App() {
 
   return (
     <>
-      <NavigationProvider>
+      <AppContextProvider>
         <Navbar />
         <RouterProvider router={router}>
           <Routes>
             <Route path={aboutUsPath} element={<AboutPageWithBreadcrumbs />} />
+            <Route
+              path={`${shopPagePath}/search/:searchTerm`}
+              element={<ShopPage />}
+            />
             <Route
               path={privacyPolicyPath}
               element={<TermsAndCondPageWithBreadcrumbs />}
@@ -69,7 +78,7 @@ function App() {
           </Routes>
         </RouterProvider>
         <Footer />
-      </NavigationProvider>
+      </AppContextProvider>
     </>
   );
 }

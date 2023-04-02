@@ -1,23 +1,20 @@
-import React,{ useState} from 'react';
+import React, { useContext } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import './search-field.css';
+import { AppContext } from '../../utils/AppContextProvider';
 
 const SearchField = () => {
-  const[ searchTerm, setSearchTerm ] = useState('');
-
-  const handleSearchTermChange = (event) => {
-    setSearchTerm(event.target.value);
-  }
-
-  const handleSendingSearchRequest = () => {
-    //method to send post request
-    console.log('Send post request')
-  }
+  const { searchTerm, onSearchTermChange } = useContext(AppContext);
 
   return (
     <div className='search'>
-      <input type='text' value={searchTerm} placeholder='Try enter: Shoes' onChange={handleSearchTermChange}/>
-      <AiOutlineSearch className='search__icon' onClick={handleSendingSearchRequest}/>
+      <input
+        type='text'
+        value={searchTerm}
+        placeholder='Try enter: Shoes'
+        onChange={onSearchTermChange}
+      />
+      <AiOutlineSearch className='search__icon' />
     </div>
   );
 };

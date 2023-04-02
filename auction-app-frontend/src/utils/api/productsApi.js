@@ -4,11 +4,15 @@ export const getProducts = () => {
   return API.get('/products');
 };
 
+export const getProductAsItems = (pageNumber, pageSize) => {
+  return API.get(`/products/items?pageNumber=${pageNumber}&pageSize=${pageSize}`)
+}
+
 export const getProduct = (id) => {
   return API.get(`/products/${id}`);
 };
 
-export const getAllProdcutsByCategoryAndSearchTerm = (
+export const getAllProductsByCategory = (
   pageNumber,
   pageSize,
   categoryId,
@@ -18,4 +22,3 @@ export const getAllProdcutsByCategoryAndSearchTerm = (
     `/products/items/category?pageNumber=${pageNumber}&pageSize=${pageSize}&categoryId=${categoryId}&searchTerm=${searchTerm}`
   );
 };
-
