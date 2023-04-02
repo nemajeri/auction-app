@@ -6,8 +6,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "product", schema = "auction_app_schema")
@@ -28,8 +30,10 @@ public class Product {
     @Column(name = "start_price", nullable = false)
     private Float startPrice;
 
-    @Column(name = "images", nullable = false)
-    private String images;
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image")
+    private List<String> images;
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
@@ -41,7 +45,10 @@ public class Product {
     private BigInteger numberOfBids;
 
     @Formula("(SELECT b.price FROM auction_app_schema.product p INNER JOIN auction_app_schema.bid b ON p.id =b.product_id ORDER BY b.price DESC LIMIT 1)")
-    private BigInteger highestBid;
+    private BigDecimal highestBid;
+
+    @Column(name = "is_highlighted", nullable = false)
+    private boolean isHighlighted;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)

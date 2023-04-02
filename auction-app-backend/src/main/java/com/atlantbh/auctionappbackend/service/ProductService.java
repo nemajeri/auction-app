@@ -19,7 +19,7 @@ public class ProductService {
 
         Page<Product> pagedResult = productRepository.findAll(pageable);
 
-        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages() ,product.getCategory().getId()));
+        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0) ,product.getCategory().getId()));
 
         return response;
     }
@@ -30,7 +30,7 @@ public class ProductService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Product> pagedResult = productRepository.findAllByCategory_IdAndProductNameContaining(CategoryId, pageable, searchTerm);
 
-        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(),product.getImages(), product.getCategory().getId()));
+        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(),product.getImages().get(0), product.getCategory().getId()));
 
         return response;
     }

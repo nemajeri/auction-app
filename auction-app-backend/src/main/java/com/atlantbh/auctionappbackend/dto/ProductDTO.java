@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class ProductDTO {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private BigInteger numberOfBids;
-    private BigInteger highestBid;
+    private BigDecimal highestBid;
     private Long categoryId;
     private String categoryName;
 
