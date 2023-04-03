@@ -23,13 +23,13 @@ const ProductDetails = ({
         </p>
         <div className='details__offer'>
           <p>
-            Highest bid:{" "}<span>{product.highestBid}$</span>
+            Highest bid: <span>{product.highestBid}$</span>
           </p>
           <p>
-            Number of bids:{" "}<span>{product.numberOfBids}</span>
+            Number of bids: <span>{product.numberOfBids}</span>
           </p>
           <p>
-            Time left:{" "}<span>{timeLeft}</span>
+            Time left: <span>{timeLeft}</span>
           </p>
         </div>
         <div className='details__bid--placement'>

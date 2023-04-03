@@ -11,11 +11,11 @@ const BreadCrumbs = () => {
     .filter((match) => Boolean(match.handle?.crumb))
     .map((match) => match.handle.crumb(match.data));
 
-    useEffect(() => {
-      if (location.pathname !== previousPath) {
-        handleNavigation(location);
-      }
-    }, [location, previousPath]);
+  useEffect(() => {
+    if (location.pathname !== previousPath) {
+      handleNavigation(location);
+    }
+  }, [location, previousPath]);
 
   const formatPreviousPath = (previousPath) => {
     const formattedPath = previousPath.replace(/-|\//g, ' ').toUpperCase();
@@ -36,6 +36,4 @@ const BreadCrumbs = () => {
   );
 };
 
-
 export default BreadCrumbs;
-

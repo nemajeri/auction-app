@@ -18,8 +18,7 @@ const ProductOverviewPage = () => {
   const [images, setImages] = useState([]);
   const [timeLeft, setTimeLeft] = useState('');
   const [loading, setLoading] = useState(true);
- const { id } = useParams();
-
+  const { id } = useParams();
 
   useEffect(() => {
     getProduct(id)
