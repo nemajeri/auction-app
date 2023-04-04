@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("api/v1/products")
@@ -18,9 +20,9 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/items")
-    public ResponseEntity<Page<ProductsResponse>> getAllProducts(@RequestParam(defaultValue = "0") Integer pageNumber,
-                                                                 @RequestParam(defaultValue = "8") Integer pageSize) {
-        Page<ProductsResponse> productsList = productService.getAllProducts(pageNumber, pageSize);
+    public ResponseEntity<List<ProductsResponse>> getAllProducts(
+            @RequestParam(defaultValue = "") String searchTerm) {
+        List<ProductsResponse> productsList = productService.getAllProducts(searchTerm);
 
         return ResponseEntity.ok(productsList);
     }
@@ -29,9 +31,8 @@ public class ProductController {
     public ResponseEntity<Page<ProductsResponse>> getAllProductsFromCategory(
             @RequestParam(defaultValue = "0") Integer pageNumber,
             @RequestParam(defaultValue = "9") Integer pageSize,
-            @RequestParam Long categoryId,
-            @RequestParam(defaultValue = "") String searchTerm) {
-        Page<ProductsResponse> productsList = productService.getAllProductsFromCategory(pageNumber, pageSize, categoryId, searchTerm);
+            @RequestParam Long categoryId) {
+        Page<ProductsResponse> productsList = productService.getAllProductsFromCategory(pageNumber, pageSize, categoryId);
 
         return ResponseEntity.ok(productsList);
     }
