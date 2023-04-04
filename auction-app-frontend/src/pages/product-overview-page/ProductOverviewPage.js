@@ -9,6 +9,7 @@ import { getProduct } from '../../utils/api/productsApi';
 import { calculateTimeLeft } from '../../utils/helperFunctions';
 import './productOverviewPage.css';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 
 const tabs = [{ id: 'details', label: 'Details' }];
 
@@ -43,20 +44,23 @@ const ProductOverviewPage = () => {
   }
 
   return (
-    <div className='wrapper product-overview-page__wrapper'>
-      <div className='content'>
-        <section className='product-overview-page__gallery--and_details'>
-          <ProductGallery images={images} />
-          <ProductDetails
-            tabs={tabs}
-            handleTabClick={handleTabClick}
-            selectedTab={selectedTab}
-            product={product}
-            timeLeft={timeLeft}
-          />
-        </section>
+    <>
+      <BreadCrumbs title={product.productName}/>
+      <div className='wrapper product-overview-page__wrapper'>
+        <div className='content'>
+          <section className='product-overview-page__gallery--and_details'>
+            <ProductGallery images={images} />
+            <ProductDetails
+              tabs={tabs}
+              handleTabClick={handleTabClick}
+              selectedTab={selectedTab}
+              product={product}
+              timeLeft={timeLeft}
+            />
+          </section>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
