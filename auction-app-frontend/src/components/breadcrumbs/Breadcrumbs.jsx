@@ -13,9 +13,9 @@ const BreadCrumbs = ({ title }) => {
       breadcrumbs.length - (title ? 3 : 2)
     ].breadcrumb.props.children.split(' ');
 
-  const capitalize = (words) => {
-    return words.replace(/\b\w/g, (match) => match.toUpperCase());
-  };
+    const capitalize = (words) => {
+        return words[0].toUpperCase();
+    };
 
   lastElement = capitalize(lastElement);
   secondToLastElement = capitalize(secondToLastElement);

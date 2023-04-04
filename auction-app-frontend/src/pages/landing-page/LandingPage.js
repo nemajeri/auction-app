@@ -67,22 +67,20 @@ const LandingPage = () => {
 
     currentPageNumber.current += 1;
 
-    setTimeout(() => {
-      getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current)
-        .then((response) => {
-          if (response.data.length === 0) {
-            setHasMore(false);
-          } else {
-            setHasMore(true);
-            setProducts((prevProducts) => prevProducts.concat(response.data));
-          }
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching next page:', error);
-          setLoading(false);
-        });
-    }, 500);
+    getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current)
+      .then((response) => {
+        if (response.data.length === 0) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+          setProducts((prevProducts) => prevProducts.concat(response.data));
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching next page:', error);
+        setLoading(false);
+      });
   };
 
   return (
