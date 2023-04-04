@@ -50,8 +50,8 @@ public class ProductControllerTest {
                 Arrays.asList("image1.jpg", "image2.jpg"),
                 LocalDateTime.of(2023, 3, 23, 0, 0),
                 LocalDateTime.of(2023, 4, 15, 0, 0),
-                BigInteger.valueOf(5),
-                BigDecimal.valueOf(10),
+                5,
+                10,
                 true
         );
 
@@ -73,15 +73,15 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.images[1]").value(product.getImages().get(1)))
                 .andExpect(jsonPath("$.startDate").value(product.getStartDate().format(formatter)))
                 .andExpect(jsonPath("$.endDate").value(product.getEndDate().format(formatter)))
-                .andExpect(jsonPath("$.numberOfBids").value(product.getNumberOfBids().intValue()))
-                .andExpect(jsonPath("$.highestBid").value(product.getHighestBid().floatValue()))
+                .andExpect(jsonPath("$.numberOfBids").value(product.getNumberOfBids()))
+                .andExpect(jsonPath("$.highestBid").value(product.getHighestBid()))
                 .andReturn();
     }
     @Test
     public void testGetProductsNewArrivals_ReturnsNewestProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25, false);
+        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25, false);
 
         int pageNumber = 0;
         int size = 8;
@@ -95,25 +95,25 @@ public class ProductControllerTest {
                         .param("size", String.valueOf(size))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(product1.getId()))
-                .andExpect(jsonPath("$[0].productName").value(product1.getProductName()))
-                .andExpect(jsonPath("$[0].description").value(product1.getDescription()))
-                .andExpect(jsonPath("$[0].startPrice").value(product1.getStartPrice()))
-                .andExpect(jsonPath("$[0].images[0]").value(product1.getImages().get(0)))
-                .andExpect(jsonPath("$[0].highlighted").value(product1.isHighlighted()))
-                .andExpect(jsonPath("$[1].id").value(product2.getId()))
-                .andExpect(jsonPath("$[1].productName").value(product2.getProductName()))
-                .andExpect(jsonPath("$[1].description").value(product2.getDescription()))
-                .andExpect(jsonPath("$[1].startPrice").value(product2.getStartPrice()))
-                .andExpect(jsonPath("$[1].images[0]").value(product2.getImages().get(0)))
-                .andExpect(jsonPath("$[1].highlighted").value(product1.isHighlighted()));
+                .andExpect(jsonPath("$.content[0].id").value(product1.getId()))
+                .andExpect(jsonPath("$.content[0].productName").value(product1.getProductName()))
+                .andExpect(jsonPath("$.content[0].description").value(product1.getDescription()))
+                .andExpect(jsonPath("$.content[0].startPrice").value(product1.getStartPrice()))
+                .andExpect(jsonPath("$.content[0].images[0]").value(product1.getImages().get(0)))
+                .andExpect(jsonPath("$.content[0].highlighted").value(product1.isHighlighted()))
+                .andExpect(jsonPath("$.content[1].id").value(product2.getId()))
+                .andExpect(jsonPath("$.content[1].productName").value(product2.getProductName()))
+                .andExpect(jsonPath("$.content[1].description").value(product2.getDescription()))
+                .andExpect(jsonPath("$.content[1].startPrice").value(product2.getStartPrice()))
+                .andExpect(jsonPath("$.content[1].images[0]").value(product2.getImages().get(0)))
+                .andExpect(jsonPath("$.content[1].highlighted").value(product1.isHighlighted()));
     }
 
     @Test
     public void testGetProductsLastChance_ReturnsLastChanceProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25, false);
+        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25, false);
 
         int pageNumber = 0;
         int size = 8;
@@ -127,26 +127,26 @@ public class ProductControllerTest {
                         .param("size", String.valueOf(size))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(product1.getId()))
-                .andExpect(jsonPath("$[0].productName").value(product1.getProductName()))
-                .andExpect(jsonPath("$[0].description").value(product1.getDescription()))
-                .andExpect(jsonPath("$[0].startPrice").value(product1.getStartPrice()))
-                .andExpect(jsonPath("$[0].images[0]").value(product1.getImages().get(0)))
-                .andExpect(jsonPath("$[0].highlighted").value(product1.isHighlighted()))
-                .andExpect(jsonPath("$[1].id").value(product2.getId()))
-                .andExpect(jsonPath("$[1].productName").value(product2.getProductName()))
-                .andExpect(jsonPath("$[1].description").value(product2.getDescription()))
-                .andExpect(jsonPath("$[1].startPrice").value(product2.getStartPrice()))
-                .andExpect(jsonPath("$[1].images[0]").value(product2.getImages().get(0)))
-                .andExpect(jsonPath("$[1].highlighted").value(product1.isHighlighted()));
+                .andExpect(jsonPath("$.content[0].id").value(product1.getId()))
+                .andExpect(jsonPath("$.content[0].productName").value(product1.getProductName()))
+                .andExpect(jsonPath("$.content[0].description").value(product1.getDescription()))
+                .andExpect(jsonPath("$.content[0].startPrice").value(product1.getStartPrice()))
+                .andExpect(jsonPath("$.content[0].images[0]").value(product1.getImages().get(0)))
+                .andExpect(jsonPath("$.content[0].highlighted").value(product1.isHighlighted()))
+                .andExpect(jsonPath("$.content[1].id").value(product2.getId()))
+                .andExpect(jsonPath("$.content[1].productName").value(product2.getProductName()))
+                .andExpect(jsonPath("$.content[1].description").value(product2.getDescription()))
+                .andExpect(jsonPath("$.content[1].startPrice").value(product2.getStartPrice()))
+                .andExpect(jsonPath("$.content[1].images[0]").value(product2.getImages().get(0)))
+                .andExpect(jsonPath("$.content[1].highlighted").value(product1.isHighlighted()));
     }
 
 
     @Test
     public void testGetAllProducts_ReturnsAllProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25, false);
+        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25, false);
 
         List<ProductDTO> productList = List.of(product1, product2);
 

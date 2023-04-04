@@ -29,7 +29,7 @@ public class ProductController {
     }
 
     @GetMapping("/filtered-products")
-    public ResponseEntity<List<ProductDTO>> getFilteredProducts(
+    public ResponseEntity<Page<ProductDTO>> getFilteredProducts(
             @RequestParam String filter,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "8") int size) {
@@ -44,7 +44,7 @@ public class ProductController {
             default:
                 return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().body(productDTOs.getContent());
+        return ResponseEntity.ok().body(productDTOs);
     }
 
     @GetMapping("/all-products")
