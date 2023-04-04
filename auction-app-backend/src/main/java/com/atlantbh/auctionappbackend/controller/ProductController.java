@@ -4,10 +4,11 @@ import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -27,20 +28,28 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/sorted-&-paginated-products")
-    public ResponseEntity<List<ProductDTO>> getProducts(
-            @RequestParam(required = false) String filter,
+    @GetMapping("/filtered-products")
+    public ResponseEntity<List<ProductDTO>> getFilteredProducts(
+            @RequestParam String filter,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "8") int size) {
+        Page<ProductDTO> productDTOs;
         switch (filter) {
             case "new-arrival":
-                return ResponseEntity.ok(productService.getNewProducts(pageNumber, size));
+                productDTOs = productService.getNewProducts(pageNumber, size);
+                break;
             case "last-chance":
-                return ResponseEntity.ok(productService.getLastProducts(pageNumber, size));
-            case "all":
-                return ResponseEntity.ok(productService.getAllProducts());
+                productDTOs = productService.getLastProducts(pageNumber, size);
+                break;
             default:
-                return ResponseEntity.badRequest().body(Collections.emptyList());
+                return ResponseEntity.badRequest().build();
         }
+        return ResponseEntity.ok().body(productDTOs.getContent());
+    }
+
+    @GetMapping("/all-products")
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+        List<ProductDTO> productDTOs = productService.getAllProducts();
+        return ResponseEntity.ok(productDTOs);
     }
 }

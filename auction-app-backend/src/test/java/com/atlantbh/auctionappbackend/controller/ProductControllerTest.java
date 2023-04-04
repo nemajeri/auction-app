@@ -7,6 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,6 +20,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -76,18 +80,19 @@ public class ProductControllerTest {
     @Test
     public void testGetProductsNewArrivals_ReturnsNewestProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, List.of("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, List.of("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
 
-        List<ProductDTO> productList = Arrays.asList(product1, product2);
+        int pageNumber = 0;
+        int size = 8;
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        when(productService.getNewProducts(pageNumber, size))
+                .thenReturn(new PageImpl<>(Arrays.asList(product1, product2), pageable, 1));
 
-        when(productService.getNewProducts(0, 8)).thenReturn(productList);
-
-
-        mockMvc.perform(get("/api/v1/products/sorted-&-paginated-products")
+        mockMvc.perform(get("/api/v1/products/filtered-products")
                         .param("filter", "new-arrival")
-                        .param("pageNumber", "0")
-                        .param("size", "8")
+                        .param("pageNumber", String.valueOf(pageNumber))
+                        .param("size", String.valueOf(size))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(product1.getId()))
@@ -107,18 +112,19 @@ public class ProductControllerTest {
     @Test
     public void testGetProductsLastChance_ReturnsLastChanceProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, List.of("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, List.of("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
 
-        List<ProductDTO> productList = Arrays.asList(product1, product2);
+        int pageNumber = 0;
+        int size = 8;
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        when(productService.getLastProducts(pageNumber, size))
+                .thenReturn(new PageImpl<>(Arrays.asList(product1, product2), pageable, 1));
 
-        when(productService.getLastProducts(0, 8)).thenReturn(productList);
-
-
-        mockMvc.perform(get("/api/v1/products/sorted-&-paginated-products")
+        mockMvc.perform(get("/api/v1/products/filtered-products")
                         .param("filter", "last-chance")
-                        .param("pageNumber", "0")
-                        .param("size", "8")
+                        .param("pageNumber", String.valueOf(pageNumber))
+                        .param("size", String.valueOf(size))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(product1.getId()))
@@ -135,19 +141,19 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$[1].highlighted").value(product1.isHighlighted()));
     }
 
+
     @Test
     public void testGetAllProducts_ReturnsAllProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, List.of("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, List.of("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
+        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), BigInteger.valueOf(5), BigDecimal.valueOf(25), false);
 
-        List<ProductDTO> productList = Arrays.asList(product1, product2);
+        List<ProductDTO> productList = List.of(product1, product2);
 
         when(productService.getAllProducts()).thenReturn(productList);
 
 
-        mockMvc.perform(get("/api/v1/products/sorted-&-paginated-products")
-                        .param("filter", "all")
+        mockMvc.perform(get("/api/v1/products/all-products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(product1.getId()))

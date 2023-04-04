@@ -21,7 +21,7 @@ public class ProductDTO {
 
     private String description;
 
-    private Float startPrice;
+    private float startPrice;
 
     private List<String> images;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
@@ -30,9 +30,9 @@ public class ProductDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDate;
 
-    private BigInteger numberOfBids;
+    private int numberOfBids;
 
-    private BigDecimal highestBid;
+    private float highestBid;
 
     private boolean isHighlighted;
 
