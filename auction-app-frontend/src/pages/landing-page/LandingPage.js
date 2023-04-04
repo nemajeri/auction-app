@@ -64,17 +64,25 @@ const LandingPage = () => {
   const fetchNextPage = async () => {
     setLoading(true);
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
-
-    currentPageNumber.current += 1;
-
-    getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current)
+    const size = 8; 
+  
+    if (products.length < size) {
+      currentPageNumber.current = 0;
+    } else {
+      currentPageNumber.current += 1;
+    }
+  
+    getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, size)
       .then((response) => {
-        if (response.data.length === 0) {
+        const productsList = response.data;
+  
+        if (productsList.length < size) {
           setHasMore(false);
         } else {
           setHasMore(true);
-          setProducts((prevProducts) => prevProducts.concat(response.data));
         }
+  
+        setProducts((prevProducts) => prevProducts.concat(productsList));
         setLoading(false);
       })
       .catch((error) => {
