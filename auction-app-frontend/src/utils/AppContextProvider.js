@@ -1,29 +1,28 @@
 import React, { useState, createContext } from 'react';
+import { getAllProductsBySearchTerm } from '../utils/api/productsApi'
 
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
-  const [previousPath, setPreviousPath] = useState('/');
   const [searchTerm, setSearchTerm] = useState('');
-
-  console.log('Search term ', searchTerm)
-
-  const handleNavigation = (location) => {
-    setPreviousPath(location.pathname);
-  };
+  const [searchedProducts, setSearchProducts] = useState(null);
 
   const onSearchTermChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
+  const onSearchIconClick = (event) => {
+    event.preventDefault();
+    getAllProductsBySearchTerm(searchTerm).then(response => setSearchProducts(response.data))
+  };
 
   return (
     <AppContext.Provider
       value={{
-        previousPath,
-        handleNavigation,
         searchTerm,
         onSearchTermChange,
+        onSearchIconClick,
+        searchedProducts
       }}
     >
       {children}

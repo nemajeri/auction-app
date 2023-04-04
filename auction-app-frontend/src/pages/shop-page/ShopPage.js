@@ -2,27 +2,26 @@ import React, { useState, useEffect, useContext } from 'react';
 import './shopPage.css';
 import CategoriesAccordion from '../../components/shop-page/categories-accordion/CategoriesAccordion';
 import ShopPageProducts from '../../components/shop-page/shop-page-products/ShopPageProducts';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner.jsx';
 import { useGridView } from '../../hooks/useGridView';
 import Button from '../../utils/Button';
 import { getCategories } from '../../utils/api/categoryApi';
-import {
-  getAllProductsByCategory,
-  getProductAsItems,
-} from '../../utils/api/productsApi';
+import { getAllProductsByCategory } from '../../utils/api/productsApi';
 import { getSubcategories } from '../../utils/api/subcategoryApi';
 import { PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 
 const ShopPage = () => {
-  const { searchTerm } = useContext(AppContext);
+  const { searchedProducts } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
   const [pageNumber, setPageNumber] = useState(0);
   const [products, setProducts] = useState([]);
+  const [productsByCategories, setProductsByCategories] = useState({});
+  const [currentCategoryId, setCurrentCategoryId] = useState(null);
 
   useEffect(() => {
     getCategories().then((response) => {
@@ -30,14 +29,10 @@ const ShopPage = () => {
       setLoading(false);
     });
 
-    getProductAsItems(pageNumber, PAGE_SIZE).then((response) => {
-      if (pageNumber === 0) {
-        setProducts(response.data.content);
-      } else {
-        setProducts([...products, ...response.data.content]);
-      }
-    });
-  }, [pageNumber]);
+    if (searchedProducts !== null) {
+      setProducts(searchedProducts);
+    }
+  }, [pageNumber, searchedProducts]);
 
   const handleOpeningAndFetchingSubcategories =
     (categoryId) => async (event) => {
@@ -46,22 +41,18 @@ const ShopPage = () => {
 
       if (isOpening) {
         try {
-          const getAllSubcategoriesResponse = await getSubcategories(
-            categoryId
-          );
-          const getProductsByCategories = await getAllProductsByCategory(
-            pageNumber,
+          setCurrentCategoryId(categoryId);
+          const subcategoriesResponse = await getSubcategories(categoryId);
+          const productsByCategoriesResponse = await getAllProductsByCategory(
+            0,
             PAGE_SIZE,
             categoryId
           );
-          setSubcategories(getAllSubcategoriesResponse.data);
-
-          if (pageNumber === 0) {
-            setProducts(getProductsByCategories.data.content);
-          } else {
-            setProducts([...products, ...getProductsByCategories.data.content]);
-          }
+          const { content } = productsByCategoriesResponse.data;
+          setSubcategories(subcategoriesResponse.data);
+          setProducts(content);
           setLoading(false);
+          setProductsByCategories(productsByCategoriesResponse);
         } catch (error) {
           console.error(error);
           setLoading(false);
@@ -76,8 +67,21 @@ const ShopPage = () => {
       });
     };
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   const onExploreMoreBtnClick = () => {
     setPageNumber((prevPageNumber) => prevPageNumber + 1);
+    const nextPageNumber = pageNumber + 1;
+    getAllProductsByCategory(nextPageNumber, PAGE_SIZE, currentCategoryId)
+    .then((response) => {
+      const { content } = response.data;
+      setProducts((prevProducts) => prevProducts.concat(content));
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   };
 
   return (
@@ -98,7 +102,7 @@ const ShopPage = () => {
               className={'shop-page__grid-view'}
               products={products}
             />
-            {products && products.length >= PAGE_SIZE && (
+            {pageNumber < productsByCategories?.data?.totalPages - 1 && (
               <Button
                 onClick={onExploreMoreBtnClick}
                 Icon={null}

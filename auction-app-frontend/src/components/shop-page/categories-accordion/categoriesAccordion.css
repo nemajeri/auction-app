@@ -61,3 +61,7 @@
     visibility: hidden; 
     transition: all 0.2s ease-out; 
 }
+
+.categories-accordion__category.opened {
+    color: var(--purple);
+  }

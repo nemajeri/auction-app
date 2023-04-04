@@ -4,7 +4,7 @@ import './search-field.css';
 import { AppContext } from '../../utils/AppContextProvider';
 
 const SearchField = () => {
-  const { searchTerm, onSearchTermChange } = useContext(AppContext);
+  const { searchTerm, onSearchTermChange, onSearchIconClick } = useContext(AppContext);
 
   return (
     <div className='search'>
@@ -14,7 +14,10 @@ const SearchField = () => {
         placeholder='Try enter: Shoes'
         onChange={onSearchTermChange}
       />
-      <AiOutlineSearch className='search__icon' />
+      <AiOutlineSearch
+        className='search__icon'
+        onClick={onSearchIconClick}
+      />
     </div>
   );
 };

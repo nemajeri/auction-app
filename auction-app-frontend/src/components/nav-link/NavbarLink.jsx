@@ -1,14 +1,15 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const NavbarLink = ({ link: { route, label, key }, activeLink, onClick }) => {
   return (
-    <a
-      href={route}
+    <Link
+      to={route}
       className={key === activeLink ? 'active-link' : ''}
       onClick={() => onClick(key)}
     >
       {label}
-    </a>
+    </Link>
   );
 };
 

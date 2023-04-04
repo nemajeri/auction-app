@@ -1,35 +1,33 @@
-import React, { useContext, useEffect } from 'react';
-import { useMatches, useLocation } from 'react-router-dom';
+import React from 'react';
 import './breadcrumbs.css';
-import { AppContextProvider } from '../../utils/AppContextProvider ';
+import useBreadcrumbs from 'use-react-router-breadcrumbs';
 
-const BreadCrumbs = () => {
-  const { previousPath, handleNavigation } = useContext(AppContextProvider);
-  const location = useLocation();
-  let matches = useMatches();
-  let crumbs = matches
-    .filter((match) => Boolean(match.handle?.crumb))
-    .map((match) => match.handle.crumb(match.data));
+const BreadCrumbs = ({ title }) => {
+  const breadcrumbs = useBreadcrumbs();
+  let lastElement =
+    breadcrumbs[
+      breadcrumbs.length - (title ? 2 : 1)
+    ].breadcrumb.props.children.split(' ');
+  let secondToLastElement =
+    breadcrumbs[
+      breadcrumbs.length - (title ? 3 : 2)
+    ].breadcrumb.props.children.split(' ');
 
-  useEffect(() => {
-    if (location.pathname !== previousPath) {
-      handleNavigation(location);
-    }
-  }, [location, previousPath]);
+    const capitalize = (words) => {
+        return words[0].toUpperCase();
+    };
 
-  const formatPreviousPath = (previousPath) => {
-    const formattedPath = previousPath.replace(/-|\//g, ' ').toUpperCase();
-    return formattedPath;
-  };
+  lastElement = capitalize(lastElement);
+  secondToLastElement = capitalize(secondToLastElement);
 
   return (
     <div className='breadcrumbs'>
       <div className='breadcrumbs__container'>
-        <span>{crumbs[0].props.children.toUpperCase()}</span>
+        <span>{title ? title : lastElement}</span>
         <div className='breadcrumbs__path'>
-          <span>{formatPreviousPath(previousPath)}</span>
+          <span>{secondToLastElement}&nbsp;</span>
           <p>/</p>
-          <span>{location.pathname.replace(/-|\//g, ' ').toUpperCase()}</span>
+          <span>{lastElement}</span>
         </div>
       </div>
     </div>

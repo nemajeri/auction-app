@@ -15,7 +15,9 @@ const CategoriesAccordion = ({
           {categories.map((category) => (
             <div key={category.id}>
               <div
-                className='categories-accordion__category'
+                className={`categories-accordion__category${
+                  openedCategory[`${category.categoryName}`] ? ' opened' : ''
+                }`}
                 data-category={`${category.categoryName}`}
                 onClick={handleOpeningAndFetchingSubcategories(category.id)}
               >
@@ -27,22 +29,25 @@ const CategoriesAccordion = ({
                   !openedCategory[`${category.categoryName}`] && 'hidden'
                 }`}
               >
-                {subcategories
-                  .filter((subcategory) => subcategory.categoryId === category.id)
-                  .map((subcategory) => {
-                    return (
-                      <div
-                        className='categories-accordion__subcategory'
-                        key={subcategory.id}
-                      >
-                        <input type='checkbox' />
-                        <p>
-                          {subcategory.subCategoryName}&nbsp;(
-                          {subcategory.numberOfProducts})
-                        </p>
-                      </div>
-                    );
-                  })}
+                {openedCategory[`${category.categoryName}`] &&
+                  subcategories
+                    .filter(
+                      (subcategory) => subcategory.categoryId === category.id
+                    )
+                    .map((subcategory) => {
+                      return (
+                        <div
+                          className='categories-accordion__subcategory'
+                          key={subcategory.id}
+                        >
+                          <input type='checkbox' />
+                          <p>
+                            {subcategory.subCategoryName}&nbsp;(
+                            {subcategory.numberOfProducts})
+                          </p>
+                        </div>
+                      );
+                    })}
               </div>
             </div>
           ))}
@@ -53,4 +58,3 @@ const CategoriesAccordion = ({
 };
 
 export default CategoriesAccordion;
-
