@@ -14,18 +14,7 @@ const BreadCrumbs = ({ title }) => {
     ].breadcrumb.props.children.split(' ');
 
   const capitalize = (words) => {
-    if (words.length === 1) {
-      return words;
-    }
-    return words
-      .map((word) => {
-        if (word === 'or' || word === 'and') {
-          return word;
-        } else {
-          return word[0].toUpperCase() + word.substring(1);
-        }
-      })
-      .join(' ');
+    return words.replace(/\b\w/g, (match) => match.toUpperCase());
   };
 
   lastElement = capitalize(lastElement);
