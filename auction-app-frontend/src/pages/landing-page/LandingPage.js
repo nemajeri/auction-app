@@ -9,6 +9,7 @@ import { getSortedNewAndLastProducts } from '../../utils/api/productsApi';
 import { getAllProducts } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
 import Tabs from '../../components/tabs/Tabs';
+import { PAGE_SIZE } from '../../utils/constants';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
@@ -46,7 +47,7 @@ const LandingPage = () => {
     setHighlightedProducts(
       allProducts.data.filter((product) => product.highlighted === true)
     );
-    setProducts(sortedProducts.data);
+    setProducts(sortedProducts.data.content);
     setLoading(false);
   }
 
@@ -57,31 +58,32 @@ const LandingPage = () => {
     setHasMore(true);
     const selectedFilter = tabs.find((tab) => tab.id === id).filter;
     const response = await getSortedNewAndLastProducts(selectedFilter, 0);
-    setProducts(response.data);
+    setProducts(response.data.content);
     setLoading(false);
   };
 
   const fetchNextPage = async () => {
     setLoading(true);
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
-    const size = 8; 
-  
+    const size = PAGE_SIZE;
+
     if (products.length < size) {
       currentPageNumber.current = 0;
     } else {
       currentPageNumber.current += 1;
     }
-  
+
     getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, size)
       .then((response) => {
-        const productsList = response.data;
-  
+        const productsPage = response.data;
+        const productsList = productsPage.content;
+
         if (productsList.length < size) {
           setHasMore(false);
         } else {
           setHasMore(true);
         }
-  
+
         setProducts((prevProducts) => prevProducts.concat(productsList));
         setLoading(false);
       })
