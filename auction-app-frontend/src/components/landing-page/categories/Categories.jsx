@@ -9,7 +9,7 @@ const Categories = ({ categories }) => {
       <h3>CATEGORIES</h3>
       {categories.map((category) => (
         <div key={category.id}>
-          <Link to={`/shop/${encodeURIComponent(category.categoryName).toLowerCase()}`}>
+          <Link to={`/shop/${category.id}`}>
             <span>{category.categoryName}</span>
           </Link>
         </div>

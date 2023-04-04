@@ -74,7 +74,7 @@ const LandingPage = () => {
             setHasMore(false);
           } else {
             setHasMore(true);
-            setProducts((prevProducts) => [...prevProducts, ...response.data]);
+            setProducts((prevProducts) => prevProducts.concat(response.data));
           }
           setLoading(false);
         })

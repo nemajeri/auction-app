@@ -6,15 +6,22 @@ import {
   privacyPolicyPath,
   termsAndCondPath,
   landingPagePath,
-  productOverviewPagePath
+  productOverviewPagePath,
 } from './utils/paths';
-import { TermsAndCondPage, AboutPage, PrivacyPolicyPage, LandingPage, ProductOverviewPage } from './pages/index';
+import {
+  TermsAndCondPage,
+  AboutPage,
+  PrivacyPolicyPage,
+  LandingPage,
+  ProductOverviewPage,
+} from './pages/index';
 import {
   Route,
   Routes,
   Link,
   createBrowserRouter,
   RouterProvider,
+  ScrollRestoration,
 } from 'react-router-dom';
 import { useBreadcrumbs } from './hooks/useBreadcrumbs';
 import { NavigationProvider } from './utils/NavigationProvider';
@@ -31,13 +38,15 @@ function App() {
       path: productOverviewPagePath,
       element: <ProductOverviewPageWithBreadcrumbs />,
       handle: {
-        crumb: () => <Link to={`/${productOverviewPagePath}`}>Example Product</Link>,
-      }
-    },  
+        crumb: () => (
+          <Link to={`/${productOverviewPagePath}`}>Example Product</Link>
+        ),
+      },
+    },
     {
       path: landingPagePath,
       element: <LandingPage />,
-      handle: { crumb: () => <Link to={`/${landingPagePath}`}>About Us</Link> }
+      handle: { crumb: () => <Link to={`/${landingPagePath}`}>About Us</Link> },
     },
     {
       path: aboutUsPath,
@@ -70,11 +79,9 @@ function App() {
           <Routes>
             <Route
               path={productOverviewPagePath}
-              element={<ProductOverviewPage />}/>
-          <Route
-              path={landingPagePath}
-              element={<LandingPage />}
+              element={<ProductOverviewPageWithBreadcrumbs />}
             />
+            <Route path={landingPagePath} element={<LandingPage />} />
             <Route path={aboutUsPath} element={<AboutPageWithBreadcrumbs />} />
             <Route
               path={privacyPolicyPath}
@@ -85,6 +92,7 @@ function App() {
               element={<PrivacyPolicyPageWithBreadcrumbs />}
             />
           </Routes>
+          <ScrollRestoration />
         </RouterProvider>
         <Footer />
       </NavigationProvider>
