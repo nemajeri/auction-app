@@ -8,12 +8,22 @@ export const getProduct = (id) => {
   return API.get(`/products/${id}`);
 };
 
-export const getAllProductsByCategory = (pageNumber, pageSize, categoryId) => {
-  return API.get(
-    `/products/items/category?pageNumber=${pageNumber}&pageSize=${pageSize}&categoryId=${categoryId}`
-  );
+export const getAllProducts = (
+  pageNumber,
+  pageSize,
+  categoryId = null,
+  searchTerm = ''
+) => {
+  let url = `/products/items?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+
+  if (categoryId !== null) {
+    url += `&categoryId=${categoryId}`;
+  }
+
+  if (searchTerm !== '') {
+    url += `&searchTerm=${searchTerm}`;
+  }
+
+  return API.get(url);
 };
 
-export const getAllProductsBySearchTerm = (searchTerm = '') => {
-  return API.get(`/products/items?searchTerm=${searchTerm}`);
-};

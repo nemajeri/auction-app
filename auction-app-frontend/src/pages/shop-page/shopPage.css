@@ -33,3 +33,8 @@
     font-size: 1rem;
     font-weight: 600;
 }
+
+.shop-page__no-products {
+    text-align: center;
+    width: 56.2rem;
+}

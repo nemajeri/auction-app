@@ -1,11 +1,13 @@
 import React, { useState, createContext } from 'react';
-import { getAllProductsBySearchTerm } from '../utils/api/productsApi'
+import { getAllProducts } from '../utils/api/productsApi';
+import { PAGE_SIZE } from './constants';
 
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchedProducts, setSearchProducts] = useState(null);
+  const [pageNumber, setPageNumber] = useState(0);
 
   const onSearchTermChange = (event) => {
     setSearchTerm(event.target.value);
@@ -13,7 +15,13 @@ export const AppContextProvider = ({ children }) => {
 
   const onSearchIconClick = (event) => {
     event.preventDefault();
-    getAllProductsBySearchTerm(searchTerm).then(response => setSearchProducts(response.data))
+    setPageNumber(0);
+    getAllProducts(0, PAGE_SIZE, undefined, searchTerm).then((response) => {
+      setSearchProducts({
+        content: response.data.content,
+        pageData: response.data,
+      });
+    });
   };
 
   return (
@@ -22,7 +30,9 @@ export const AppContextProvider = ({ children }) => {
         searchTerm,
         onSearchTermChange,
         onSearchIconClick,
-        searchedProducts
+        searchedProducts,
+        pageNumber,
+        setPageNumber
       }}
     >
       {children}
