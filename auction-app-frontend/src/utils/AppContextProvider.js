@@ -32,7 +32,8 @@ export const AppContextProvider = ({ children }) => {
         onSearchIconClick,
         searchedProducts,
         pageNumber,
-        setPageNumber
+        setPageNumber,
+        setSearchProducts
       }}
     >
       {children}
