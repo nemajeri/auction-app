@@ -20,19 +20,18 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/items")
-    public ResponseEntity<List<ProductsResponse>> getAllProducts(
-            @RequestParam(defaultValue = "") String searchTerm) {
-        List<ProductsResponse> productsList = productService.getAllProducts(searchTerm);
-
-        return ResponseEntity.ok(productsList);
-    }
-
-    @GetMapping("/items/category")
-    public ResponseEntity<Page<ProductsResponse>> getAllProductsFromCategory(
+    public ResponseEntity<Page<ProductsResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") Integer pageNumber,
             @RequestParam(defaultValue = "9") Integer pageSize,
-            @RequestParam Long categoryId) {
-        Page<ProductsResponse> productsList = productService.getAllProductsFromCategory(pageNumber, pageSize, categoryId);
+            @RequestParam(defaultValue = "") String searchTerm,
+            @RequestParam(required = false) Long categoryId) {
+
+        Page<ProductsResponse> productsList;
+        if (categoryId != null) {
+            productsList = productService.getAllProductsFromCategory(pageNumber, pageSize, categoryId);
+        } else {
+            productsList = productService.getAllProductsBySearchTerm(pageNumber, pageSize, searchTerm);
+        }
 
         return ResponseEntity.ok(productsList);
     }

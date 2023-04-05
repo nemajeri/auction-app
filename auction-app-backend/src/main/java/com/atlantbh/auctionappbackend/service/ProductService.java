@@ -9,26 +9,25 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ProductService {
     private ProductRepository productRepository;
 
-    public List<ProductsResponse> getAllProducts(String searchTerm) {
-        List<Product> productList;
+    public Page<ProductsResponse> getAllProductsBySearchTerm(Integer pageNumber, Integer pageSize, String searchTerm) {
+        Page<Product> products;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         if (!searchTerm.isEmpty()) {
-            productList = productRepository.findByProductNameContainingIgnoreCase(searchTerm);
+            products = productRepository.findByProductNameContainingIgnoreCase(searchTerm, pageable);
         } else {
-            productList = productRepository.findAll();
+            products = productRepository.findAll(pageable);
         }
 
-        List<ProductsResponse> productsListResponse = productList.stream().map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId())).collect(Collectors.toList());
+        Page<ProductsResponse> productsResponse = products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
 
-        return productsListResponse;
+        return productsResponse;
     }
 
 
