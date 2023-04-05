@@ -65,20 +65,19 @@ const LandingPage = () => {
   const fetchNextPage = async () => {
     setLoading(true);
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
-    const size = PAGE_SIZE;
 
-    if (products.length < size) {
+    if (products.length < PAGE_SIZE) {
       currentPageNumber.current = 0;
     } else {
       currentPageNumber.current += 1;
     }
 
-    getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, size)
+    getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, PAGE_SIZE)
       .then((response) => {
         const productsPage = response.data;
         const productsList = productsPage.content;
 
-        if (productsList.length < size) {
+        if (productsList.length < PAGE_SIZE) {
           setHasMore(false);
         } else {
           setHasMore(true);
