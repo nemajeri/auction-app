@@ -29,7 +29,7 @@ const ShopPage = () => {
       setLoading(false);
     });
 
-    if (searchedProducts !== null) {
+    if (searchedProducts !== null && pageNumber === 0) {
       setProducts(searchedProducts.content);
     }
   }, [pageNumber, searchedProducts]);
@@ -56,8 +56,8 @@ const ShopPage = () => {
 
           setSearchProducts(null);
           setSubcategories(subcategoriesResponse.data);
-          setProducts(content);
-          setProductsByCategories(productsByCategoriesResponse);
+          setProducts(content); //maybe here is the problem 
+          setProductsByCategories(productsByCategoriesResponse); 
           setLoading(false);
         } catch (error) {
           console.error(error);
@@ -89,7 +89,7 @@ const ShopPage = () => {
       getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
         .then((response) => {
           const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content));
+          setProducts((prevProducts) => prevProducts.concat(content)); //here Im setting products not searchedproducts
         })
         .catch((error) => {
           console.error(error);
@@ -102,7 +102,7 @@ const ShopPage = () => {
       )
         .then((response) => {
           const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content));
+          setProducts((prevProducts) => prevProducts.concat(content)); 
         })
         .catch((error) => {
           console.error(error);
@@ -113,12 +113,12 @@ const ShopPage = () => {
   const searchedProductsTotalPages = Math.ceil(
     searchedProducts?.pageData?.totalElements / PAGE_SIZE
   );
-  console.log(searchedProductsTotalPages);
+
 
   const productsByCategoriesTotalPages = Math.ceil(
     productsByCategories?.data?.totalElements / PAGE_SIZE
   );
-  console.log(productsByCategoriesTotalPages);
+
 
   const totalPages = searchedProducts
     ? searchedProductsTotalPages
