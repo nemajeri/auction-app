@@ -6,7 +6,7 @@ const SearchField = () => {
   return (
     <div className='search'>
       <input type='text' placeholder='Try enter: Shoes' />
-      <AiOutlineSearch className='search__icon'/>
+      <AiOutlineSearch className='search__icon' />
     </div>
   );
 };

@@ -12,12 +12,12 @@ const HighlightedProduct = ({
   return (
     <div className='highlighted-product'>
       <div className='highlighted-product__text'>
-        <h2>{highlightedProduct.productName}</h2>
-        <span>Start From {highlightedProduct.startPrice}$</span>
-        <p>{highlightedProduct.description}</p>
+        <h2>{highlightedProduct?.productName}</h2>
+        <span>Start From {highlightedProduct?.startPrice}$</span>
+        <p>{highlightedProduct?.description}</p>
         <Button children={'BID NOW'} onClick={handleButtonClicked} className={'highlighted-product__button'}/>
       </div>
-      <img src={highlightedProduct.images[0]} alt='highlighted-product' />
+      <img src={highlightedProduct?.images[0]} alt='highlighted-product' />
     </div>
   );
 };

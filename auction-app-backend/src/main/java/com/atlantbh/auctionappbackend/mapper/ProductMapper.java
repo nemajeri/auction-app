@@ -4,8 +4,6 @@ import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.model.Product;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
-
 @Component
 public class ProductMapper {
 
@@ -16,6 +14,10 @@ public class ProductMapper {
         productDTO.setDescription(product.getDescription());
         productDTO.setStartPrice(product.getStartPrice());
         productDTO.setImages(product.getImages());
+        productDTO.setStartDate(product.getStartDate());
+        productDTO.setEndDate(product.getEndDate());
+        productDTO.setNumberOfBids(product.getNumberOfBids());
+        productDTO.setHighestBid(product.getHighestBid());
         productDTO.setHighlighted(product.isHighlighted());
         return productDTO;
     }
@@ -27,6 +29,9 @@ public class ProductMapper {
         product.setDescription(productDTO.getDescription());
         product.setStartPrice(productDTO.getStartPrice());
         product.setImages(productDTO.getImages());
+        product.setStartDate(productDTO.getStartDate());
+        product.setNumberOfBids(productDTO.getNumberOfBids());
+        product.setHighestBid(productDTO.getHighestBid());
         product.setHighlighted(productDTO.isHighlighted());
         return product;
     }

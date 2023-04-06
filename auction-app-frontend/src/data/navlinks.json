@@ -1,5 +1,5 @@
 [
-    { "label": "HOME", "route": "/temp/route", "key": "home" },  
-    { "label": "SHOP", "route": "/temp/route", "key": "shop" },  
+    { "label": "HOME", "route": "/", "key": "home" },  
+    { "label": "SHOP", "route": "/shop", "key": "shop" },  
     { "label": "MY ACCOUNT", "route": "/temp/route", "key": "account" }
 ]

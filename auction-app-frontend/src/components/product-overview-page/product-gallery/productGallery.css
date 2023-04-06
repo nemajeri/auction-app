@@ -1,0 +1,38 @@
+.gallery {
+    width: 35rem;
+}
+
+.gallery img{
+    width: 100%;
+    cursor: pointer;
+    height: 30rem;
+    object-fit: cover;
+}
+
+.no-image__placeholder-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 6.5rem;
+    cursor: pointer;
+}
+  
+.gallery__image-container {
+    width: 19%;
+    position: relative;
+}
+  
+.gallery__product--images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 7px;
+}
+  
+.gallery__product--images img {
+    width: 6.5rem;
+    height: 6.5rem;
+    object-fit: cover;
+    margin-bottom: 12px;
+}
+  

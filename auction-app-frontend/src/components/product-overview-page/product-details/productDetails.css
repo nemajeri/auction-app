@@ -1,0 +1,71 @@
+.details {
+    text-align: left;
+    max-width: 28rem;
+}
+
+.details h1 {
+    line-height: 3rem;
+    font-size: 1.9rem;
+}
+
+.details > p span {
+    color: var(--purple);
+    font-weight: bold;
+}
+
+.details__start--price {
+    color: var(--purple);
+    margin: 1.2rem 0;
+    font-weight: 100;
+}
+
+.details__offer {
+    padding: 1rem;
+    border: 0.2px solid var(--grey-100);
+    margin: 2.5rem 0;
+    width: 55%;
+}
+
+.details__offer p {
+    color: var(--black);
+    margin: 5px 0;
+    font-weight: 100;
+}
+
+.details__offer p span {
+    color: var(--purple);
+    font-weight: bold;
+}
+
+.details__description {
+    font-style: italic;
+    color: var(--grey-200);
+}
+
+.details__bid--placement {
+    display: flex;
+    gap: 34px;
+}
+
+.details__bid--placement input[type='text'] {
+    margin: 0;
+}
+
+.details__button {
+    background-color: var(--white-200);
+    border: 3px solid var(--purple);
+    padding: 0 20px;
+    cursor: pointer;
+}
+
+.details__button span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.details__button span > p {
+    width: 6rem;
+    font-weight: bold;
+    font-size: 1rem;
+}

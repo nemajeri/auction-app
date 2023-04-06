@@ -3,12 +3,16 @@ package com.atlantbh.auctionappbackend.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "product")
+@Table(name = "product", schema="auction_app_schema")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,15 +28,27 @@ public class Product {
     private String description;
 
     @Column(name = "start_price", nullable = false)
-    private Float startPrice;
+    private float startPrice;
 
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image")
     private List<String> images;
 
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime endDate;
+
+    @Formula("(SELECT COUNT(*) FROM auction_app_schema.bid b WHERE b.product_id = id)")
+    private int numberOfBids;
+
+    @Formula("(SELECT b.price FROM auction_app_schema.bid b WHERE b.product_id = id ORDER BY b.price DESC LIMIT 1)")
+    private float highestBid;
+
     @Column(name="is_highlighted", nullable = false)
     private boolean isHighlighted;
-}
 
+}
 

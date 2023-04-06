@@ -5,7 +5,7 @@ const Button = ({ onClick, children, className }) => {
   return (
     <button onClick={onClick} className={className}>
       <span>
-        <h3>{children}</h3> <BsChevronRight />
+        <p>{children}</p> <BsChevronRight />
       </span>
     </button>
   );

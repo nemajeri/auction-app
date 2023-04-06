@@ -33,10 +33,18 @@
     border: 3px solid var(--purple);
     padding: 12px 36px;
     cursor: pointer;
+    margin: 12px 0;
 }
 
 .highlighted-product__button span {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.highlighted-product__button p {
+    margin: 0;
+    font-weight: bold;
+    color: var(--black);
+    font-size: 1rem;
 }

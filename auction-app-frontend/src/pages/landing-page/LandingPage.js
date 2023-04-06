@@ -9,6 +9,7 @@ import { getSortedNewAndLastProducts } from '../../utils/api/productsApi';
 import { getAllProducts } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
 import Tabs from '../../components/tabs/Tabs';
+import { PAGE_SIZE } from '../../utils/constants';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
@@ -46,7 +47,7 @@ const LandingPage = () => {
     setHighlightedProducts(
       allProducts.data.filter((product) => product.highlighted === true)
     );
-    setProducts(sortedProducts.data);
+    setProducts(sortedProducts.data.content);
     setLoading(false);
   }
 
@@ -57,7 +58,7 @@ const LandingPage = () => {
     setHasMore(true);
     const selectedFilter = tabs.find((tab) => tab.id === id).filter;
     const response = await getSortedNewAndLastProducts(selectedFilter, 0);
-    setProducts(response.data);
+    setProducts(response.data.content);
     setLoading(false);
   };
 
@@ -65,24 +66,29 @@ const LandingPage = () => {
     setLoading(true);
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
 
-    currentPageNumber.current += 1;
+    if (products.length < PAGE_SIZE) {
+      currentPageNumber.current = 0;
+    } else {
+      currentPageNumber.current += 1;
+    }
 
-    setTimeout(() => {
-      getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current)
-        .then((response) => {
-          if (response.data.length === 0) {
-            setHasMore(false);
-          } else {
-            setHasMore(true);
-            setProducts((prevProducts) => [...prevProducts, ...response.data]);
-          }
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching next page:', error);
-          setLoading(false);
-        });
-    }, 500);
+    getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, PAGE_SIZE)
+      .then((response) => {
+        const productsList = response.data.content;
+
+        if (productsList.length < PAGE_SIZE) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+
+        setProducts((prevProducts) => prevProducts.concat(productsList));
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching next page:', error);
+        setLoading(false);
+      });
   };
 
   return (

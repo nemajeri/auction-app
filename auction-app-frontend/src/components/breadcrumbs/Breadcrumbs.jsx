@@ -1,35 +1,26 @@
-import React, { useContext, useEffect } from 'react';
-import { useMatches, useLocation } from 'react-router-dom';
+import React from 'react';
 import './breadcrumbs.css';
-import { NavigationContext } from '../../utils/NavigationProvider';
+import useBreadcrumbs from 'use-react-router-breadcrumbs';
 
-const BreadCrumbs = () => {
-  const { previousPath, handleNavigation } = useContext(NavigationContext);
-  const location = useLocation();
-  let matches = useMatches();
-  let crumbs = matches
-    .filter((match) => Boolean(match.handle?.crumb))
-    .map((match) => match.handle.crumb(match.data));
-
-    useEffect(() => {
-      if (location.pathname !== previousPath) {
-        handleNavigation(location);
-      }
-    }, [location, previousPath]);
-
-  const formatPreviousPath = (previousPath) => {
-    const formattedPath = previousPath.replace(/-|\//g, ' ').toUpperCase();
-    return formattedPath;
-  };
+const BreadCrumbs = ({ title }) => {
+  const breadcrumbs = useBreadcrumbs();
+  let lastElement =
+    breadcrumbs[
+      breadcrumbs.length - (title ? 2 : 1)
+    ].breadcrumb.props.children;
+  let secondToLastElement =
+    breadcrumbs[
+      breadcrumbs.length - (title ? 3 : 2)
+    ].breadcrumb.props.children;
 
   return (
     <div className='breadcrumbs'>
       <div className='breadcrumbs__container'>
-        <span>{crumbs[0].props.children.toUpperCase()}</span>
+        <span>{title ? title : lastElement.toUpperCase()}</span>
         <div className='breadcrumbs__path'>
-          <span>{formatPreviousPath(previousPath)}</span>
+          <span>{secondToLastElement.toUpperCase()}&nbsp;</span>
           <p>/</p>
-          <span>{location.pathname.replace(/-|\//g, ' ').toUpperCase()}</span>
+          <span>{lastElement.toUpperCase()}</span>
         </div>
       </div>
     </div>

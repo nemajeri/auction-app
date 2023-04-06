@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SocialMediaIcons } from '../../components/social-icons/SocialMediaIcons';
 import './navbar.css';
 import Logo from '../../assets/Logo';
 import SearchField from '../../components/search-field/SearchField';
 import NavbarLink from '../../components/nav-link/NavbarLink';
 import navlinks from '../../data/navlinks.json';
+import { useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const [user, setUser] = useState('');
-  const [activeLink, setActiveLink] = useState('');
+  const [activeLink, setActiveLink] = useState('home');
+  const { pathname } = useLocation();
 
-  const onClick = (link) => {
-    setActiveLink(link);
-  };
-
+  useEffect(() => {
+    setActiveLink(pathname.replace('/', '') || 'home');
+  }, [pathname]);
+  
   return (
     <>
       <div className='navbar__black'>
@@ -44,7 +46,7 @@ const Navbar = () => {
                 <NavbarLink
                   link={link}
                   activeLink={activeLink}
-                  onClick={onClick}
+                  onClick={setActiveLink}
                   key={link.key}
                 />
               ))}
