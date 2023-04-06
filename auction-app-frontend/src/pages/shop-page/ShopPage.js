@@ -10,10 +10,16 @@ import { getAllProducts } from '../../utils/api/productsApi';
 import { getSubcategories } from '../../utils/api/subcategoryApi';
 import { PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
+import { getTotalPages } from '../../utils/helperFunctions';
 
 const ShopPage = () => {
-  const { searchTerm, searchedProducts, pageNumber, setPageNumber, setSearchProducts } =
-    useContext(AppContext);
+  const {
+    searchTerm,
+    searchedProducts,
+    pageNumber,
+    setPageNumber,
+    setSearchProducts,
+  } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
   const [categories, setCategories] = useState([]);
@@ -57,7 +63,7 @@ const ShopPage = () => {
           setSearchProducts(null);
           setSubcategories(subcategoriesResponse.data);
           setProducts(content);
-          setProductsByCategories(productsByCategoriesResponse); 
+          setProductsByCategories(productsByCategoriesResponse);
           setLoading(false);
         } catch (error) {
           console.error(error);
@@ -89,7 +95,7 @@ const ShopPage = () => {
       getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
         .then((response) => {
           const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content)); 
+          setProducts((prevProducts) => prevProducts.concat(content));
         })
         .catch((error) => {
           console.error(error);
@@ -102,7 +108,7 @@ const ShopPage = () => {
       )
         .then((response) => {
           const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content)); 
+          setProducts((prevProducts) => prevProducts.concat(content));
         })
         .catch((error) => {
           console.error(error);
@@ -110,19 +116,10 @@ const ShopPage = () => {
     }
   };
 
-  const searchedProductsTotalPages = Math.ceil(
-    searchedProducts?.pageData?.totalElements / PAGE_SIZE
+  const totalPages = getTotalPages(
+    searchedProducts?.pageData || productsByCategories?.data,
+    PAGE_SIZE
   );
-
-
-  const productsByCategoriesTotalPages = Math.ceil(
-    productsByCategories?.data?.totalElements / PAGE_SIZE
-  );
-
-
-  const totalPages = searchedProducts
-    ? searchedProductsTotalPages
-    : productsByCategoriesTotalPages;
 
   return (
     <div className='wrapper shop-page__wrapper'>
