@@ -56,7 +56,7 @@ const ShopPage = () => {
 
           setSearchProducts(null);
           setSubcategories(subcategoriesResponse.data);
-          setProducts(content); //maybe here is the problem 
+          setProducts(content);
           setProductsByCategories(productsByCategoriesResponse); 
           setLoading(false);
         } catch (error) {
@@ -89,7 +89,7 @@ const ShopPage = () => {
       getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
         .then((response) => {
           const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content)); //here Im setting products not searchedproducts
+          setProducts((prevProducts) => prevProducts.concat(content)); 
         })
         .catch((error) => {
           console.error(error);
