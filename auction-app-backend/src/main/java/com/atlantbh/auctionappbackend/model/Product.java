@@ -28,7 +28,7 @@ public class Product {
     private String description;
 
     @Column(name = "start_price", nullable = false)
-    private Float startPrice;
+    private float startPrice;
 
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
@@ -42,10 +42,10 @@ public class Product {
     private LocalDateTime endDate;
 
     @Formula("(SELECT COUNT(*) FROM auction_app_schema.bid b INNER JOIN auction_app_schema.product p ON p.id = b.product_id WHERE b.product_id = p.id)")
-    private BigInteger numberOfBids;
+    private int numberOfBids;
 
     @Formula("(SELECT b.price FROM auction_app_schema.product p INNER JOIN auction_app_schema.bid b ON p.id =b.product_id ORDER BY b.price DESC LIMIT 1)")
-    private BigDecimal highestBid;
+    private float highestBid;
 
     @Column(name = "is_highlighted", nullable = false)
     private boolean isHighlighted;

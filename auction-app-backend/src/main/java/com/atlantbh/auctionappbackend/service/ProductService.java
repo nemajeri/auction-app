@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class ProductService {
     private ProductRepository productRepository;
 
-    public Page<ProductsResponse> getAllProductsBySearchTerm(Integer pageNumber, Integer pageSize, String searchTerm) {
+    public Page<ProductsResponse> getAllProductsBySearchTerm(int pageNumber, int pageSize, String searchTerm) {
         Page<Product> products;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
@@ -31,7 +31,7 @@ public class ProductService {
     }
 
 
-    public Page<ProductsResponse> getAllProductsFromCategory(Integer pageNumber, Integer pageSize, Long CategoryId) {
+    public Page<ProductsResponse> getAllProductsFromCategory(int pageNumber, int pageSize, Long CategoryId) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Product> pagedResult = productRepository.findAllByCategoryId(CategoryId, pageable);
 
