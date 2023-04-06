@@ -74,8 +74,7 @@ const LandingPage = () => {
 
     getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, PAGE_SIZE)
       .then((response) => {
-        const productsPage = response.data;
-        const productsList = productsPage.content;
+        const productsList = response.data.content;
 
         if (productsList.length < PAGE_SIZE) {
           setHasMore(false);
