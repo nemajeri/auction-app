@@ -19,6 +19,7 @@ import {
 } from './pages/index';
 import { Route, Routes } from 'react-router-dom';
 import ScrollToTop from './utils/ScrollToTop';
+import { AppContextProvider } from './utils/AppContextProvider';
 
 function App() {
   return (
