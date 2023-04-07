@@ -11,6 +11,8 @@ import { getSubcategories } from '../../utils/api/subcategoryApi';
 import { PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
+import { useParams } from 'react-router-dom';
+
 
 const ShopPage = () => {
   const { searchTerm, searchedProducts, pageNumber, setPageNumber } =
@@ -26,6 +28,7 @@ const ShopPage = () => {
     totalElements: 0,
   });
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
+  const { categoryId } = useParams();
 
   useEffect(() => {
     getCategories().then((response) => {
@@ -37,6 +40,13 @@ const ShopPage = () => {
       setProducts(searchedProducts.content);
     }
   }, [pageNumber, searchedProducts]);
+
+  useEffect(() => {
+    if (categoryId) {
+      handleOpeningAndFetchingSubcategories(parseInt(categoryId))();
+    }
+  }, [categoryId]);
+  
 
   const handleOpeningAndFetchingSubcategories =
     (categoryId) => async (event) => {
