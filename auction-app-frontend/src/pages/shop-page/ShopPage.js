@@ -26,8 +26,20 @@ const ShopPage = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
-  const [productsByCategories, setProductsByCategories] = useState({});
+  const [productsByCategories, setProductsByCategories] = useState({
+    content: [],
+    totalElements: 0,
+  });
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
+
+  useEffect(() => {
+    console.log('Searched products: ', searchedProducts);
+    console.log('Products: ', products);
+    console.log('Products by categories: ', productsByCategories);
+    console.log('Current category id: ', currentCategoryId);
+    console.log('Searched products page data: ', searchedProducts?.pageData);
+    console.log('Products by categories  ', productsByCategories);
+  }, [products, productsByCategories, searchedProducts, currentCategoryId]);
 
   useEffect(() => {
     getCategories().then((response) => {
@@ -45,33 +57,48 @@ const ShopPage = () => {
       const category = event.target.dataset.category;
       const isOpening = !openedCategory[category];
 
-      if (isOpening) {
-        try {
-          setPageNumber(0);
-          setCurrentCategoryId(categoryId);
-          const subcategoriesResponse = await getSubcategories(categoryId);
+      try {
+        setPageNumber(0);
+        setCurrentCategoryId(categoryId);
+        const subcategoriesResponse = await getSubcategories(categoryId);
 
-          const productsByCategoriesResponse = await getAllProducts(
-            0,
-            PAGE_SIZE,
-            categoryId === 10 ? null : categoryId,
-            categoryId === 10 ? '' : undefined
-          );
+        if (isOpening) {
+          if (
+            searchedProducts !== null &&
+            searchedProducts.content.length > 0
+          ) {
+            const filtered = searchedProducts.content.filter(
+              (product) => product.categoryId === categoryId
+            );
+            setProducts(filtered);
+          } else {
+            const productsByCategoriesResponse = await getAllProducts(
+              0,
+              PAGE_SIZE,
+              categoryId === 10 ? null : categoryId,
+              categoryId === 10 ? '' : undefined
+            );
 
-          const { content } = productsByCategoriesResponse.data;
+            console.log(
+              'Response when clicking on category ',
+              productsByCategoriesResponse
+            );
 
-          setSearchProducts(null);
+            const { content, totalElements } =
+              productsByCategoriesResponse.data;
+
+            console.log('Number of elements ', totalElements);
+            setProducts(content);
+            setProductsByCategories({ content, totalElements });
+          }
           setSubcategories(subcategoriesResponse.data);
-          setProducts(content);
-          setProductsByCategories(productsByCategoriesResponse);
-          setLoading(false);
-        } catch (error) {
-          console.error(error);
-          setLoading(false);
+        } else {
+          setProducts(searchedProducts ? searchedProducts.content : []);
+          setProductsByCategories([]);
         }
-      } else {
-        setProducts([]);
-        setProductsByCategories([]);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
         setLoading(false);
       }
 
@@ -82,10 +109,6 @@ const ShopPage = () => {
         };
       });
     };
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
 
   const onExploreMoreBtnClick = () => {
     setPageNumber((prevPageNumber) => prevPageNumber + 1);
@@ -117,7 +140,7 @@ const ShopPage = () => {
   };
 
   const totalPages = getTotalPages(
-    searchedProducts?.pageData || productsByCategories?.data,
+    searchedProducts?.pageData || productsByCategories?.totalElements,
     PAGE_SIZE
   );
 
@@ -135,7 +158,7 @@ const ShopPage = () => {
             }
           />
           <div className='shop-page__products'>
-            {searchedProducts && searchedProducts.length === 0 ? (
+            {searchedProducts && searchedProducts?.content?.length === 0 ? (
               <div className='shop-page__no-products'>
                 <h4>No products found.</h4>
                 <p>Please try a different search or filter by category.</p>
@@ -146,7 +169,11 @@ const ShopPage = () => {
                 products={products}
               />
             )}
-            {pageNumber < totalPages - 1 && (
+            {((searchedProducts
+              ? pageNumber < searchedProducts.pageData.totalPages - 1
+              : pageNumber < totalPages - 1) ||
+              (productsByCategories.totalElements > PAGE_SIZE &&
+                products.length < productsByCategories.totalElements)) && (
               <Button
                 onClick={onExploreMoreBtnClick}
                 Icon={null}
