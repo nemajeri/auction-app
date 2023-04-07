@@ -8,6 +8,7 @@ export const AppContextProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchedProducts, setSearchProducts] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const onSearchTermChange = (event) => {
     setSearchTerm(event.target.value);
@@ -17,10 +18,12 @@ export const AppContextProvider = ({ children }) => {
     event.preventDefault();
     setPageNumber(0);
     getAllProducts(0, PAGE_SIZE, undefined, searchTerm).then((response) => {
+      setLoading(true);
       setSearchProducts({
         content: response.data.content,
         pageData: response.data,
       });
+      setLoading(false);
     });
   };
 
@@ -33,7 +36,9 @@ export const AppContextProvider = ({ children }) => {
         searchedProducts,
         pageNumber,
         setPageNumber,
-        setSearchProducts
+        setSearchProducts,
+        loading,
+        setLoading
       }}
     >
       {children}

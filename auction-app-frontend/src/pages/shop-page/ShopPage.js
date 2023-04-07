@@ -13,12 +13,17 @@ import { getTotalPages } from '../../utils/helperFunctions';
 import { useParams } from 'react-router-dom';
 
 const ShopPage = () => {
-  const { searchTerm, searchedProducts, pageNumber, setPageNumber } =
-    useContext(AppContext);
+  const {
+    searchTerm,
+    searchedProducts,
+    pageNumber,
+    setPageNumber,
+    loading,
+    setLoading,
+  } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [productsByCategories, setProductsByCategories] = useState({
     content: [],
@@ -32,11 +37,13 @@ const ShopPage = () => {
       setCategories(response.data);
       setLoading(false);
     });
+  }, []);
 
-    if (searchedProducts !== null && pageNumber === 0) {
+  useEffect(() => {
+    if (!loading && searchedProducts) {
       setProducts(searchedProducts.content);
     }
-  }, [pageNumber, searchedProducts]);
+  }, [loading, searchedProducts]);
 
   useEffect(() => {
     if (categoryId) {
@@ -91,11 +98,14 @@ const ShopPage = () => {
 
       if (category) {
         setOpenedCategory((prevState) => {
-          const updatedState = Object.keys(prevState).reduce((acc, categoryName) => {
-            acc[categoryName] = false;
-            return acc;
-          }, {});
-  
+          const updatedState = Object.keys(prevState).reduce(
+            (acc, categoryName) => {
+              acc[categoryName] = false;
+              return acc;
+            },
+            {}
+          );
+
           return {
             ...updatedState,
             [category]: isOpening,
@@ -105,32 +115,27 @@ const ShopPage = () => {
     };
 
   const onExploreMoreBtnClick = () => {
-    setPageNumber((prevPageNumber) => prevPageNumber + 1);
     const nextPageNumber = pageNumber + 1;
 
+    const fetchMoreProducts = (categoryId, searchTerm) => {
+      getAllProducts(nextPageNumber, PAGE_SIZE, categoryId, searchTerm)
+        .then((response) => {
+          const { content } = response.data;
+          console.info('Search product content ', content);
+          setProducts((prevProducts) => prevProducts.concat(content));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    };
+
     if (searchedProducts) {
-      getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
-        .then((response) => {
-          const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content));
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    } else {
-      getAllProducts(
-        nextPageNumber,
-        PAGE_SIZE,
-        currentCategoryId === 10 ? null : currentCategoryId
-      )
-        .then((response) => {
-          const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content));
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      fetchMoreProducts(undefined, searchTerm);
     }
+    const categoryId = currentCategoryId === 10 ? null : currentCategoryId;
+    fetchMoreProducts(categoryId);
+
+    setPageNumber(nextPageNumber);
   };
 
   if (loading) {
