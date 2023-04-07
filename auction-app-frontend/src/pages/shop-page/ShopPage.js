@@ -13,13 +13,8 @@ import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
 
 const ShopPage = () => {
-  const {
-    searchTerm,
-    searchedProducts,
-    pageNumber,
-    setPageNumber,
-    setSearchProducts,
-  } = useContext(AppContext);
+  const { searchTerm, searchedProducts, pageNumber, setPageNumber } =
+    useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
   const [categories, setCategories] = useState([]);
@@ -31,15 +26,6 @@ const ShopPage = () => {
     totalElements: 0,
   });
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
-
-  useEffect(() => {
-    console.log('Searched products: ', searchedProducts);
-    console.log('Products: ', products);
-    console.log('Products by categories: ', productsByCategories);
-    console.log('Current category id: ', currentCategoryId);
-    console.log('Searched products page data: ', searchedProducts?.pageData);
-    console.log('Products by categories  ', productsByCategories);
-  }, [products, productsByCategories, searchedProducts, currentCategoryId]);
 
   useEffect(() => {
     getCategories().then((response) => {
@@ -79,15 +65,9 @@ const ShopPage = () => {
               categoryId === 10 ? '' : undefined
             );
 
-            console.log(
-              'Response when clicking on category ',
-              productsByCategoriesResponse
-            );
-
             const { content, totalElements } =
               productsByCategoriesResponse.data;
 
-            console.log('Number of elements ', totalElements);
             setProducts(content);
             setProductsByCategories({ content, totalElements });
           }
@@ -110,34 +90,36 @@ const ShopPage = () => {
       });
     };
 
-  const onExploreMoreBtnClick = () => {
-    setPageNumber((prevPageNumber) => prevPageNumber + 1);
-    const nextPageNumber = pageNumber + 1;
+    const onExploreMoreBtnClick = () => {
+      setLoading(true); 
+      setPageNumber((prevPageNumber) => prevPageNumber + 1);
+      const nextPageNumber = pageNumber + 1;
+    
+      const fetchAllProducts = async () => {
+        try {
+          const response = searchedProducts
+            ? await getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
+            : await getAllProducts(
+                nextPageNumber,
+                PAGE_SIZE,
+                currentCategoryId === 10 ? null : currentCategoryId
+              );
+    
+          const { content } = response.data;
+          setProducts((prevProducts) => prevProducts.concat(content));
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false); 
+        }
+      };
+    
+      fetchAllProducts();
+    };
 
-    if (searchedProducts) {
-      getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
-        .then((response) => {
-          const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content));
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    } else {
-      getAllProducts(
-        nextPageNumber,
-        PAGE_SIZE,
-        currentCategoryId === 10 ? null : currentCategoryId
-      )
-        .then((response) => {
-          const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content));
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  };
+  if(loading) {
+    return <LoadingSpinner/>
+  }
 
   const totalPages = getTotalPages(
     searchedProducts?.pageData || productsByCategories?.totalElements,
