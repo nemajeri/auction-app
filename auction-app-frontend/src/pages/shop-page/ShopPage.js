@@ -7,7 +7,6 @@ import { useGridView } from '../../hooks/useGridView';
 import Button from '../../utils/Button';
 import { getCategories } from '../../utils/api/categoryApi';
 import { getAllProducts } from '../../utils/api/productsApi';
-import { getSubcategories } from '../../utils/api/subcategoryApi';
 import { PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
@@ -19,7 +18,6 @@ const ShopPage = () => {
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [productsByCategories, setProductsByCategories] = useState({
@@ -54,19 +52,15 @@ const ShopPage = () => {
 
   const handleOpeningAndFetchingSubcategories =
     (categoryId) => async (event) => {
-      const category = event ? event.target.dataset.category : null;
+      const category = event?.currentTarget.dataset.category;
       const isOpening = category ? !openedCategory[category] : true;
 
       try {
         setPageNumber(0);
         setCurrentCategoryId(categoryId);
-        const subcategoriesResponse = await getSubcategories(categoryId);
 
         if (isOpening) {
-          if (
-            searchedProducts !== null &&
-            searchedProducts.content.length > 0
-          ) {
+          if (searchedProducts?.content.length > 0) {
             const filtered = searchedProducts.content.filter(
               (product) => product.categoryId === categoryId
             );
@@ -85,7 +79,6 @@ const ShopPage = () => {
             setProducts(content);
             setProductsByCategories({ content, totalElements });
           }
-          setSubcategories(subcategoriesResponse.data);
         } else {
           setProducts(searchedProducts ? searchedProducts.content : []);
           setProductsByCategories([]);
@@ -98,8 +91,13 @@ const ShopPage = () => {
 
       if (category) {
         setOpenedCategory((prevState) => {
+          const updatedState = Object.keys(prevState).reduce((acc, categoryName) => {
+            acc[categoryName] = false;
+            return acc;
+          }, {});
+  
           return {
-            ...prevState,
+            ...updatedState,
             [category]: isOpening,
           };
         });
@@ -107,35 +105,32 @@ const ShopPage = () => {
     };
 
   const onExploreMoreBtnClick = () => {
-    setLoading(true);
     setPageNumber((prevPageNumber) => prevPageNumber + 1);
     const nextPageNumber = pageNumber + 1;
 
-    const fetchAllProducts = async () => {
-      try {
-        const response = searchedProducts
-          ? await getAllProducts(
-              nextPageNumber,
-              PAGE_SIZE,
-              undefined,
-              searchTerm
-            )
-          : await getAllProducts(
-              nextPageNumber,
-              PAGE_SIZE,
-              currentCategoryId === 10 ? null : currentCategoryId
-            );
-
-        const { content } = response.data;
-        setProducts((prevProducts) => prevProducts.concat(content));
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllProducts();
+    if (searchedProducts) {
+      getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
+        .then((response) => {
+          const { content } = response.data;
+          setProducts((prevProducts) => prevProducts.concat(content));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      getAllProducts(
+        nextPageNumber,
+        PAGE_SIZE,
+        currentCategoryId === 10 ? null : currentCategoryId
+      )
+        .then((response) => {
+          const { content } = response.data;
+          setProducts((prevProducts) => prevProducts.concat(content));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   };
 
   if (loading) {
@@ -155,7 +150,6 @@ const ShopPage = () => {
             openedCategory={openedCategory}
             setOpenedCategory={setOpenedCategory}
             categories={categories}
-            subcategories={subcategories}
             handleOpeningAndFetchingSubcategories={
               handleOpeningAndFetchingSubcategories
             }
@@ -176,16 +170,17 @@ const ShopPage = () => {
               ? pageNumber < searchedProducts.pageData.totalPages - 1
               : pageNumber < totalPages - 1) ||
               (productsByCategories.totalElements > PAGE_SIZE &&
-                products.length < productsByCategories.totalElements)) && (
-              <Button
-                onClick={onExploreMoreBtnClick}
-                Icon={null}
-                className={'shop-page__explore--more_button'}
-                iconClassName={null}
-              >
-                Explore more
-              </Button>
-            )}
+                products.length < productsByCategories.totalElements)) &&
+              products.length >= PAGE_SIZE && (
+                <Button
+                  onClick={onExploreMoreBtnClick}
+                  Icon={null}
+                  className={'shop-page__explore--more_button'}
+                  iconClassName={null}
+                >
+                  Explore more
+                </Button>
+              )}
           </div>
         </div>
       </div>
