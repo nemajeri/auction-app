@@ -7,27 +7,20 @@ const BreadCrumbs = ({ title }) => {
   let lastElement =
     breadcrumbs[
       breadcrumbs.length - (title ? 2 : 1)
-    ].breadcrumb.props.children.split(' ');
+    ].breadcrumb.props.children;
   let secondToLastElement =
     breadcrumbs[
       breadcrumbs.length - (title ? 3 : 2)
-    ].breadcrumb.props.children.split(' ');
-
-    const capitalize = (words) => {
-        return words[0].toUpperCase();
-    };
-
-  lastElement = capitalize(lastElement);
-  secondToLastElement = capitalize(secondToLastElement);
+    ].breadcrumb.props.children;
 
   return (
     <div className='breadcrumbs'>
       <div className='breadcrumbs__container'>
-        <span>{title ? title : lastElement}</span>
+        <span>{title ? title : lastElement.toUpperCase()}</span>
         <div className='breadcrumbs__path'>
-          <span>{secondToLastElement}&nbsp;</span>
+          <span>{secondToLastElement.toUpperCase()}&nbsp;</span>
           <p>/</p>
-          <span>{lastElement}</span>
+          <span>{lastElement.toUpperCase()}</span>
         </div>
       </div>
     </div>

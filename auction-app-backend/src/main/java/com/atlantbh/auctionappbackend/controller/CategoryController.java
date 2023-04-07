@@ -14,9 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping(path = "api/v1/categories")
 public class CategoryController {
+
     private final CategoryService categoryService;
+
     @GetMapping()
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
+
 }

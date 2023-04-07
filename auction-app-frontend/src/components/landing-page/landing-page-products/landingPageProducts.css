@@ -1,0 +1,20 @@
+
+.product__scrollable-viewport::-webkit-scrollbar {
+    display: none;
+  }
+  
+
+.product__scrollable-viewport {
+    scrollbar-width: none; 
+}
+  
+
+.product__scrollable-viewport::-ms-overflow-style {
+    -ms-overflow-style: none;
+}
+
+.product__scrollable-viewport {
+    height: calc(100vh - 150px);
+    overflow: auto;
+}
+  

@@ -5,3 +5,6 @@ export const API = axios.create({
   });
 
 export const PAGE_SIZE = 9;
+
+export const LANDING_PAGE_SIZE = 8;
+

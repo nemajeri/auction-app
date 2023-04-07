@@ -1,0 +1,24 @@
+.tabs {
+    border-bottom: 1px solid var(--grey-100);
+    display: flex;
+    gap: 25px;
+    margin: 3rem 0 0.5rem 0;
+}
+
+.tab {
+    padding-bottom: 5px;
+    cursor: pointer;
+}
+
+.tab > h2 {
+    font-weight: 100;
+    font-size: 1.2rem;
+}
+
+.tab--selected {
+    border-bottom: 2px solid var(--purple);
+}
+
+.tab--selected > h2 {
+    font-weight: bold;
+}

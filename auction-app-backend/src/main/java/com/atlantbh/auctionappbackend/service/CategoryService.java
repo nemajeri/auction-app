@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Service
 @AllArgsConstructor
+@Service
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;

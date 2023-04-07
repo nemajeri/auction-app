@@ -11,12 +11,12 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "category", schema = "auction_app_schema")
+
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "category_name", nullable = false)
     private String categoryName;
-
 }

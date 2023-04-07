@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImFacebook, ImTwitter, ImInstagram } from 'react-icons/im';
 import { TiSocialGooglePlus } from 'react-icons/ti';
-import './socialMediaIcons.css'
+import './socialMediaIcons.css';
 
 export const SocialMediaIcons = () => {
   return (
@@ -21,5 +21,3 @@ export const SocialMediaIcons = () => {
     </div>
   );
 };
-
-
