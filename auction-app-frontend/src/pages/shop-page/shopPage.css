@@ -9,7 +9,7 @@
 
 .shop-page__grid-view {
     display: grid;
-    grid-template-columns: 280px 280px 280px;
+    grid-template-columns: 270px 270px 270px;
     gap: 30px;
     margin: 0;
 }

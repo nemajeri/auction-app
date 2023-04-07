@@ -13,7 +13,6 @@ import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
 import { useParams } from 'react-router-dom';
 
-
 const ShopPage = () => {
   const { searchTerm, searchedProducts, pageNumber, setPageNumber } =
     useContext(AppContext);
@@ -43,15 +42,20 @@ const ShopPage = () => {
 
   useEffect(() => {
     if (categoryId) {
+      const firstLoadedCategory = categories.find(
+        (category) => category.id === parseInt(categoryId)
+      );
+      if (firstLoadedCategory) {
+        setOpenedCategory({ [firstLoadedCategory.categoryName]: true });
+      }
       handleOpeningAndFetchingSubcategories(parseInt(categoryId))();
     }
-  }, [categoryId]);
-  
+  }, [categoryId, categories]);
 
   const handleOpeningAndFetchingSubcategories =
     (categoryId) => async (event) => {
-      const category = event.target.dataset.category;
-      const isOpening = !openedCategory[category];
+      const category = event ? event.target.dataset.category : null;
+      const isOpening = category ? !openedCategory[category] : true;
 
       try {
         setPageNumber(0);
@@ -92,43 +96,50 @@ const ShopPage = () => {
         setLoading(false);
       }
 
-      setOpenedCategory((prevState) => {
-        return {
-          ...prevState,
-          [category]: isOpening,
-        };
-      });
+      if (category) {
+        setOpenedCategory((prevState) => {
+          return {
+            ...prevState,
+            [category]: isOpening,
+          };
+        });
+      }
     };
 
-    const onExploreMoreBtnClick = () => {
-      setLoading(true); 
-      setPageNumber((prevPageNumber) => prevPageNumber + 1);
-      const nextPageNumber = pageNumber + 1;
-    
-      const fetchAllProducts = async () => {
-        try {
-          const response = searchedProducts
-            ? await getAllProducts(nextPageNumber, PAGE_SIZE, undefined, searchTerm)
-            : await getAllProducts(
-                nextPageNumber,
-                PAGE_SIZE,
-                currentCategoryId === 10 ? null : currentCategoryId
-              );
-    
-          const { content } = response.data;
-          setProducts((prevProducts) => prevProducts.concat(content));
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setLoading(false); 
-        }
-      };
-    
-      fetchAllProducts();
+  const onExploreMoreBtnClick = () => {
+    setLoading(true);
+    setPageNumber((prevPageNumber) => prevPageNumber + 1);
+    const nextPageNumber = pageNumber + 1;
+
+    const fetchAllProducts = async () => {
+      try {
+        const response = searchedProducts
+          ? await getAllProducts(
+              nextPageNumber,
+              PAGE_SIZE,
+              undefined,
+              searchTerm
+            )
+          : await getAllProducts(
+              nextPageNumber,
+              PAGE_SIZE,
+              currentCategoryId === 10 ? null : currentCategoryId
+            );
+
+        const { content } = response.data;
+        setProducts((prevProducts) => prevProducts.concat(content));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-  if(loading) {
-    return <LoadingSpinner/>
+    fetchAllProducts();
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
   const totalPages = getTotalPages(
