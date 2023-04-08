@@ -34,6 +34,13 @@ const LandingPage = () => {
     fetchProductsAndCategories(selectedFilter, currentPageNumber.current);
   }, [selectedTab]);
 
+  useEffect(() => {
+    const element = document.getElementById('navbar');
+    if (element && !loading) {
+      element.scrollIntoView();
+    }
+  }, [loading]);
+
   async function fetchProductsAndCategories(filter, currentPageNumber) {
     let categories = await getCategories();
     setCategories(categories.data);
@@ -71,6 +78,7 @@ const LandingPage = () => {
     } else {
       currentPageNumber.current += 1;
     }
+    //
 
     getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, LANDING_PAGE_SIZE)
       .then((response) => {

@@ -18,14 +18,14 @@ import {
   ProductOverviewPage,
 } from './pages/index';
 import { Route, Routes } from 'react-router-dom';
-import ScrollToTop from './utils/ScrollToTop';
 import { AppContextProvider } from './utils/AppContextProvider';
 
+
 function App() {
+
   return (
     <>
       <AppContextProvider>
-        <ScrollToTop />
         <Navbar />
         <Routes>
           <Route path={shopPagePath} element={<ShopPage />} />
