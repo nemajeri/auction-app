@@ -1,5 +1,5 @@
 import React from 'react';
-import Product from '../product/Product';
+import Product from '../../../components/product/Product';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import './landingPageProducts.css';
 import LoadingSpinner from '../../loading-spinner/LoadingSpinner';

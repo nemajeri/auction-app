@@ -14,6 +14,11 @@
     margin: 0;
 }
 
+.shop-page__grid-view > .product {
+    height: 25rem;
+    margin-bottom: 25px;
+}
+
 .shop-page__products {
     flex-direction: column;
     display: flex;
