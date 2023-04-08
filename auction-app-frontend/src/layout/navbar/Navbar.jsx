@@ -45,6 +45,7 @@ const Navbar = () => {
               {navlinks.map((link) => (
                 <NavbarLink
                   link={link}
+                  key={link.key}
                   activeLink={activeLink}
                   onClick={setActiveLink}
                 />

@@ -27,7 +27,7 @@ export const getAllProducts = (
   return API.get(url);
 };
 
-export const getSortedNewAndLastProducts = (
+export const getSortedProductsAccordingToDate = (
     filter,
     pageNumber = 0,
     size = 8

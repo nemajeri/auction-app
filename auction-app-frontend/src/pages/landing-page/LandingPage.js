@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Categories,
   HighlightedProduct,
   LandingPageProducts,
 } from '../../components/landing-page/index';
 import './landingPage.css';
-import { getSortedNewAndLastProducts } from '../../utils/api/productsApi';
+import { getSortedProductsAccordingToDate } from '../../utils/api/productsApi';
 import { getAllProductsToSeparateHighlighted } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
 import Tabs from '../../components/tabs/Tabs';
@@ -25,27 +25,16 @@ const LandingPage = () => {
   const [highlightedProducts, setHighlightedProducts] = useState([]);
   const currentPageNumber = useRef(0);
 
-  const uniqueProducts = Array.from(
-    new Set(products?.map((product) => product.id))
-  ).map((productId) => products?.find((product) => product.id === productId));
-
   useEffect(() => {
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
     fetchProductsAndCategories(selectedFilter, currentPageNumber.current);
   }, [selectedTab]);
 
-  useEffect(() => {
-    const element = document.getElementById('navbar');
-    if (element && !loading) {
-      element.scrollIntoView();
-    }
-  }, [loading]);
-
   async function fetchProductsAndCategories(filter, currentPageNumber) {
     let categories = await getCategories();
     setCategories(categories.data);
 
-    let sortedProducts = await getSortedNewAndLastProducts(
+    let sortedProducts = await getSortedProductsAccordingToDate(
       filter,
       currentPageNumber
     );
@@ -63,8 +52,12 @@ const LandingPage = () => {
     setSelectedTab(id);
     currentPageNumber.current = 0;
     setHasMore(true);
+
+    setProducts([]);
+
     const selectedFilter = tabs.find((tab) => tab.id === id).filter;
-    const response = await getSortedNewAndLastProducts(selectedFilter, 0);
+    const response = await getSortedProductsAccordingToDate(selectedFilter, 0);
+
     setProducts(response.data.content);
     setLoading(false);
   };
@@ -74,29 +67,20 @@ const LandingPage = () => {
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
 
     if (products.length < LANDING_PAGE_SIZE) {
-      currentPageNumber.current = 0;
-    } else {
-      currentPageNumber.current += 1;
+      setLoading(false);
+      return;
     }
-    //
 
-    getSortedNewAndLastProducts(selectedFilter, currentPageNumber.current, LANDING_PAGE_SIZE)
-      .then((response) => {
-        const productsList = response.data.content;
+    currentPageNumber.current += 1;
 
-        if (productsList.length < LANDING_PAGE_SIZE) {
-          setHasMore(false);
-        } else {
-          setHasMore(true);
-        }
-
-        setProducts((prevProducts) => prevProducts.concat(productsList));
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching next page:', error);
-        setLoading(false);
-      });
+    const response = await getSortedProductsAccordingToDate(
+      selectedFilter,
+      currentPageNumber.current
+    );
+    setProducts((prevProducts) => 
+      [...prevProducts, ...response.data.content]
+    );
+    setLoading(false);
   };
 
   return (
@@ -114,7 +98,7 @@ const LandingPage = () => {
           tabs={tabs}
         />
         <LandingPageProducts
-          products={uniqueProducts}
+          products={products}
           fetchNextPage={fetchNextPage}
           hasMore={hasMore}
           loading={loading}
