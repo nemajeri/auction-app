@@ -3,7 +3,7 @@ import './categoriesAccordion.css';
 
 const CategoriesAccordion = ({
   openedCategory,
-  handleOpeningAndFetchingSubcategories,
+  handleOpeningAndFetchingCategories,
   categories,
 }) => {
   return (
@@ -18,7 +18,7 @@ const CategoriesAccordion = ({
                   openedCategory[`${category.categoryName}`] ? ' opened' : ''
                 }`}
                 data-category={`${category.categoryName}`}
-                onClick={handleOpeningAndFetchingSubcategories(category.id)}
+                onClick={handleOpeningAndFetchingCategories(category.id)}
               >
                 <h4>{category.categoryName}</h4>
                 <p>{openedCategory[`${category.categoryName}`]}</p>

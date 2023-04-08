@@ -6,10 +6,12 @@ import com.atlantbh.auctionappbackend.mapper.ProductMapper;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
+import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,28 +26,16 @@ public class ProductService {
 
     private final ProductMapper productMapper;
 
-    public Page<ProductsResponse> getAllProductsBySearchTerm(int pageNumber, int pageSize, String searchTerm) {
-        Page<Product> products;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+    public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId) {
+        Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));
 
-        if (!searchTerm.isEmpty()) {
-            products = productRepository.findByProductNameContainingIgnoreCase(searchTerm, pageable);
-        } else {
-            products = productRepository.findAll(pageable);
+        if (categoryId != null) {
+            specification = specification.and(ProductSpecifications.hasCategoryId(categoryId));
         }
 
-        Page<ProductsResponse> productsResponse = products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
-
-        return productsResponse;
-    }
-
-    public Page<ProductsResponse> getAllProductsFromCategory(int pageNumber, int pageSize, Long CategoryId) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<Product> pagedResult = productRepository.findAllByCategoryId(CategoryId, pageable);
-
-        Page<ProductsResponse> response = pagedResult.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(),product.getImages().get(0), product.getCategory().getId()));
-
-        return response;
+        Page<Product> products = productRepository.findAll(specification, pageable);
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
     }
 
     public Page<ProductDTO> getNewProducts(int pageNumber, int size) {

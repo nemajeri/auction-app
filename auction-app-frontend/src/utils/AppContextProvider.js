@@ -14,10 +14,12 @@ export const AppContextProvider = ({ children }) => {
     setSearchTerm(event.target.value);
   };
 
+  console.log('Searched products', searchedProducts.pageData)
+
   const onSearchIconClick = (event) => {
     event.preventDefault();
     setPageNumber(0);
-    getAllProducts(0, PAGE_SIZE, undefined, searchTerm).then((response) => {
+    getAllProducts(0, PAGE_SIZE, searchTerm, null).then((response) => {
       setLoading(true);
       setSearchProducts({
         content: response.data.content,

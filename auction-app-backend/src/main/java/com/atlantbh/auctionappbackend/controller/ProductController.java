@@ -30,11 +30,7 @@ public class ProductController {
 
         try {
             Page<ProductsResponse> productsList;
-            if (categoryId != null) {
-                productsList = productService.getAllProductsFromCategory(pageNumber, pageSize, categoryId);
-            } else {
-                productsList = productService.getAllProductsBySearchTerm(pageNumber, pageSize, searchTerm);
-            }
+            productsList = productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId);
             return ResponseEntity.ok(productsList);
         } catch (CategoryNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);

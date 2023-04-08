@@ -4,16 +4,13 @@ import com.atlantbh.auctionappbackend.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
-    Page<Product> findAllByCategoryId(Long categoryId, Pageable paging);
-
-    Page<Product> findByProductNameContainingIgnoreCase(String searchTerm, Pageable paging);
-
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     @Query("SELECT p " +
             "FROM Product p LEFT JOIN p.images pi " +
             "WHERE p.startDate <= CURRENT_TIMESTAMP AND p.endDate > CURRENT_TIMESTAMP " +
