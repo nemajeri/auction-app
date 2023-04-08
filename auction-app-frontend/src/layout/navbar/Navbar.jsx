@@ -47,7 +47,6 @@ const Navbar = () => {
                   link={link}
                   activeLink={activeLink}
                   onClick={setActiveLink}
-                  key={link.key}
                 />
               ))}
             </div>
