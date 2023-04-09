@@ -15,12 +15,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
-import javax.persistence.EntityManager;
-import java.util.ArrayList;
+
+
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.atlantbh.auctionappbackend.utils.LevenshteinDistance.calculateDistance;
 
 
 @Service

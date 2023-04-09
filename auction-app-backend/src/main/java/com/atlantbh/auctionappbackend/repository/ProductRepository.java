@@ -28,7 +28,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "ORDER BY p.endDate ASC")
     Page<Product> getLastChanceProducts(Pageable pageable);
 
-    @Query(value = "SELECT p.product_name FROM product p WHERE levenshtein(lower(p.product_name), lower(:query)) <= :maxDistance LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT p.product_name FROM product p WHERE levenshtein(lower(p.product_name), lower(:query)) <= :maxDistance LIMIT 5", nativeQuery = true)
     List<String> findTopNamesByNameSimilarity(@Param("query") String query, @Param("maxDistance") int maxDistance);
 }
 

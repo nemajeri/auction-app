@@ -16,6 +16,9 @@ const Navbar = () => {
     setSearchTerm,
     suggestion,
     setSuggestion,
+    activeCategory,
+    setSearchProducts,
+    setProducts
   } = useContext(AppContext);
   const [user, setUser] = useState('');
   const [activeLink, setActiveLink] = useState('home');
@@ -52,8 +55,11 @@ const Navbar = () => {
             <SearchField
               searchTerm={searchTerm}
               onSearchTermChange={onSearchTermChange}
+              categoryId={activeCategory}
               onSearchIconClick={onSearchIconClick}
               setSearchTerm={setSearchTerm}
+              setSearchProducts={setSearchProducts}
+              setProducts={setProducts}
             />
             <div className='navbar__navigation'>
               {navlinks.map((link) => (
@@ -68,7 +74,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-      {suggestion !== '' ? (
+      {suggestion !== '' && searchTerm !== '' ? (
         <div className='navbar__suggestion--pop-up'>
           <div className='navbar__suggestion--pop-up_container'>
             <span>Did you mean?</span>
@@ -76,6 +82,8 @@ const Navbar = () => {
               onClick={(e) => {
                 if (suggestion) {
                   onSearchIconClick(e, suggestion);
+                  setSearchTerm('');
+                  setSuggestion('');
                 } else {
                   setSuggestion('');
                 }

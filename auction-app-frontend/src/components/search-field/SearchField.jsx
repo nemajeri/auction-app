@@ -1,9 +1,17 @@
 import React from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import './search-field.css';
-import { GrFormClose } from 'react-icons/gr'
+import { GrFormClose } from 'react-icons/gr';
 
-const SearchField = ({ searchTerm, onSearchTermChange, onSearchIconClick, setSearchTerm }) => {
+const SearchField = ({
+  searchTerm,
+  onSearchTermChange,
+  onSearchIconClick,
+  setSearchTerm,
+  categoryId,
+  setSearchProducts,
+  setProducts,
+}) => {
   return (
     <div className='search'>
       <input
@@ -17,10 +25,15 @@ const SearchField = ({ searchTerm, onSearchTermChange, onSearchIconClick, setSea
           className='delete__icon'
           onClick={() => {
             setSearchTerm('');
+            setSearchProducts(null);
+            setProducts([]);
           }}
         />
       )}
-      <AiOutlineSearch className='search__icon' onClick={onSearchIconClick} />
+      <AiOutlineSearch
+        className='search__icon'
+        onClick={(event) => onSearchIconClick(event, null, categoryId)}
+      />
     </div>
   );
 };

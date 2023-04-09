@@ -10,6 +10,8 @@ export const AppContextProvider = ({ children }) => {
   const [searchedProducts, setSearchProducts] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [products, setProducts] = useState([]);
 
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
@@ -20,7 +22,7 @@ export const AppContextProvider = ({ children }) => {
     if (query.length > 2) {
       try {
         const response = await getSearchSuggestion(query);
-        setSuggestion(response.data);
+        setSuggestion(response.data[0]);
       } catch (error) {
         console.error(error);
       }
@@ -62,7 +64,11 @@ export const AppContextProvider = ({ children }) => {
         setLoading,
         setSearchTerm,
         suggestion,
-        setSuggestion
+        setSuggestion,
+        activeCategory,
+        setActiveCategory,
+        products,
+        setProducts
       }}
     >
       {children}
