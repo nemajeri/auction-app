@@ -14,8 +14,6 @@ export const AppContextProvider = ({ children }) => {
     setSearchTerm(event.target.value);
   };
 
-  console.log('Searched products', searchedProducts.pageData)
-
   const onSearchIconClick = (event) => {
     event.preventDefault();
     setPageNumber(0);

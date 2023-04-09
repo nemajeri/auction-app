@@ -57,7 +57,7 @@ const ShopPage = () => {
     }
   }, [categoryId, categories]);
 
-const handleOpeningAndFetchingCategories =
+  const handleOpeningAndFetchingCategories =
   (categoryId) => async (event) => {
     const category = event?.currentTarget.dataset.category;
     const isOpening = category ? !openedCategory[category] : true;
@@ -75,8 +75,12 @@ const handleOpeningAndFetchingCategories =
 
       const { content, totalElements } = productsResponse.data;
 
-      if (!isOpening) {
-        setProducts([]);
+      if (!isOpening && category) {
+        if (searchedProducts) {
+          setProducts(searchedProducts.content);
+        } else {
+          setProducts([]);
+        }
       } else {
         setProducts(content);
       }
@@ -106,10 +110,12 @@ const handleOpeningAndFetchingCategories =
     }
   };
 
+
   const onExploreMoreBtnClick = () => {
     const nextPageNumber = pageNumber + 1;
-  
-    const categoryId = currentCategoryId === ALL_CATEGORIES_ID ? null : currentCategoryId;
+
+    const categoryId =
+      currentCategoryId === ALL_CATEGORIES_ID ? null : currentCategoryId;
     getAllProducts(nextPageNumber, PAGE_SIZE, searchTerm, categoryId)
       .then((response) => {
         const { content } = response.data;
@@ -118,7 +124,7 @@ const handleOpeningAndFetchingCategories =
       .catch((error) => {
         console.error(error);
       });
-  
+
     setPageNumber(nextPageNumber);
   };
 
