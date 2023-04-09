@@ -64,3 +64,36 @@
   font-weight: bold;
   color: var(--purple);
 }
+
+.navbar__suggestion--pop-up {
+  display: flex;
+  justify-content: start;
+  background-color: var(--white-200);
+  width: 100%;
+}
+
+
+.navbar__suggestion--pop-up_container {
+  display: flex;
+  justify-content: start;
+  width: 550px;
+  gap: 10px;
+  margin: auto;
+  overflow: hidden;
+  padding: 1rem 2rem;
+}
+
+.navbar__suggestion--pop-up_container p {
+  color: var(--purple);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.navbar__suggestion--pop-up_container p:hover {
+  color: var(--purple-100);
+}
+
+.navbar__suggestion--pop-up_container span {
+  color: var(--grey-200);
+  font-size: 1.1rem;
+}

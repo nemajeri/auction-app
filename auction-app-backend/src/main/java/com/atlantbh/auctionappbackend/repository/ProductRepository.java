@@ -6,7 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 
 @Repository
@@ -24,5 +27,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "GROUP BY p.id " +
             "ORDER BY p.endDate ASC")
     Page<Product> getLastChanceProducts(Pageable pageable);
+
+    @Query(value = "SELECT p.product_name FROM product p WHERE levenshtein(lower(p.product_name), lower(:query)) <= :maxDistance LIMIT 1", nativeQuery = true)
+    List<String> findTopNamesByNameSimilarity(@Param("query") String query, @Param("maxDistance") int maxDistance);
 }
 

@@ -14,8 +14,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+
+import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.atlantbh.auctionappbackend.utils.LevenshteinDistance.calculateDistance;
 
 
 @Service
@@ -25,6 +30,14 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     private final ProductMapper productMapper;
+
+
+    public List<String> getSuggestion(String query) {
+        int maxDistance = 10;
+        List<String> suggestions = productRepository.findTopNamesByNameSimilarity(query, maxDistance);
+        return suggestions;
+    }
+
 
     public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId) {
         Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));

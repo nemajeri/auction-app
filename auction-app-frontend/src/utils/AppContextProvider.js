@@ -1,29 +1,50 @@
 import React, { useState, createContext } from 'react';
-import { getAllProducts } from '../utils/api/productsApi';
+import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { PAGE_SIZE } from './constants';
 
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [suggestion, setSuggestion] = useState('');
   const [searchedProducts, setSearchProducts] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const onSearchTermChange = (event) => {
-    setSearchTerm(event.target.value);
+    const searchTerm = event.target.value;
+    setSearchTerm(searchTerm);
   };
 
-  const onSearchIconClick = (event) => {
+  const suggestAlternativePhrases = async (query) => {
+    if (query.length > 2) {
+      try {
+        const response = await getSearchSuggestion(query);
+        setSuggestion(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      setSuggestion('');
+    }
+  }
+
+  const onSearchIconClick = (event, suggestedSearchTerm = null) => {
     event.preventDefault();
+    const currentSearchTerm = suggestedSearchTerm || searchTerm;
     setPageNumber(0);
-    getAllProducts(0, PAGE_SIZE, searchTerm, null).then((response) => {
+    getAllProducts(0, PAGE_SIZE, currentSearchTerm, null).then((response) => {
       setLoading(true);
       setSearchProducts({
         content: response.data.content,
         pageData: response.data,
       });
       setLoading(false);
+      setSuggestion('');
+  
+      if (response.data.content.length <= 1) {
+        suggestAlternativePhrases(searchTerm);
+      }
     });
   };
 
@@ -38,7 +59,10 @@ export const AppContextProvider = ({ children }) => {
         setPageNumber,
         setSearchProducts,
         loading,
-        setLoading
+        setLoading,
+        setSearchTerm,
+        suggestion,
+        setSuggestion
       }}
     >
       {children}
