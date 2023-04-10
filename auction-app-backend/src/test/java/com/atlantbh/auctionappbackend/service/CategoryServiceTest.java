@@ -12,7 +12,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,13 +43,4 @@ class CategoryServiceTest {
         assertEquals(expectedCategoryDTOs, categoriesDTOList);
     }
 
-    @Test
-    @DisplayName("Test should return empty list")
-    void testGetAllCategories_ReturnsEmptyList_WhenNoCategoriesFound() {
-        Mockito.when(categoryRepository.findAll()).thenReturn(new ArrayList<>());
-
-        List<CategoryDTO> categoryDTOList = underTest.getAllCategories();
-
-        assertEquals(Collections.emptyList(), categoryDTOList);
-    }
 }

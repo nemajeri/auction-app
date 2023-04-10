@@ -1,10 +1,9 @@
 package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.dto.CategoryDTO;
-import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.repository.CategoryRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
@@ -13,16 +12,16 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@AllArgsConstructor
 @Service
-@RequiredArgsConstructor
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-
     public List<CategoryDTO> getAllCategories() {
 
-       List<Category> categories =  categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
 
         if (categories.isEmpty())
             return new ArrayList<>() {

@@ -21,4 +21,5 @@ public class CategoryController {
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
+
 }

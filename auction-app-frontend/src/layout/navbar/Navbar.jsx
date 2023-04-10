@@ -15,10 +15,10 @@ const Navbar = () => {
   useEffect(() => {
     setActiveLink(pathname.replace('/', '') || 'home');
   }, [pathname]);
-  
+
   return (
     <>
-      <div className='navbar__black'>
+      <div className='navbar__black' id='navbar'>
         <div className='navbar__container'>
           <div>
             <SocialMediaIcons />
@@ -45,9 +45,9 @@ const Navbar = () => {
               {navlinks.map((link) => (
                 <NavbarLink
                   link={link}
+                  key={link.key}
                   activeLink={activeLink}
                   onClick={setActiveLink}
-                  key={link.key}
                 />
               ))}
             </div>

@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import './search-field.css';
+import { AppContext } from '../../utils/AppContextProvider';
 
 const SearchField = () => {
+  const { searchTerm, onSearchTermChange, onSearchIconClick } = useContext(AppContext);
+
   return (
     <div className='search'>
-      <input type='text' placeholder='Try enter: Shoes' />
-      <AiOutlineSearch className='search__icon' />
+      <input
+        type='text'
+        value={searchTerm}
+        placeholder='Try enter: Shoes'
+        onChange={onSearchTermChange}
+      />
+      <AiOutlineSearch
+        className='search__icon'
+        onClick={onSearchIconClick}
+      />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import './tabs.css';
 
 const Tabs = ({ selectedTab, handleTabClick, tabs }) => {
   return (
-    <div className='tabs'>
+    <div className='tabs' >
       {tabs.map((tab) => (
         <div
           key={tab.id}

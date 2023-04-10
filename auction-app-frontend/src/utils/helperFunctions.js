@@ -1,3 +1,7 @@
+export const getTotalPages = (products, size) => {
+    return Math.ceil(products?.totalElements / size);
+  }
+
 export const calculateTimeLeft = (product) => {
   const startDate = new Date(product.startDate);
   const endDate = new Date(product.endDate);

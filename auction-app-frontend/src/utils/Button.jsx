@@ -1,14 +1,16 @@
 import React from 'react';
-import { BsChevronRight } from 'react-icons/bs';
 
-const Button = ({ onClick, children, className }) => {
+
+const Button = ({ onClick, children, className, Icon, iconClassName }) => {
   return (
     <button onClick={onClick} className={className}>
       <span>
-        <p>{children}</p> <BsChevronRight />
+        <p>{children}</p> 
+        {Icon && <Icon className={iconClassName}/>}
       </span>
     </button>
   );
 };
+
 
 export default Button;

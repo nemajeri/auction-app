@@ -7,10 +7,11 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "category", schema="auction_app_schema")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "category", schema = "auction_app_schema")
+
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
