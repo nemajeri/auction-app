@@ -8,6 +8,7 @@ import {
   shopPagePathToCategory,
   landingPagePath,
   productOverviewPagePath,
+  shopPagePathToProduct,
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -29,7 +30,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path={shopPagePathToCategory} element={<ShopPage />} />
-          <Route path='/shop/product/:id' element={<ProductOverviewPage />}/>
+          <Route path={shopPagePathToProduct} element={<ProductOverviewPage />}/>
           <Route
             path={productOverviewPagePath}
             element={<ProductOverviewPage />}
