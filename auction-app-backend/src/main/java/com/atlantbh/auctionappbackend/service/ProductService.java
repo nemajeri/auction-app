@@ -31,8 +31,7 @@ public class ProductService {
 
 
     public List<String> getSuggestion(String query) {
-        int maxDistance = 10;
-        List<String> suggestions = productRepository.findTopNamesByNameSimilarity(query, maxDistance);
+        List<String> suggestions = productRepository.findTopNamesByNameSimilarity(query);
         return suggestions;
     }
 

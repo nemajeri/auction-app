@@ -33,7 +33,6 @@ const ShopPage = () => {
     totalElements: 0,
   });
   const { categoryId } = useParams();
-  const currentLocation = 'shop';
 
   useEffect(() => {
     getCategories().then((response) => {
@@ -163,7 +162,7 @@ const ShopPage = () => {
               <GridViewProducts
                 className={'shop-page__grid-view'}
                 products={products}
-                currentLocation={currentLocation}
+                currentLocation={'shop'}
               />
             )}
             {((searchedProducts
