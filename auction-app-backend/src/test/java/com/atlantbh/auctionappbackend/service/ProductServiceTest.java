@@ -6,7 +6,6 @@ import com.atlantbh.auctionappbackend.mapper.ProductMapper;
 import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
-import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,8 +64,8 @@ public class ProductServiceTest {
 
         Category category1 = new Category(1L, "Women");
 
-        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1));
-        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1));
+        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1));
+        products.add(new Product(2L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1));
 
 
         int pageNumber = 0;
@@ -77,8 +76,8 @@ public class ProductServiceTest {
         products.forEach(product -> Mockito.when(productMapper.toProductDTO(product)).thenReturn(createProductDTOFromProduct(product)));
 
         List<ProductDTO> expectedProductDTOs = new ArrayList<>();
-        expectedProductDTOs.add(new ProductDTO(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L, "Women", true));
-        expectedProductDTOs.add(new ProductDTO(2L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L, "Women", true));
+        expectedProductDTOs.add(new ProductDTO(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L, "Women", false));
+        expectedProductDTOs.add(new ProductDTO(2L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L, "Women", false));
 
         Page<ProductDTO> productDTOPage = underTest.getNewProducts(pageNumber, size);
         List<ProductDTO> actualProductDTOs = productDTOPage.getContent();
@@ -127,8 +126,8 @@ public class ProductServiceTest {
         products.forEach(product -> Mockito.when(productMapper.toProductDTO(product)).thenReturn(createProductDTOFromProduct(product)));
 
         List<ProductDTO> expectedProductDTOs = new ArrayList<>();
-        expectedProductDTOs.add(new ProductDTO(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25, 1L, "Women",true));
-        expectedProductDTOs.add(new ProductDTO(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25,1L, "Women" ,false));
+        expectedProductDTOs.add(new ProductDTO(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 35.00f, 1L, "Women",true));
+        expectedProductDTOs.add(new ProductDTO(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,1L, "Women" ,false));
         List<ProductDTO> productDTOList = underTest.getAllProducts();
 
         assertEquals(expectedProductDTOs, productDTOList);
