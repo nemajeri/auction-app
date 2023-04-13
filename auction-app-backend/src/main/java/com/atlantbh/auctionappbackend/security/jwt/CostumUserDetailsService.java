@@ -1,4 +1,4 @@
-package com.atlantbh.auctionappbackend.security;
+package com.atlantbh.auctionappbackend.security.jwt;
 
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;

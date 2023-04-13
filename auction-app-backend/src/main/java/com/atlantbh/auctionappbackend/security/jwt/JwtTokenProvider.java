@@ -1,4 +1,4 @@
-package com.atlantbh.auctionappbackend.security;
+package com.atlantbh.auctionappbackend.security.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;

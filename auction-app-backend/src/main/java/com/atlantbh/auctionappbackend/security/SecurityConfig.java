@@ -1,4 +1,8 @@
 package com.atlantbh.auctionappbackend.security;
+import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationEntryPoint;
+import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
+import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
+import com.atlantbh.auctionappbackend.security.oauth2.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -30,6 +33,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${allowedOrigin}")
     private String allowedOrigin;
 
+
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -39,6 +46,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/sell", "/buy", "/dashboard").authenticated()
                 .anyRequest().permitAll()
+                .and()
+                .oauth2Login()
+                .loginPage("/login")
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService)
+                .and()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
@@ -51,6 +64,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login");
     }
+
+
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -77,7 +92,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // configure your user details service here if needed
     }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)

@@ -2,12 +2,10 @@ package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
-import com.atlantbh.auctionappbackend.security.JwtAuthenticationFilter;
+import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
 import com.atlantbh.auctionappbackend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
-import com.atlantbh.auctionappbackend.exception.DuplicateAppUserException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;

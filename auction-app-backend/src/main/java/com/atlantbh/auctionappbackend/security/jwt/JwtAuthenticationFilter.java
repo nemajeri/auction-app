@@ -1,4 +1,4 @@
-package com.atlantbh.auctionappbackend.security;
+package com.atlantbh.auctionappbackend.security.jwt;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
