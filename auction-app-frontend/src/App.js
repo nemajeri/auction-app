@@ -9,6 +9,8 @@ import {
   landingPagePath,
   productOverviewPagePath,
   shopPagePathToProduct,
+  loginPath,
+  registrationPath,
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -17,13 +19,13 @@ import {
   ShopPage,
   LandingPage,
   ProductOverviewPage,
+  LoginPage,
+  RegisterPage,
 } from './pages/index';
 import { Route, Routes } from 'react-router-dom';
 import { AppContextProvider } from './utils/AppContextProvider';
 
-
 function App() {
-
   return (
     <>
       <AppContextProvider>
@@ -35,6 +37,8 @@ function App() {
             path={productOverviewPagePath}
             element={<ProductOverviewPage />}
           />
+          <Route path={loginPath} element={<LoginPage />} />
+          <Route path={registrationPath} element={<RegisterPage />} />
           <Route path={landingPagePath} element={<LandingPage />} />
           <Route path={aboutUsPath} element={<AboutPage />} />
           <Route path={privacyPolicyPath} element={<TermsAndCondPage />} />

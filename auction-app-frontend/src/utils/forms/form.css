@@ -1,0 +1,33 @@
+.form__checkbox{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+}
+
+.form__main--call_to-action {
+    width: 100%;
+    background-color: var(--purple);
+    border: none;
+    color: var(--white-100);
+    padding: 17px 0;
+    margin-top: 3rem;
+}
+
+.form__social-media--buttons {
+    width: 100%;
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.form__social-media--button {
+    background-color: var(--white-100);
+    padding: 8px;
+    border: 1px solid var(--grey-100);
+    height: 4rem;
+    width: 16rem;
+}
+
+.form__social-media--button p {
+    font-weight: bold;
+}
