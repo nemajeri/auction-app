@@ -7,17 +7,22 @@ import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
+import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +43,33 @@ public class ProductServiceTest {
 
     @InjectMocks
     private ProductService underTest;
+
+    @Test
+    @DisplayName("Test should return filtered products")
+    void testGetAllFilteredProducts() {
+        List<Product> products = new ArrayList<>();
+        Category category1 = new Category(1L, "Women");
+
+        products.add(new Product(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1));
+        products.add(new Product(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1));
+
+        int pageNumber = 0;
+        int pageSize = 9;
+        String searchTerm = "";
+        Long categoryId = 1L;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Mockito.when(productRepository.findAll(ArgumentMatchers.<Specification<Product>>any(), ArgumentMatchers.<Pageable>any())).thenReturn(new PageImpl<>(products, pageable, 1));
+
+        List<ProductsResponse> expectedProductsResponses = new ArrayList<>();
+        expectedProductsResponses.add(new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L));
+        expectedProductsResponses.add(new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L));
+
+        Page<ProductsResponse> productsResponsePage = underTest.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId);
+        List<ProductsResponse> actualProductsResponses = productsResponsePage.getContent();
+
+        assertEquals(expectedProductsResponses, actualProductsResponses);
+    }
 
 
     @Test

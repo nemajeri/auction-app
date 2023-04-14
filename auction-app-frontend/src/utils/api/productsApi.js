@@ -40,3 +40,8 @@ export const getSortedProductsAccordingToDate = (
 export const getAllProductsToSeparateHighlighted = () => {
   return API.get('/products/all-products');
 };
+
+
+export const getSearchSuggestion = (query) => {
+  return API.get(`/products/search-suggestions?query=${query}`);
+};

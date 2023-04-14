@@ -1,11 +1,17 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import './search-field.css';
-import { AppContext } from '../../utils/AppContextProvider';
+import { GrFormClose } from 'react-icons/gr';
 
-const SearchField = () => {
-  const { searchTerm, onSearchTermChange, onSearchIconClick } = useContext(AppContext);
-
+const SearchField = ({
+  searchTerm,
+  onSearchTermChange,
+  onSearchIconClick,
+  setSearchTerm,
+  categoryId,
+  setSearchProducts,
+  setProducts,
+}) => {
   return (
     <div className='search'>
       <input
@@ -14,9 +20,19 @@ const SearchField = () => {
         placeholder='Try enter: Shoes'
         onChange={onSearchTermChange}
       />
+      {searchTerm.length > 0 && (
+        <GrFormClose
+          className='delete__icon'
+          onClick={() => {
+            setSearchTerm('');
+            setSearchProducts(null);
+            setProducts([]);
+          }}
+        />
+      )}
       <AiOutlineSearch
         className='search__icon'
-        onClick={onSearchIconClick}
+        onClick={(event) => onSearchIconClick(event, null, categoryId)}
       />
     </div>
   );
