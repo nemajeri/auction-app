@@ -3,9 +3,16 @@ package com.atlantbh.auctionappbackend.controller;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
 import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
+import com.atlantbh.auctionappbackend.security.oauth2.FacebookOAuth2UserInfo;
+import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
+import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.atlantbh.auctionappbackend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -48,5 +55,26 @@ public class AuthController {
 
         return new ResponseEntity<>(OK);
     }
+
+    @PostMapping("/oauth2-login-success")
+    public ResponseEntity<Cookie> handleOAuth2LoginSuccess(@AuthenticationPrincipal OAuth2User principal, HttpServletResponse response) {
+        OAuth2UserInfo oAuth2UserInfo;
+        String registrationId = principal.getAttribute("registrationId");
+
+        switch (registrationId) {
+            case "google":
+                oAuth2UserInfo = new GoogleOAuth2UserInfo(principal.getAttributes());
+                break;
+            case "facebook":
+                oAuth2UserInfo = new FacebookOAuth2UserInfo(principal.getAttributes());
+                break;
+            default:
+                throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
+        }
+        Cookie cookieWithJwtToken = authService.generateJwtCookieForOAuth2User(oAuth2UserInfo);
+        response.addCookie(cookieWithJwtToken);
+        return new ResponseEntity<>(OK);
+    }
+
 
 }

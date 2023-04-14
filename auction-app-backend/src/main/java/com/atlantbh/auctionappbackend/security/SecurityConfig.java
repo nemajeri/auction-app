@@ -3,6 +3,7 @@ import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationEntryPoint;
 import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
 import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
 import com.atlantbh.auctionappbackend.security.oauth2.CustomOAuth2UserService;
+import com.atlantbh.auctionappbackend.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -33,9 +34,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${allowedOrigin}")
     private String allowedOrigin;
 
+    @Autowired
+    private OAuth2AuthenticationSuccessHandler handleOAuth2LoginSuccess;
 
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
+
+    public SecurityConfig() {
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -48,10 +54,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().permitAll()
                 .and()
                 .oauth2Login()
-                .loginPage("/login")
                 .userInfoEndpoint()
                 .userService(customOAuth2UserService)
                 .and()
+                .successHandler((request, response, authentication) -> {
+                    handleOAuth2LoginSuccess.onAuthenticationSuccess(request, response, authentication);
+                    response.sendRedirect("/");
+                })
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
@@ -64,7 +73,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login");
     }
-
 
 
     @Bean

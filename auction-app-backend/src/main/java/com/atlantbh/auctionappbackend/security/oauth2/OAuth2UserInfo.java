@@ -4,7 +4,9 @@ public interface OAuth2UserInfo {
 
     String getId();
 
-    String getName();
+    String getFirstName();
+
+    String getLastName();
 
     String getEmail();
 }

@@ -3,7 +3,7 @@ package com.atlantbh.auctionappbackend.security.oauth2;
 import java.util.Map;
 
 public class FacebookOAuth2UserInfo implements OAuth2UserInfo {
-    private Map<String, Object> attributes;
+    private final Map<String, Object> attributes;
 
     public FacebookOAuth2UserInfo(Map<String, Object> attributes) {
         this.attributes = attributes;
@@ -15,7 +15,12 @@ public class FacebookOAuth2UserInfo implements OAuth2UserInfo {
     }
 
     @Override
-    public String getName() {
+    public String getFirstName() {
+        return (String) attributes.get("name");
+    }
+
+    @Override
+    public String getLastName() {
         return (String) attributes.get("name");
     }
 

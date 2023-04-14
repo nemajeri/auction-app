@@ -6,6 +6,7 @@ import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
 import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
+import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -66,6 +67,25 @@ public class AuthService {
         response.addCookie(jwtCookie);
 
         return jwtCookie;
+    }
+
+    public Cookie generateJwtCookieForOAuth2User(OAuth2UserInfo oAuth2UserInfo) {
+        String email = oAuth2UserInfo.getEmail();
+        AppUser appUser = appUserRepository.findByEmail(email);
+        if (appUser == null) {
+            appUser = new AppUser();
+            appUser.setEmail(email);
+            appUser.setFirstName(oAuth2UserInfo.getFirstName());
+            appUser.setLastName(oAuth2UserInfo.getLastName());
+            appUser.setPassword("");
+            appUserRepository.save(appUser);
+        }
+
+        String jwt = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(email, ""));
+        Cookie cookie = new Cookie("jwt-token", jwt);
+        cookie.setPath("/");
+        cookie.setMaxAge(4 * 60 * 60);
+        return cookie;
     }
 
 }
