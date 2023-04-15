@@ -37,10 +37,9 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<Cookie> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-            Cookie cookieWithJwtToken = authService.login(loginRequest, response);
-            response.addCookie(cookieWithJwtToken);
-            return new ResponseEntity<>(OK);
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response, HttpServletRequest request) {
+        authService.login(request ,loginRequest, response);
+        return new ResponseEntity<>("Login successful", OK);
     }
 
     @PostMapping("/logout")

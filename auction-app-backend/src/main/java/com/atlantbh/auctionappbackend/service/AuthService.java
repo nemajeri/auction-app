@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
@@ -45,7 +46,7 @@ public class AuthService {
         appUserRepository.save(userToCreate);
     }
 
-    public Cookie login(LoginRequest loginRequest, HttpServletResponse response) {
+    public void login(HttpServletRequest request, LoginRequest loginRequest, HttpServletResponse response) {
         Optional<AppUser> appUser = appUserRepository.getByEmail(loginRequest.getEmail());
 
         if (!appUser.isPresent()) {
@@ -58,16 +59,17 @@ public class AuthService {
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(loggedAppUser.getEmail(), loggedAppUser.getPassword());
         String jwt =  jwtTokenProvider.generateToken(authentication);
+        boolean isSecure = !request.isSecure() || request.getServerName().equals("localhost") ? false : true;
 
         Cookie jwtCookie = new Cookie("jwt" , jwt);
         jwtCookie.setMaxAge(4 * 60 * 60);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
+        jwtCookie.setSecure(isSecure);
 
         response.addCookie(jwtCookie);
-
-        return jwtCookie;
     }
+
 
     public Cookie generateJwtCookieForOAuth2User(OAuth2UserInfo oAuth2UserInfo) {
         String email = oAuth2UserInfo.getEmail();
