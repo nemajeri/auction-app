@@ -11,6 +11,7 @@
     color: var(--white-100);
     padding: 17px 0;
     margin-top: 3rem;
+    cursor: pointer;
 }
 
 .form__social-media--buttons {

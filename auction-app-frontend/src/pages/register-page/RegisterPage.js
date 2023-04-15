@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Form from '../../utils/forms/Form';
 import { loginPath } from '../../utils/paths';
+import { registerUser } from '../../utils/api/authApi';
 import './registerPage.css';
 
 const fields = [
@@ -28,14 +29,6 @@ const fields = [
 ];
 
 const RegisterPage = () => {
-  // const { login } = useContext(AppContext);
-
-  // const navigate = useNavigate();
-
-  const handleRegister = (formData) => {
-    console.log(formData);
-  };
-
   return (
     <div className='wrapper register-page__wrapper'>
       <div className='register-page__headline'>
@@ -45,7 +38,7 @@ const RegisterPage = () => {
         <Form
           fields={fields}
           submitText='REGISTER'
-          onSubmit={handleRegister}
+          onSubmit={registerUser}
           includeSocial={true}
           includeRememberMe={false}
         />

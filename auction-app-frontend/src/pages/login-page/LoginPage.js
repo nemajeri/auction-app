@@ -1,7 +1,6 @@
-import { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AppContext } from '../../utils/AppContextProvider';
+import { Link } from 'react-router-dom';
 import Form from '../../utils/forms/Form';
+import { loginUser } from '../../utils/api/authApi';
 import './loginPage.css';
 
 const fields = [
@@ -18,13 +17,6 @@ const fields = [
 ];
 
 const LoginPage = () => {
-  // const { login } = useContext(AppContext);
-
-  // const navigate = useNavigate();
-
-  const handleLogin = (formData) => {
-    console.log(formData);
-  };
 
   return (
     <div className='wrapper login-page__wrapper'>
@@ -35,7 +27,7 @@ const LoginPage = () => {
         <Form
           fields={fields}
           submitText='LOGIN'
-          onSubmit={handleLogin}
+          onSubmit={loginUser}
           includeSocial={true}
           includeRememberMe={true}
         />

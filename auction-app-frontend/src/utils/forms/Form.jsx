@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Button from '../Button';
 import './form.css';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getJwtFromCookie } from '../helperFunctions';
+import jwt from 'jwt-decode';
 
 const Form = ({
   fields,
@@ -14,6 +16,9 @@ const Form = ({
     Object.fromEntries(fields.map((field) => [field.name, '']))
   );
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const handleChange = (event) => {
     setFormState({
       ...formState,
@@ -23,10 +28,28 @@ const Form = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onSubmit(formState);
-  };
+    console.log('Submitting form:', formState);
+    onSubmit(formState).then((response) => {
+      if (response.status === 201) {
+        navigate('/login');
+      } else if (response.status === 200) {
+        const jwtToken = getJwtFromCookie();
 
-  const location = useLocation()
+        if (jwtToken) {
+          try {
+            const decoded = jwt.decode(jwtToken);
+
+            console.log('Decoded JWT payload:', decoded);
+          } catch (error) {
+            console.error('Error decoding JWT token:', error);
+          }
+        } else {
+          console.log('JWT token not found in cookie');
+        }
+        navigate('/');
+      }
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit}>
