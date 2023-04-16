@@ -51,27 +51,21 @@ const Navbar = () => {
       <div className='navbar__white'>
         <div className='navbar__container--white'>
           <Logo />
-          <div className='navbar__container--search_and-links'>
-            <SearchField
-              searchTerm={searchTerm}
-              onSearchTermChange={onSearchTermChange}
-              categoryId={activeCategory}
-              onSearchIconClick={onSearchIconClick}
-              setSearchTerm={setSearchTerm}
-              setSearchProducts={setSearchProducts}
-              setProducts={setProducts}
-            />
-            <div className='navbar__navigation'>
-              {navlinks.map((link) => (
-                <NavbarLink
-                  link={link}
-                  key={link.key}
-                  activeLink={activeLink}
-                  onClick={setActiveLink}
-                />
-              ))}
+          {!(pathname.includes('login') || pathname.includes('register')) ? (
+            <div className='navbar__container--search_and-links'>
+              <SearchField />
+              <div className='navbar__navigation'>
+                {navlinks.map((link) => (
+                  <NavbarLink
+                    link={link}
+                    key={link.key}
+                    activeLink={activeLink}
+                    onClick={setActiveLink}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
       {suggestion !== '' && searchTerm !== '' ? (

@@ -12,6 +12,9 @@ export const AppContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(null);
   const [products, setProducts] = useState([]);
+  const [user, setUser] = useState(null);
+
+  console.log('User: ', user)
 
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
@@ -69,6 +72,7 @@ export const AppContextProvider = ({ children }) => {
         setActiveCategory,
         products,
         setProducts
+        setUser
       }}
     >
       {children}

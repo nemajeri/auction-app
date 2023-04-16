@@ -1,7 +1,10 @@
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import Form from '../../utils/forms/Form';
 import { loginUser } from '../../utils/api/authApi';
 import './loginPage.css';
+import { AppContext } from '../../utils/AppContextProvider';
+import jwt_decode from 'jwt-decode';
 
 const fields = [
   {
@@ -17,6 +20,18 @@ const fields = [
 ];
 
 const LoginPage = () => {
+  const { setUser } = useContext(AppContext);
+
+  const handleLoginSuccess = (jwtToken) => {
+    const decoded = jwt_decode(jwtToken);
+    console.log('Decoded token: ',decoded)
+  };
+
+  const handleRememberMe = () => {
+    const now = new Date();
+    const expirationTime = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+    document.cookie = `rememberMe=true; expires=${expirationTime.toUTCString()}; path=/; secure=true`;
+  };
 
   return (
     <div className='wrapper login-page__wrapper'>
@@ -27,9 +42,10 @@ const LoginPage = () => {
         <Form
           fields={fields}
           submitText='LOGIN'
-          onSubmit={loginUser}
+          onSubmit={(credentials) => loginUser(credentials, handleLoginSuccess)}
           includeSocial={true}
           includeRememberMe={true}
+          onRememberMe={handleRememberMe}
         />
         <div className='login-page__password'>
           <Link to={'/password'}>Forgot password?</Link>
