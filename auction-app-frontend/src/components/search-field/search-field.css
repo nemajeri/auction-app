@@ -12,6 +12,15 @@
     height: 20px;
 }
 
+.search .delete__icon {
+    cursor: pointer;
+    position: absolute;
+    top: 1.3rem;
+    right: 3.25rem;
+    width: 30px;
+    height: 25px;
+}
+
 .search > input {
     height: 55px;
 }

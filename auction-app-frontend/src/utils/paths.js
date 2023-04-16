@@ -1,6 +1,6 @@
 import foolinks from '../data/foolinks.json';
-
-export const shopPagePath = '/shop/:categoryId';
+export const shopPagePathToProduct = '/shop/product/:id';
+export const shopPagePathToCategory = '/shop/:categoryId';
 export const landingPagePath = '/';
 export const productOverviewPagePath = '/product/:id';
 export const aboutUsPath = foolinks[0].links[0].url;

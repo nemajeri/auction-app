@@ -14,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+
+
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,13 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     private final ProductMapper productMapper;
+
+
+    public List<String> getSuggestion(String query) {
+        List<String> suggestions = productRepository.findTopNamesByNameSimilarity(query);
+        return suggestions;
+    }
+
 
     public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId) {
         Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));

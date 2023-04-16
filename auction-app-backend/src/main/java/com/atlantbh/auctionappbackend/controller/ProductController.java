@@ -21,6 +21,12 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @GetMapping("/search-suggestions")
+    public ResponseEntity<List<String>> searchSuggestions(@RequestParam("query") String query) {
+        List<String> suggestions = productService.getSuggestion(query);
+        return ResponseEntity.ok(suggestions);
+    }
+
     @GetMapping("/items")
     public ResponseEntity<Page<ProductsResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int pageNumber,
