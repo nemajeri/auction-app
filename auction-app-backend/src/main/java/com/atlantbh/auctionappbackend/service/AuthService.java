@@ -5,6 +5,7 @@ import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
+import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -52,18 +54,22 @@ public class AuthService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), loggedAppUser.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
         }
-        Authentication authentication = new UsernamePasswordAuthenticationToken(loggedAppUser.getEmail(), loggedAppUser.getPassword());
+
+        CustomUserDetails userDetails = new CustomUserDetails(loggedAppUser.getEmail(), loggedAppUser.getPassword(),  Collections.emptyList());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         String jwt =  jwtTokenProvider.generateToken(authentication);
         boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
         Cookie jwtCookie = new Cookie("jwt" , jwt);
         jwtCookie.setMaxAge(4 * 60 * 60);
-        jwtCookie.setHttpOnly(true);
+        jwtCookie.setHttpOnly(false);
         jwtCookie.setPath("/");
         jwtCookie.setSecure(isSecure);
 
         response.addCookie(jwtCookie);
     }
+
 
 
     public Cookie generateJwtCookieForOAuth2User(OAuth2UserInfo oAuth2UserInfo) {
