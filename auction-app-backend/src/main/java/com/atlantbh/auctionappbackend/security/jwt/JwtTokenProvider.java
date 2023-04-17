@@ -23,7 +23,8 @@ public class JwtTokenProvider {
     private final Set<String> blacklistedTokens = new HashSet<>();
 
     public String generateToken(Authentication authentication) {
-        String email = authentication.getName();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String email = userDetails.getEmail();
 
         Instant now = Instant.now();
         Instant expiration = now.plus(4, HOURS);

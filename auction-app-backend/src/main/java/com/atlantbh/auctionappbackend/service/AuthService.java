@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,19 +46,15 @@ public class AuthService {
     }
 
     public void login(HttpServletRequest request, LoginRequest loginRequest, HttpServletResponse response) {
-        Optional<AppUser> appUser = appUserRepository.getByEmail(loginRequest.getEmail());
+        AppUser loggedAppUser = appUserRepository.getByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-        if (!appUser.isPresent()) {
-            throw new BadCredentialsException("Invalid email or password");
-        }
-
-        AppUser loggedAppUser = appUser.get();
         if (!passwordEncoder.matches(loginRequest.getPassword(), loggedAppUser.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(loggedAppUser.getEmail(), loggedAppUser.getPassword());
         String jwt =  jwtTokenProvider.generateToken(authentication);
-        boolean isSecure = !request.isSecure() || request.getServerName().equals("localhost") ? false : true;
+        boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
         Cookie jwtCookie = new Cookie("jwt" , jwt);
         jwtCookie.setMaxAge(4 * 60 * 60);
