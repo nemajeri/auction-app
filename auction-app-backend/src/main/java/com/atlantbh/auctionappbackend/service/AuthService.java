@@ -80,11 +80,16 @@ public class AuthService {
             appUser.setEmail(email);
             appUser.setFirstName(oAuth2UserInfo.getFirstName());
             appUser.setLastName(oAuth2UserInfo.getLastName());
+            System.out.println("appUser.firstName: " + appUser.getFirstName());
+            System.out.println("appUser.lastName: " + appUser.getLastName());
             appUser.setPassword("");
             appUserRepository.save(appUser);
+            System.out.println("Saved appUser: " + appUser);
         }
 
-        String jwt = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(email, ""));
+        CustomUserDetails customUserDetails = new CustomUserDetails(email, "", Collections.emptyList());
+
+        String jwt = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""));
         Cookie cookie = new Cookie("jwt-token", jwt);
         cookie.setPath("/");
         cookie.setMaxAge(4 * 60 * 60);

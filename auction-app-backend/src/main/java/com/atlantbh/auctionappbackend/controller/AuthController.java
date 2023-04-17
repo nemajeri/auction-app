@@ -7,7 +7,14 @@ import com.atlantbh.auctionappbackend.security.oauth2.FacebookOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.atlantbh.auctionappbackend.service.AuthService;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -19,6 +26,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -29,6 +42,9 @@ public class AuthController {
     private final AuthService authService;
 
     private final JwtAuthenticationFilter jwtFilter;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
 
     @PostMapping(value = "/register")
     public ResponseEntity<Object> register(@RequestBody RegisterRequest registerRequest) {
@@ -56,24 +72,49 @@ public class AuthController {
     }
 
     @PostMapping("/oauth2-login-success")
-    public ResponseEntity<Cookie> handleOAuth2LoginSuccess(@AuthenticationPrincipal OAuth2User principal, HttpServletResponse response) {
-        OAuth2UserInfo oAuth2UserInfo;
-        String registrationId = principal.getAttribute("registrationId");
+    public ResponseEntity<Cookie> handleOAuth2LoginSuccess(@RequestParam String provider, @RequestParam String token, HttpServletResponse response) {
+        OAuth2UserInfo oAuth2UserInfo= new GoogleOAuth2UserInfo(Collections.emptyMap());
 
-        switch (registrationId) {
-            case "google":
-                oAuth2UserInfo = new GoogleOAuth2UserInfo(principal.getAttributes());
-                break;
-            case "facebook":
-                oAuth2UserInfo = new FacebookOAuth2UserInfo(principal.getAttributes());
-                break;
-            default:
-                throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
+        if ("google".equalsIgnoreCase(provider)) {
+            GoogleIdToken googleIdToken = verifyGISToken(token);
+            GoogleIdToken.Payload payload = googleIdToken.getPayload();
+            String firstName = (String) payload.get("given_name");
+            String lastName = (String) payload.get("family_name");
+            Map<String, Object> attributes = new HashMap<>();
+            attributes.put("firstName", firstName);
+            attributes.put("lastName", lastName);
+            attributes.put("sub", payload.getSubject());
+            attributes.put("email", payload.getEmail());
+            oAuth2UserInfo = new GoogleOAuth2UserInfo(attributes);
+        } else if ("facebook".equalsIgnoreCase(provider)) {
+            // Todo: implement Facebook OAuth2
+        } else {
+            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
         }
+
         Cookie cookieWithJwtToken = authService.generateJwtCookieForOAuth2User(oAuth2UserInfo);
         response.addCookie(cookieWithJwtToken);
         return new ResponseEntity<>(OK);
     }
 
+    private GoogleIdToken verifyGISToken(String token) {
+        try {
+            HttpTransport transport = new NetHttpTransport();
+            JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                    .setAudience(Collections.singletonList(clientId))
+                    .build();
+
+            GoogleIdToken googleIdToken = verifier.verify(token);
+            if (googleIdToken != null) {
+                return googleIdToken;
+            } else {
+                throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "Invalid GSI token");
+            }
+        } catch (GeneralSecurityException | IOException e) {
+            throw new OAuth2AuthenticationException(new OAuth2Error("token_verification_error"), "Error verifying GSI token", e);
+        }
+    }
 
 }
