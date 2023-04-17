@@ -20,16 +20,18 @@ const ShopPage = () => {
     setPageNumber,
     loading,
     setLoading,
+    activeCategory,
+    setActiveCategory,
+    products,
+    setProducts
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
   const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
   const [productsByCategories, setProductsByCategories] = useState({
     content: [],
     totalElements: 0,
   });
-  const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const { categoryId } = useParams();
 
   useEffect(() => {
@@ -57,14 +59,12 @@ const ShopPage = () => {
     }
   }, [categoryId, categories]);
 
-  const handleOpeningAndFetchingCategories =
-  (categoryId) => async (event) => {
+  const handleOpeningAndFetchingCategories = (categoryId) => async (event) => {
     const category = event?.currentTarget.dataset.category;
     const isOpening = category ? !openedCategory[category] : true;
 
     try {
       setPageNumber(0);
-      setCurrentCategoryId(categoryId);
 
       const productsResponse = await getAllProducts(
         0,
@@ -107,15 +107,17 @@ const ShopPage = () => {
           [category]: isOpening,
         };
       });
+
+      setActiveCategory(isOpening ? categoryId : null);
     }
   };
 
-
   const onExploreMoreBtnClick = () => {
     const nextPageNumber = pageNumber + 1;
-
+  
     const categoryId =
-      currentCategoryId === ALL_CATEGORIES_ID ? null : currentCategoryId;
+      activeCategory === ALL_CATEGORIES_ID || !activeCategory ? null : activeCategory;
+  
     getAllProducts(nextPageNumber, PAGE_SIZE, searchTerm, categoryId)
       .then((response) => {
         const { content } = response.data;
@@ -124,9 +126,10 @@ const ShopPage = () => {
       .catch((error) => {
         console.error(error);
       });
-
+  
     setPageNumber(nextPageNumber);
   };
+  
 
   if (loading) {
     return <LoadingSpinner />;
@@ -159,6 +162,7 @@ const ShopPage = () => {
               <GridViewProducts
                 className={'shop-page__grid-view'}
                 products={products}
+                currentLocation={'shop'}
               />
             )}
             {((searchedProducts

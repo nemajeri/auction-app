@@ -5,9 +5,10 @@ import {
   aboutUsPath,
   privacyPolicyPath,
   termsAndCondPath,
-  shopPagePath,
+  shopPagePathToCategory,
   landingPagePath,
   productOverviewPagePath,
+  shopPagePathToProduct,
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -28,7 +29,8 @@ function App() {
       <AppContextProvider>
         <Navbar />
         <Routes>
-          <Route path={shopPagePath} element={<ShopPage />} />
+          <Route path={shopPagePathToCategory} element={<ShopPage />} />
+          <Route path={shopPagePathToProduct} element={<ProductOverviewPage />}/>
           <Route
             path={productOverviewPagePath}
             element={<ProductOverviewPage />}

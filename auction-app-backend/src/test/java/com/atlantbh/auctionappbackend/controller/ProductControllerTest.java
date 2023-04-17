@@ -36,6 +36,40 @@ public class ProductControllerTest {
     private ProductService productService;
 
     @Test
+    public void testGetAllItemsAsProducts() throws Exception {
+        ProductsResponse product1 = new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L);
+        ProductsResponse product2 = new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L);
+
+        int pageNumber = 0;
+        int pageSize = 9;
+        String searchTerm = "";
+        Long categoryId = 1L;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        when(productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId))
+                .thenReturn(new PageImpl<>(Arrays.asList(product1, product2), pageable, 1));
+
+        mockMvc.perform(get("/api/v1/products/items")
+                        .param("pageNumber", String.valueOf(pageNumber))
+                        .param("pageSize", String.valueOf(pageSize))
+                        .param("searchTerm", searchTerm)
+                        .param("categoryId", String.valueOf(categoryId))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(product1.getId()))
+                .andExpect(jsonPath("$.content[0].productName").value(product1.getProductName()))
+                .andExpect(jsonPath("$.content[0].startPrice").value(product1.getStartPrice()))
+                .andExpect(jsonPath("$.content[0].images").value(product1.getImages()))
+                .andExpect(jsonPath("$.content[0].categoryId").value(product1.getCategoryId()))
+                .andExpect(jsonPath("$.content[1].id").value(product2.getId()))
+                .andExpect(jsonPath("$.content[1].productName").value(product2.getProductName()))
+                .andExpect(jsonPath("$.content[1].startPrice").value(product2.getStartPrice()))
+                .andExpect(jsonPath("$.content[1].images").value(product2.getImages()))
+                .andExpect(jsonPath("$.content[1].categoryId").value(product2.getCategoryId()));
+    }
+
+
+    @Test
     public void testGetProductById_ReturnsAProductById() throws Exception {
 
         ProductDTO product = new ProductDTO(
