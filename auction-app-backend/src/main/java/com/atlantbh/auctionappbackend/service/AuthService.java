@@ -80,11 +80,8 @@ public class AuthService {
             appUser.setEmail(email);
             appUser.setFirstName(oAuth2UserInfo.getFirstName());
             appUser.setLastName(oAuth2UserInfo.getLastName());
-            System.out.println("appUser.firstName: " + appUser.getFirstName());
-            System.out.println("appUser.lastName: " + appUser.getLastName());
             appUser.setPassword("");
             appUserRepository.save(appUser);
-            System.out.println("Saved appUser: " + appUser);
         }
 
         CustomUserDetails customUserDetails = new CustomUserDetails(email, "", Collections.emptyList());

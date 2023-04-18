@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -48,13 +49,13 @@ public class AuthController {
 
     @PostMapping(value = "/register")
     public ResponseEntity<Object> register(@RequestBody RegisterRequest registerRequest) {
-            authService.register(registerRequest);
-            return new ResponseEntity<>(CREATED);
+        authService.register(registerRequest);
+        return new ResponseEntity<>(CREATED);
     }
 
     @PostMapping(value = "/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response, HttpServletRequest request) {
-        authService.login(request ,loginRequest, response);
+        authService.login(request, loginRequest, response);
         return new ResponseEntity<>("Login successful", OK);
     }
 
@@ -73,7 +74,8 @@ public class AuthController {
 
     @PostMapping("/oauth2-login-success")
     public ResponseEntity<Cookie> handleOAuth2LoginSuccess(@RequestParam String provider, @RequestParam String token, HttpServletResponse response) {
-        OAuth2UserInfo oAuth2UserInfo= new GoogleOAuth2UserInfo(Collections.emptyMap());
+        OAuth2UserInfo oAuth2UserInfo = new GoogleOAuth2UserInfo(Collections.emptyMap());
+        RestTemplate restTemplate = new RestTemplate();
 
         if ("google".equalsIgnoreCase(provider)) {
             GoogleIdToken googleIdToken = verifyGISToken(token);
@@ -87,7 +89,14 @@ public class AuthController {
             attributes.put("email", payload.getEmail());
             oAuth2UserInfo = new GoogleOAuth2UserInfo(attributes);
         } else if ("facebook".equalsIgnoreCase(provider)) {
-            // Todo: implement Facebook OAuth2
+            String facebookGraphApiUrl = "https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token=" + token;
+            ResponseEntity<Map> facebookResponse = restTemplate.getForEntity(facebookGraphApiUrl, Map.class);
+            Map<String, Object> attributes = new HashMap<>();
+            attributes.put("firstName", facebookResponse.getBody().get("first_name"));
+            attributes.put("lastName", facebookResponse.getBody().get("last_name"));
+            attributes.put("sub", facebookResponse.getBody().get("id"));
+            attributes.put("email", facebookResponse.getBody().get("email"));
+            oAuth2UserInfo = new FacebookOAuth2UserInfo(attributes);
         } else {
             throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
         }
