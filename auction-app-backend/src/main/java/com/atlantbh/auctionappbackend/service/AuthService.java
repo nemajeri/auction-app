@@ -55,13 +55,15 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        CustomUserDetails userDetails = new CustomUserDetails(loggedAppUser.getEmail(), loggedAppUser.getPassword(),  Collections.emptyList());
+        String firstName = loggedAppUser.getFirstName();
+        String lastName = loggedAppUser.getLastName();
+        CustomUserDetails userDetails = new CustomUserDetails(loggedAppUser.getEmail(), loggedAppUser.getPassword(), firstName, lastName, Collections.emptyList());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        String jwt =  jwtTokenProvider.generateToken(authentication);
+        String jwt = jwtTokenProvider.generateToken(authentication);
         boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
-        Cookie jwtCookie = new Cookie("jwt" , jwt);
+        Cookie jwtCookie = new Cookie("jwt", jwt);
         jwtCookie.setMaxAge(4 * 60 * 60);
         jwtCookie.setHttpOnly(false);
         jwtCookie.setPath("/");
@@ -69,6 +71,7 @@ public class AuthService {
 
         response.addCookie(jwtCookie);
     }
+
 
 
 
@@ -84,7 +87,9 @@ public class AuthService {
             appUserRepository.save(appUser);
         }
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(email, "", Collections.emptyList());
+        String firstName = oAuth2UserInfo.getFirstName();
+        String lastName = oAuth2UserInfo.getLastName();
+        CustomUserDetails customUserDetails = new CustomUserDetails(email, "", firstName, lastName, Collections.emptyList());
 
         String jwt = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""));
         Cookie cookie = new Cookie("jwt-token", jwt);

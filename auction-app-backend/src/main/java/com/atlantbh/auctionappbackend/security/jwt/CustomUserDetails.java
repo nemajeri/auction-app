@@ -10,11 +10,22 @@ import java.util.Collection;
 public class CustomUserDetails implements UserDetails {
     private String email;
     private String password;
+    private String firstName;
+    private String lastName;
     private Collection<? extends GrantedAuthority> authorities;
 
 
     public String getEmail() {
         return email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+
+    public String getLastName() {
+        return lastName;
     }
 
     @Override
