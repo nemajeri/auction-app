@@ -21,7 +21,7 @@ export const loginUser = async (credentials, onLoginSuccess, navigate) => {
   return response;
 };
 
-export const callOAuth2LoginSuccess = async (provider, token, navigate) => {
+export const callOAuth2LoginSuccess = async (provider, token, handleLoginSuccess, navigate) => {
   try {
     const response = await AuthAPI.post(
       `/auth/oauth2-login-success?provider=${provider}&token=${token}`,
@@ -37,6 +37,10 @@ export const callOAuth2LoginSuccess = async (provider, token, navigate) => {
       const cookie = response.data;
       navigate("/");
       console.log('OAuth2 login success: ', cookie);
+      if (handleLoginSuccess) {
+        const jwtToken = getJwtFromCookie();
+        handleLoginSuccess(jwtToken);
+      }
     } else {
       console.error('OAuth2 login failed: ', response);
     }

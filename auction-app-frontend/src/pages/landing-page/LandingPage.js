@@ -41,7 +41,7 @@ const LandingPage = () => {
 
     let allProducts = await getAllProductsToSeparateHighlighted();
     setHighlightedProducts(
-      allProducts.data.filter((product) => product.highlighted === true)
+      allProducts?.data?.filter((product) => product.highlighted === true)
     );
     setProducts(sortedProducts.data.content);
     setLoading(false);

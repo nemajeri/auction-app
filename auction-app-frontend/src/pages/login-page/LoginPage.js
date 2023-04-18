@@ -25,6 +25,8 @@ const LoginPage = () => {
 
   const handleLoginSuccess = (jwtToken) => {
     const decoded = jwt_decode(jwtToken);
+    const username = `${decoded.firstName} ${decoded.lastName}`;
+    setUser(username);
     console.log('Decoded token: ', decoded);
 
     if (rememberMe) {
@@ -53,6 +55,7 @@ const LoginPage = () => {
           includeSocial={true}
           includeRememberMe={true}
           onRememberMe={handleRememberMe}
+          handleLoginSuccess={handleLoginSuccess}
         />
         <div className='login-page__password'>
           <Link to={'/password'}>Forgot password?</Link>

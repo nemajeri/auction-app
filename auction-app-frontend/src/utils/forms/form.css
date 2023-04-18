@@ -47,3 +47,15 @@
     width: 30px;
     height: 30px;
 }
+
+.google-button-large {
+    position: relative;
+    overflow: hidden;
+}
+
+.google-button-large iframe {
+    height: 70px !important;
+}
+
+  
+  

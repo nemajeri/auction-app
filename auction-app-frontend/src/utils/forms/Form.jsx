@@ -13,6 +13,7 @@ const Form = ({
   includeSocial,
   includeRememberMe,
   onRememberMe,
+  handleLoginSuccess
 }) => {
   const [formState, setFormState] = useState(
     Object.fromEntries(fields.map((field) => [field.name, '']))
@@ -36,7 +37,7 @@ const Form = ({
     const handleGsiEvent = (response) => {
       console.log('Google response:', response);
       if (response && response.credential) {
-        callOAuth2LoginSuccess('google', response.credential, navigate);
+        callOAuth2LoginSuccess('google', response.credential, handleLoginSuccess ,navigate);
       } else {
         console.error('Google Sign-In error: credential not found');
       }
@@ -72,7 +73,7 @@ const Form = ({
       (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
-          callOAuth2LoginSuccess('facebook', accessToken, navigate);
+          callOAuth2LoginSuccess('facebook', accessToken, handleLoginSuccess,navigate);
         }
       },
       { scope: 'email' }
@@ -165,7 +166,7 @@ const Form = ({
             data-auto_prompt='false'
           ></div>
           <div
-            className='g_id_signin'
+            className='g_id_signin google-button-large'
             data-type='standard'
             data-shape='rectangular'
             data-theme='outline'

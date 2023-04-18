@@ -14,8 +14,6 @@ export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState(null);
 
-  console.log('User: ', user)
-
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
     setSearchTerm(searchTerm);
@@ -71,8 +69,9 @@ export const AppContextProvider = ({ children }) => {
         activeCategory,
         setActiveCategory,
         products,
-        setProducts
-        setUser
+        setProducts,
+        setUser,
+        user
       }}
     >
       {children}

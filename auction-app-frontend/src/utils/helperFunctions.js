@@ -19,7 +19,7 @@ export const calculateTimeLeft = (product) => {
 };
 
 export const getJwtFromCookie = () => {
-  const cookieName = 'jwt';
+  const prefix = 'jwt';
   const allCookies = document.cookie.split(';');
 
   console.log('All cookies: ', allCookies)
@@ -28,7 +28,8 @@ export const getJwtFromCookie = () => {
     let cookie = allCookies[i].trim();
 
     console.log('Cookie in getJwtFromCookie function: ', cookie)
-    if (cookie.startsWith(cookieName + '=')) {
+    if (cookie.startsWith(prefix)) {
+      const cookieName = cookie.split('=')[0].trim(); 
       return cookie.substring((cookieName + '=').length, cookie.length);
     }
   }

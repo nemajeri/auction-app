@@ -11,16 +11,12 @@ import { AppContext } from '../../utils/AppContextProvider';
 const Navbar = () => {
   const {
     searchTerm,
-    onSearchTermChange,
     onSearchIconClick,
     setSearchTerm,
     suggestion,
     setSuggestion,
-    activeCategory,
-    setSearchProducts,
-    setProducts
+    user,
   } = useContext(AppContext);
-  const [user, setUser] = useState('');
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
 
@@ -35,11 +31,11 @@ const Navbar = () => {
           <div>
             <SocialMediaIcons />
           </div>
-          {user === '' ? (
+          {user === null ? (
             <div className='navbar__account'>
-              <a href='/temp/route'>Login</a>
+              <Link to={loginPath}>Login</Link>
               <span>or</span>
-              <a href='/temp/route'>Create an Account</a>
+              <Link to={registrationPath}>Create an Account</Link>
             </div>
           ) : (
             <div>
