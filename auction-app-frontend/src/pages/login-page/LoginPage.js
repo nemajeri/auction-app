@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Form from '../../utils/forms/Form';
 import { loginUser } from '../../utils/api/authApi';
 import './loginPage.css';
@@ -21,17 +21,24 @@ const fields = [
 
 const LoginPage = () => {
   const { setUser } = useContext(AppContext);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLoginSuccess = (jwtToken) => {
     const decoded = jwt_decode(jwtToken);
-    console.log('Decoded token: ',decoded)
+    console.log('Decoded token: ', decoded);
+
+    if (rememberMe) {
+      const now = new Date();
+      const expirationTime = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+      document.cookie = `jwtToken=${jwtToken}; expires=${expirationTime.toUTCString()}; path=/; secure=true`;
+    }
   };
 
-  const handleRememberMe = () => {
-    const now = new Date();
-    const expirationTime = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-    document.cookie = `rememberMe=true; expires=${expirationTime.toUTCString()}; path=/; secure=true`;
+  const handleRememberMe = (isChecked) => {
+    setRememberMe(isChecked);
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className='wrapper login-page__wrapper'>
@@ -42,7 +49,7 @@ const LoginPage = () => {
         <Form
           fields={fields}
           submitText='LOGIN'
-          onSubmit={(credentials) => loginUser(credentials, handleLoginSuccess)}
+          onSubmit={(credentials) => loginUser(credentials, handleLoginSuccess, navigate)}
           includeSocial={true}
           includeRememberMe={true}
           onRememberMe={handleRememberMe}

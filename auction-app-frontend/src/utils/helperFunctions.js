@@ -22,12 +22,18 @@ export const getJwtFromCookie = () => {
   const cookieName = 'jwt';
   const allCookies = document.cookie.split(';');
 
+  console.log('All cookies: ', allCookies)
+
   for (let i = 0; i < allCookies.length; i++) {
     let cookie = allCookies[i].trim();
-    if (cookie.indexOf(cookieName + '=') === 0) {
+
+    console.log('Cookie in getJwtFromCookie function: ', cookie)
+    if (cookie.startsWith(cookieName + '=')) {
       return cookie.substring((cookieName + '=').length, cookie.length);
     }
   }
 
   return null;
 };
+
+

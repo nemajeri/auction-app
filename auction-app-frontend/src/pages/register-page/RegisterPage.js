@@ -1,11 +1,9 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Form from '../../utils/forms/Form';
 import { loginPath } from '../../utils/paths';
 import { registerUser } from '../../utils/api/authApi';
 import './registerPage.css';
-import { AppContext } from '../../utils/AppContextProvider';
-import jwt from 'jwt-decode';
 
 const fields = [
   {
@@ -31,12 +29,8 @@ const fields = [
 ];
 
 const RegisterPage = () => {
-  const { setUser } = useContext(AppContext);
 
-  const handleRegisterSuccess = (jwtToken) => {
-    const decoded = jwt.decode(jwtToken);
-    setUser(decoded);
-  };
+  const navigate = useNavigate();
 
   return (
     <div className='wrapper register-page__wrapper'>
@@ -48,7 +42,7 @@ const RegisterPage = () => {
           fields={fields}
           submitText='REGISTER'
           onSubmit={(credentials) =>
-            registerUser(credentials, handleRegisterSuccess)
+            registerUser(credentials, navigate)
           }
           includeSocial={true}
           includeRememberMe={false}

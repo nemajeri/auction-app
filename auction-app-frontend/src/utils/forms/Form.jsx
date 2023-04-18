@@ -3,8 +3,8 @@ import Button from '../Button';
 import './form.css';
 import { useLocation } from 'react-router-dom';
 import { callOAuth2LoginSuccess } from '../api/authApi';
-import { FcGoogle } from 'react-icons/fc';
 import { AiFillFacebook } from 'react-icons/ai';
+import { useNavigate } from 'react-router-dom';
 
 const Form = ({
   fields,
@@ -19,7 +19,9 @@ const Form = ({
   );
 
   const location = useLocation();
+  const navigate = useNavigate();
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  const facebookAppId = process.env.REACT_APP_FACEBOOK_APP_ID;
 
   const handleChange = (event) => {
     setFormState({
@@ -29,29 +31,73 @@ const Form = ({
   };
 
   useEffect(() => {
-    window.gapi.load('auth2', () => {
-      window.gapi.auth2.init({ client_id: googleClientId });
-    });
-  }, []);
+    initFacebookSDK();
 
-  const handleGoogleLogin = () => {
-    const auth2 = window.gapi.auth2.getAuthInstance();
-    auth2.signIn().then((googleUser) => {
-      const idToken = googleUser.getAuthResponse().id_token;
-      callOAuth2LoginSuccess('google', idToken);
+    const handleGsiEvent = (response) => {
+      console.log('Google response:', response);
+      if (response && response.credential) {
+        callOAuth2LoginSuccess('google', response.credential, navigate);
+      } else {
+        console.error('Google Sign-In error: credential not found');
+      }
+    };
+
+    const handleGsiError = (event) => {
+      console.error('Google Sign-In error:', event.detail);
+    };
+
+    window.google?.accounts?.id.initialize({
+      client_id: googleClientId,
+      callback: handleGsiEvent,
+      onerror: handleGsiError,
     });
-  };
+
+    window.google?.accounts?.id.renderButton(
+      document.querySelector('.g_id_signin'),
+      {
+        type: 'standard',
+        shape: 'rectangular',
+        theme: 'outline',
+        text: 'signin_with',
+        size: 'large',
+        logo_alignment: 'left',
+      }
+    );
+
+    return () => {};
+  }, []);
 
   const handleFacebookLogin = () => {
     window.FB.login(
       (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
-          callOAuth2LoginSuccess('facebook', accessToken);
+          callOAuth2LoginSuccess('facebook', accessToken, navigate);
         }
       },
-      { scope: 'email', return_scopes: true }
+      { scope: 'email' }
     );
+  };
+
+  const initFacebookSDK = () => {
+    window.fbAsyncInit = () => {
+      window.FB.init({
+        appId: facebookAppId,
+        cookie: true,
+        xfbml: true,
+        version: 'v16.0',
+      });
+    };
+
+    ((d, s, id) => {
+      var js,
+        fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = '//connect.facebook.net/en_US/sdk.js';
+      fjs.parentNode.insertBefore(js, fjs);
+    })(document, 'script', 'facebook-jssdk');
   };
 
   const handleSubmit = (event) => {
@@ -60,8 +106,8 @@ const Form = ({
 
     if (onRememberMe) {
       const rememberMeCheckbox = document.querySelector('[name="rememberMe"]');
-      if (rememberMeCheckbox && rememberMeCheckbox.checked) {
-        onRememberMe();
+      if (rememberMeCheckbox) {
+        onRememberMe(rememberMeCheckbox.checked);
       }
     }
   };
@@ -86,7 +132,9 @@ const Form = ({
             type='checkbox'
             name='rememberMe'
             value={formState.rememberMe}
-            onChange={handleChange}
+            onChange={(event) =>
+              onRememberMe && onRememberMe(event.target.checked)
+            }
           />
           <label htmlFor='rememberMe'>Remember me</label>
         </div>
@@ -97,7 +145,10 @@ const Form = ({
       {includeSocial && (
         <div className='form__social-media--buttons'>
           <Button
-            onClick={handleFacebookLogin}
+            onClick={(e) => {
+              e.preventDefault();
+              handleFacebookLogin();
+            }}
             className={'form__social-media--button'}
             SocialMediaIcon={AiFillFacebook}
             socialMediaClassName={'form__social-media--icon'}
@@ -106,16 +157,22 @@ const Form = ({
               ? 'Register with Facebook'
               : 'Log in with Facebook'}
           </Button>
-          <Button
-            onClick={handleGoogleLogin}
-            className={'form__social-media--button'}
-            SocialMediaIcon={FcGoogle}
-            socialMediaClassName={'form__social-media--icon'}
-          >
-            {location.pathname.includes('register')
-              ? 'Register with Google'
-              : 'Log in with Google'}
-          </Button>
+          <div
+            id='g_id_onload'
+            data-client_id={googleClientId}
+            data-context='signin'
+            data-ux_mode='popup'
+            data-auto_prompt='false'
+          ></div>
+          <div
+            className='g_id_signin'
+            data-type='standard'
+            data-shape='rectangular'
+            data-theme='outline'
+            data-text='signin_with'
+            data-size='large'
+            data-logo_alignment='left'
+          ></div>
         </div>
       )}
     </form>
