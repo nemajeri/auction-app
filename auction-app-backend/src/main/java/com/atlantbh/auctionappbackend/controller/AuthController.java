@@ -7,7 +7,6 @@ import com.atlantbh.auctionappbackend.security.oauth2.FacebookOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.atlantbh.auctionappbackend.service.AuthService;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
@@ -16,10 +15,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -78,7 +75,7 @@ public class AuthController {
         RestTemplate restTemplate = new RestTemplate();
 
         if ("google".equalsIgnoreCase(provider)) {
-            GoogleIdToken googleIdToken = verifyGISToken(token);
+            GoogleIdToken googleIdToken = verifyGSIToken(token);
             GoogleIdToken.Payload payload = googleIdToken.getPayload();
             String firstName = (String) payload.get("given_name");
             String lastName = (String) payload.get("family_name");
@@ -106,7 +103,7 @@ public class AuthController {
         return new ResponseEntity<>(OK);
     }
 
-    private GoogleIdToken verifyGISToken(String token) {
+    private GoogleIdToken verifyGSIToken(String token) {
         try {
             HttpTransport transport = new NetHttpTransport();
             JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();

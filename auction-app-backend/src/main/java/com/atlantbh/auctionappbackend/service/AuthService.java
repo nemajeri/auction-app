@@ -19,6 +19,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +79,7 @@ public class AuthService {
     public Cookie generateJwtCookieForOAuth2User(OAuth2UserInfo oAuth2UserInfo) {
         String email = oAuth2UserInfo.getEmail();
         AppUser appUser = appUserRepository.findByEmail(email);
-        if (appUser == null) {
+        if (Objects.equals(appUser, null)) {
             appUser = new AppUser();
             appUser.setEmail(email);
             appUser.setFirstName(oAuth2UserInfo.getFirstName());
