@@ -11,6 +11,7 @@ import com.atlantbh.auctionappbackend.security.oauth2.FacebookOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AuthService {
     private final AppUserRepository appUserRepository;
 

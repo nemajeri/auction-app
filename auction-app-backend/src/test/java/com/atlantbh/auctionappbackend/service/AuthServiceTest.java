@@ -125,6 +125,7 @@ public class AuthServiceTest {
     }
 
     @Test
+    @DisplayName("Should add cookie to response when user logs in with facebook")
     public void processOAuth2Login_FacebookProvider() {
         String provider = "facebook";
         String token = "test-token";
