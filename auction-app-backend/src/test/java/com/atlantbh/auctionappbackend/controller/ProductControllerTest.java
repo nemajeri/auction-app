@@ -1,6 +1,7 @@
 package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
+import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
