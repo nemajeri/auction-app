@@ -6,8 +6,7 @@ import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
-import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
-import com.atlantbh.auctionappbackend.utils.TokenVerifier;
+import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,11 +14,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,10 +43,10 @@ public class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private TokenVerifier tokenVerifier;
+    private TokenService tokenService;
 
     @Mock
-    private JwtTokenProvider jwtTokenProvider;
+    private RestTemplate restTemplate;
 
 
     @Test
@@ -81,7 +86,7 @@ public class AuthServiceTest {
 
         verify(appUserRepository, times(1)).getByEmail(loginRequest.getEmail());
         verify(passwordEncoder, times(1)).matches(eq(loginRequest.getPassword()), eq(appUser.getPassword()));
-        verify(response, times(1)).addCookie(argThat(cookie -> cookie.getName().equals("jwt")
+        verify(response, times(1)).addCookie(argThat(cookie -> cookie.getName().equals("auction_app_token")
                 && cookie.getMaxAge() == 4 * 60 * 60
                 && !cookie.isHttpOnly()
                 && cookie.getPath().equals("/")
@@ -89,6 +94,7 @@ public class AuthServiceTest {
     }
 
     @Test
+    @DisplayName("Should add cookie to response when user logs in with google")
     public void processOAuth2Login_GoogleProvider() {
         String provider = "google";
         String token = "test-token";
@@ -101,23 +107,54 @@ public class AuthServiceTest {
         payload.setSubject("12345");
         payload.setEmail("john.doe@example.com");
 
-        when(tokenVerifier.verifyGSIToken(token)).thenReturn(googleIdToken);
+        when(tokenService.verifyGSIToken(token)).thenReturn(googleIdToken);
         when(googleIdToken.getPayload()).thenReturn(payload);
 
-        AppUser appUser = new AppUser();
-        appUser.setEmail("john.doe@example.com");
-        appUser.setFirstName("John");
-        appUser.setLastName("Doe");
-        appUser.setPassword("");
+        Cookie expectedCookie = new Cookie("auction_app_social_media_token", "sample-jwt-token");
+        expectedCookie.setPath("/");
+        expectedCookie.setMaxAge(4 * 60 * 60);
 
-        when(appUserRepository.findByEmail("john.doe@example.com")).thenReturn(appUser);
-        when(jwtTokenProvider.generateToken(any())).thenReturn("sample-jwt-token");
+        when(tokenService.generateJwtCookieForOAuth2User(any(OAuth2UserInfo.class))).thenReturn(expectedCookie);
 
         Cookie result = authService.processOAuth2Login(oauth2LoginRequest);
 
-        assertEquals("jwt-token", result.getName());
+        assertEquals("auction_app_social_media_token", result.getName());
         assertEquals("sample-jwt-token", result.getValue());
         assertEquals("/", result.getPath());
         assertEquals(4 * 60 * 60, result.getMaxAge());
     }
+
+    @Test
+    public void processOAuth2Login_FacebookProvider() {
+        String provider = "facebook";
+        String token = "test-token";
+        OAuth2LoginRequest oauth2LoginRequest = new OAuth2LoginRequest(provider, token);
+
+        Map<String, Object> facebookResponseMap = new HashMap<>();
+        facebookResponseMap.put("id", "12345");
+        facebookResponseMap.put("email", "john.doe@example.com");
+        facebookResponseMap.put("first_name", "John");
+        facebookResponseMap.put("last_name", "Doe");
+
+        ResponseEntity<Map> facebookResponse = new ResponseEntity<>(facebookResponseMap, HttpStatus.OK);
+        when(restTemplate.getForEntity(anyString(), eq(Map.class))).thenReturn(facebookResponse);
+
+        ReflectionTestUtils.setField(authService, "restTemplate", restTemplate, RestTemplate.class);
+
+        Cookie expectedCookie = new Cookie("auction_app_social_media_token", "sample-jwt-token");
+        expectedCookie.setPath("/");
+        expectedCookie.setMaxAge(4 * 60 * 60);
+
+        when(tokenService.generateJwtCookieForOAuth2User(any(OAuth2UserInfo.class))).thenReturn(expectedCookie);
+
+        Cookie result = authService.processOAuth2Login(oauth2LoginRequest);
+
+        assertEquals("auction_app_social_media_token", result.getName());
+        assertEquals("sample-jwt-token", result.getValue());
+        assertEquals("/", result.getPath());
+        assertEquals(4 * 60 * 60, result.getMaxAge());
+    }
+
+
+
 }

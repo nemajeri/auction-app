@@ -7,11 +7,9 @@ import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
 import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
-import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
 import com.atlantbh.auctionappbackend.security.oauth2.FacebookOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
-import com.atlantbh.auctionappbackend.utils.TokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +37,9 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenService tokenService;
 
-    private final TokenVerifier tokenVerifier;
+    private final RestTemplate restTemplate;
 
     public void register(RegisterRequest registerRequest) throws DuplicateAppUserException {
         if (appUserRepository.existsByEmail(registerRequest.getEmail())) {
@@ -74,10 +72,10 @@ public class AuthService {
         CustomUserDetails userDetails = new CustomUserDetails(loggedAppUser.getEmail(), loggedAppUser.getPassword(), firstName, lastName, Collections.emptyList());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        String jwt = jwtTokenProvider.generateToken(authentication);
+        String jwt = tokenService.generateToken(authentication);
         boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
-        Cookie jwtCookie = new Cookie("jwt", jwt);
+        Cookie jwtCookie = new Cookie("auction_app_token", jwt);
         jwtCookie.setMaxAge(4 * 60 * 60);
         jwtCookie.setHttpOnly(false);
         jwtCookie.setPath("/");
@@ -88,10 +86,9 @@ public class AuthService {
 
     public Cookie processOAuth2Login(OAuth2LoginRequest oauth2LoginRequest) {
         OAuth2UserInfo oAuth2UserInfo = new GoogleOAuth2UserInfo(Collections.emptyMap());
-        RestTemplate restTemplate = new RestTemplate();
 
         if ("google".equalsIgnoreCase(oauth2LoginRequest.getProvider())) {
-            GoogleIdToken googleIdToken = tokenVerifier.verifyGSIToken(oauth2LoginRequest.getToken());
+            GoogleIdToken googleIdToken = tokenService.verifyGSIToken(oauth2LoginRequest.getToken());
             GoogleIdToken.Payload payload = googleIdToken.getPayload();
             String firstName = (String) payload.get("given_name");
             String lastName = (String) payload.get("family_name");
@@ -114,30 +111,7 @@ public class AuthService {
             throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
         }
 
-        return generateJwtCookieForOAuth2User(oAuth2UserInfo);
-    }
-
-    public Cookie generateJwtCookieForOAuth2User(OAuth2UserInfo oAuth2UserInfo) {
-        String email = oAuth2UserInfo.getEmail();
-        AppUser appUser = appUserRepository.findByEmail(email);
-        if (Objects.equals(appUser, null)) {
-            appUser = new AppUser();
-            appUser.setEmail(email);
-            appUser.setFirstName(oAuth2UserInfo.getFirstName());
-            appUser.setLastName(oAuth2UserInfo.getLastName());
-            appUser.setPassword("");
-            appUserRepository.save(appUser);
-        }
-
-        String firstName = oAuth2UserInfo.getFirstName();
-        String lastName = oAuth2UserInfo.getLastName();
-        CustomUserDetails customUserDetails = new CustomUserDetails(email, "", firstName, lastName, Collections.emptyList());
-
-        String jwt = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""));
-        Cookie cookie = new Cookie("jwt-social-media-token", jwt);
-        cookie.setPath("/");
-        cookie.setMaxAge(4 * 60 * 60);
-        return cookie;
+        return tokenService.generateJwtCookieForOAuth2User(oAuth2UserInfo);
     }
 
 }

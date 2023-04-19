@@ -1,9 +1,9 @@
 package com.atlantbh.auctionappbackend.security;
 import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationEntryPoint;
 import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
-import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
 import com.atlantbh.auctionappbackend.security.oauth2.CustomOAuth2UserService;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.atlantbh.auctionappbackend.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtAuthenticationEntryPoint unauthorizedHandler;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private TokenService tokenService;
 
     @Value("${allowedOrigin}")
     private String allowedOrigin;
@@ -76,7 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider);
+        return new JwtAuthenticationFilter(tokenService);
     }
 
     @Bean

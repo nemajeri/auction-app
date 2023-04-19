@@ -1,8 +1,7 @@
 package com.atlantbh.auctionappbackend.security.oauth2;
 
-import com.atlantbh.auctionappbackend.security.jwt.JwtTokenProvider;
+import com.atlantbh.auctionappbackend.service.TokenService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -19,7 +18,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenService tokenService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -37,7 +36,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
         }
 
-        String jwt = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(oAuth2UserInfo.getEmail(), ""));
+        String jwt = tokenService.generateToken(new UsernamePasswordAuthenticationToken(oAuth2UserInfo.getEmail(), ""));
         Map<String, Object> additionalInfo = new HashMap<>(oAuth2User.getAttributes());
         additionalInfo.put("jwt", jwt);
         OAuth2User oAuth2UserWithJwt = new DefaultOAuth2User(oAuth2User.getAuthorities(), additionalInfo, "jwt");

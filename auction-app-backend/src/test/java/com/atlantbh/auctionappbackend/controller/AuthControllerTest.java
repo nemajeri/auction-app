@@ -1,13 +1,12 @@
 package com.atlantbh.auctionappbackend.controller;
 
+import com.atlantbh.auctionappbackend.TestGoogleIdToken;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
 import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
-import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.atlantbh.auctionappbackend.service.AuthService;
-import com.atlantbh.auctionappbackend.utils.GoogleTokenVerifier;
-import com.atlantbh.auctionappbackend.utils.TestGoogleIdToken;
+import com.atlantbh.auctionappbackend.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import org.junit.jupiter.api.Test;
@@ -47,13 +46,10 @@ public class AuthControllerTest {
     PasswordEncoder passwordEncoder;
 
     @MockBean
-    GoogleTokenVerifier googleTokenVerifier;
+    TokenService tokenService;
 
     @MockBean
     AuthService authService;
-
-    @MockBean
-    JwtAuthenticationFilter jwtFilter;
 
     @Captor
     private ArgumentCaptor<HttpServletResponse> responseCaptor;
@@ -134,7 +130,7 @@ public class AuthControllerTest {
         payload.set("given_name", "John");
         payload.set("family_name", "Doe");
         GoogleIdToken googleIdToken = new TestGoogleIdToken(payload);
-        when(googleTokenVerifier.verifyGSIToken(token)).thenReturn(googleIdToken);
+        when(tokenService.verifyGSIToken(token)).thenReturn(googleIdToken);
 
         mockMvc.perform(post("/api/v1/auth/oauth2-login-success")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -155,9 +151,9 @@ public class AuthControllerTest {
     @Test
     public void testLogoutAppUser_ReturnsOkResponse() throws Exception {
         String token = "my-token";
-        Cookie cookie = new Cookie("jwt-token", token);
+        Cookie cookie = new Cookie("logout-token", token);
 
-        when(jwtFilter.getJwtFromCookie(any())).thenReturn(token);
+        when(tokenService.getJwtFromCookie(any())).thenReturn(token);
 
         mockMvc.perform(post("/api/v1/auth/logout")
                         .cookie(cookie)
@@ -167,13 +163,13 @@ public class AuthControllerTest {
                     MockHttpServletResponse res = result.getResponse();
                     assertNotNull(res);
                     Cookie[] cookies = res.getCookies();
-                    Optional<Cookie> jwtCookie = Arrays.stream(cookies).filter(c -> "jwt-token".equals(c.getName())).findFirst();
+                    Optional<Cookie> jwtCookie = Arrays.stream(cookies).filter(c -> "logout-token".equals(c.getName())).findFirst();
                     assertTrue(jwtCookie.isPresent());
                     assertEquals("", jwtCookie.get().getValue());
                     assertEquals("/", jwtCookie.get().getPath());
                     assertEquals(0, jwtCookie.get().getMaxAge());
                 });
 
-        verify(jwtFilter, times(1)).invalidateToken(token);
+        verify(tokenService, times(1)).invalidateToken(token);
     }
 }

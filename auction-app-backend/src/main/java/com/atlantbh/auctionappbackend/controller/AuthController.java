@@ -3,12 +3,13 @@ package com.atlantbh.auctionappbackend.controller;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
-import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
 import com.atlantbh.auctionappbackend.service.AuthService;
+import com.atlantbh.auctionappbackend.service.TokenService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +23,13 @@ import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    @Autowired
+    private AuthService authService;
 
-    private final JwtAuthenticationFilter jwtFilter;
+    @Autowired
+    private TokenService tokenService;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
@@ -62,10 +64,10 @@ public class AuthController {
     })
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        String token = jwtFilter.getJwtFromCookie(request);
-        jwtFilter.invalidateToken(token);
+        String token = tokenService.getJwtFromCookie(request);
+        tokenService.invalidateToken(token);
 
-        Cookie cookie = new Cookie("logout-token", "");
+        Cookie cookie = new Cookie("auction_app_logout_token", "");
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);

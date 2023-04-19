@@ -1,4 +1,4 @@
-package com.atlantbh.auctionappbackend.utils;
+package com.atlantbh.auctionappbackend;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 

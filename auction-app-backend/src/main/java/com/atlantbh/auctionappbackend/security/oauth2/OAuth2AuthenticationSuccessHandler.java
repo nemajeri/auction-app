@@ -1,6 +1,6 @@
 package com.atlantbh.auctionappbackend.security.oauth2;
 
-import com.atlantbh.auctionappbackend.service.AuthService;
+import com.atlantbh.auctionappbackend.service.TokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -16,12 +16,12 @@ import java.io.IOException;
 @AllArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final AuthService authService;
+    private final TokenService tokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2UserInfo principal = (OAuth2UserInfo) authentication.getPrincipal();
-        Cookie cookieWithJwtToken = authService.generateJwtCookieForOAuth2User(principal);
+        Cookie cookieWithJwtToken = tokenService.generateJwtCookieForOAuth2User(principal);
         response.addCookie(cookieWithJwtToken);
         response.sendRedirect("/");
     }
