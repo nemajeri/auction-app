@@ -134,7 +134,7 @@ public class AuthService {
         CustomUserDetails customUserDetails = new CustomUserDetails(email, "", firstName, lastName, Collections.emptyList());
 
         String jwt = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""));
-        Cookie cookie = new Cookie("jwt-token", jwt);
+        Cookie cookie = new Cookie("jwt-social-media-token", jwt);
         cookie.setPath("/");
         cookie.setMaxAge(4 * 60 * 60);
         return cookie;

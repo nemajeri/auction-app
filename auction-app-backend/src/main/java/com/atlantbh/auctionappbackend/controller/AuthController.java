@@ -65,7 +65,7 @@ public class AuthController {
         String token = jwtFilter.getJwtFromCookie(request);
         jwtFilter.invalidateToken(token);
 
-        Cookie cookie = new Cookie("jwt-token", "");
+        Cookie cookie = new Cookie("logout-token", "");
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
