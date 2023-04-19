@@ -24,8 +24,11 @@ export const loginUser = async (credentials, onLoginSuccess, navigate) => {
 export const callOAuth2LoginSuccess = async (provider, token, handleLoginSuccess, navigate) => {
   try {
     const response = await AuthAPI.post(
-      `/auth/oauth2-login-success?provider=${provider}&token=${token}`,
-      {},
+      `/auth/oauth2-login-success`,
+      {
+        provider,
+        token,
+      },
       {
         headers: {
           'Content-Type': 'application/json',
