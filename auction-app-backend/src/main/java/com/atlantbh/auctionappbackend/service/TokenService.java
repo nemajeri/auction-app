@@ -11,6 +11,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,10 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
+import static com.atlantbh.auctionappbackend.utils.Constants.SOCIAL_MEDIA_COOKIE_MAX_AGE;
+import static com.atlantbh.auctionappbackend.utils.Constants.SOCIAL_MEDIA_COOKIE_NAME;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 @Slf4j
@@ -34,13 +38,14 @@ public class TokenService {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 
-    private AppUserRepository appUserRepository;
-
     @Value("${app:jwtSecret}")
-    private  String jwtSecret;
+    private String jwtSecret;
 
-    private Set<String> blacklistedTokens;
+    private final AppUserRepository appUserRepository;
 
+    private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
+
+    @Autowired
     public TokenService(AppUserRepository appUserRepository) {
         this.appUserRepository = appUserRepository;
     }
@@ -82,9 +87,9 @@ public class TokenService {
         CustomUserDetails customUserDetails = new CustomUserDetails(email, "", firstName, lastName, Collections.emptyList());
 
         String jwt = generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""));
-        Cookie cookie = new Cookie("auction_app_social_media_token", jwt);
+        Cookie cookie = new Cookie(SOCIAL_MEDIA_COOKIE_NAME, jwt);
         cookie.setPath("/");
-        cookie.setMaxAge(4 * 60 * 60);
+        cookie.setMaxAge(SOCIAL_MEDIA_COOKIE_MAX_AGE);
         return cookie;
     }
 

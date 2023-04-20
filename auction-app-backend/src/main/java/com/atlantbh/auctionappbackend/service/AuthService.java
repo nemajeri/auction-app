@@ -12,7 +12,6 @@ import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,9 +25,12 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.atlantbh.auctionappbackend.utils.Constants.LOGIN_COOKIE_NAME;
 
 
 @Service
@@ -42,6 +44,7 @@ public class AuthService {
 
     private final RestTemplate restTemplate;
 
+    @Transactional
     public void register(RegisterRequest registerRequest) throws DuplicateAppUserException {
         if (appUserRepository.existsByEmail(registerRequest.getEmail())) {
             throw new DuplicateAppUserException();
@@ -76,7 +79,7 @@ public class AuthService {
         String jwt = tokenService.generateToken(authentication);
         boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
-        Cookie jwtCookie = new Cookie("auction_app_token", jwt);
+        Cookie jwtCookie = new Cookie(LOGIN_COOKIE_NAME, jwt);
         jwtCookie.setMaxAge(4 * 60 * 60);
         jwtCookie.setHttpOnly(false);
         jwtCookie.setPath("/");

@@ -1,21 +1,29 @@
 package com.atlantbh.auctionappbackend.request;
 
-import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequest {
-    @NotNull
+
+    @NotBlank(message = "First name cannot be empty.")
+    @Setter(AccessLevel.NONE)
     private String firstName;
-    @NotNull
+
+    @NotBlank(message = "Last name cannot be empty.")
+    @Setter(AccessLevel.NONE)
     private String lastName;
-    @NotNull
+
+    @NotBlank(message = "Email cannot be empty.")
+    @Email(message = "Invalid email format.")
+    @Setter(AccessLevel.NONE)
     private String email;
-    @NotNull
+
+    @NotBlank(message = "Password cannot be empty.")
+    @Setter(AccessLevel.NONE)
     private String password;
 }
