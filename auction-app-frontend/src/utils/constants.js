@@ -1,4 +1,9 @@
 import axios from 'axios';
+import {
+  sellerPath,
+  bidsPath,
+} from "./paths";
+import { AiOutlineDollarCircle, AiOutlineUnorderedList } from 'react-icons/ai';
 
 export const API = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
@@ -28,3 +33,15 @@ export const FORM_TYPES = {
   LOGIN: 'login',
 };
 
+export const myAccountTabs = [
+  {
+    title: "Seller",
+    path: sellerPath,
+    icon: AiOutlineUnorderedList,
+  },
+  {
+    title: "Bids",
+    path: bidsPath,
+    icon: AiOutlineDollarCircle,
+  },
+];

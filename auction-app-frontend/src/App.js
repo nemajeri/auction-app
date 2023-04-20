@@ -11,6 +11,7 @@ import {
   shopPagePathToProduct,
   loginPath,
   registrationPath,
+  myAccountPath
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -21,6 +22,7 @@ import {
   ProductOverviewPage,
   LoginPage,
   RegisterPage,
+  MyAccountPage
 } from './pages/index';
 import { Route, Routes } from 'react-router-dom';
 import { AppContextProvider } from './utils/AppContextProvider';
@@ -34,11 +36,12 @@ function App() {
         <Navbar />
         <ToastContainer />
         <Routes>
-          <Route path={shopPagePathToCategory} element={<ShopPage />} />
           <Route
             path={shopPagePathToProduct}
             element={<ProductOverviewPage />}
           />
+        <Route path={`${myAccountPath}/*`} element={<MyAccountPage />} />
+          <Route path={shopPagePathToCategory} element={<ShopPage />} />
           <Route
             path={productOverviewPagePath}
             element={<ProductOverviewPage />}

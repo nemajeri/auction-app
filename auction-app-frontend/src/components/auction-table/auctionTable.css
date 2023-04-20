@@ -1,0 +1,47 @@
+table {
+    width: 100%;
+    border: 2px solid var(--grey-100);
+    border-collapse: collapse;
+    display: flex;
+    margin-top: -2px;
+    flex-direction: column;
+    justify-content: center !important;
+}
+
+thead {
+    background-color: var(--white-200);
+    padding: 8px 0;
+  }
+  
+th {
+    text-align: left;
+    padding: 8px;
+    font-weight: 500;
+}
+
+tbody > tr {
+  display: flex;
+  justify-content: center;
+}
+
+.auction-table__first-header,
+.auction-table__second-header {
+  width: 5%;
+}
+
+.auction-table__third-header,
+.auction-table__fourth-header,
+.auction-table__fifth-header,
+.auction-table__sixth-header {
+  width: 10%;
+}
+
+.space-right {
+  padding-right: 10rem;
+  background-clip: padding-box;
+}
+
+.space-left {
+  padding-left: 4rem;
+  background-clip: padding-box;
+}

@@ -1,14 +1,14 @@
 import React from 'react';
 import './tabs.css';
 
-const Tabs = ({ selectedTab, handleTabClick, tabs }) => {
+const Tabs = ({ selectedTab, handleTabClick, tabs, containerClassName, tabClassName, selectedTabClassName }) => {
   return (
-    <div className='tabs' >
+    <div className={`${containerClassName}`} >
       {tabs.map((tab) => (
         <div
           key={tab.id}
-          className={`tab ${
-            selectedTab === tab.id ? 'tab--selected' : ''
+          className={`${tabClassName} ${
+            selectedTab === tab.id ? selectedTabClassName : ''
           }`}
           onClick={() => handleTabClick(tab.id)}
         >
@@ -17,6 +17,12 @@ const Tabs = ({ selectedTab, handleTabClick, tabs }) => {
       ))}
     </div>
   );
+};
+
+Tabs.defaultProps = {
+  containerClassName: 'tabs',
+  tabClassName: 'tab',
+  selectedTabClassName: 'tab--selected',
 };
 
 export default Tabs;
