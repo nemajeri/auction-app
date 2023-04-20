@@ -94,7 +94,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should add cookie to response when user logs in with google")
+    @DisplayName("Should generate a cookie with jwt token when user logs in with google")
     public void processOAuth2Login_GoogleProvider() {
         String provider = "google";
         String token = "test-token";
@@ -125,7 +125,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should add cookie to response when user logs in with facebook")
+    @DisplayName("Should generate a cookie with jwt token when user logs in with google")
     public void processOAuth2Login_FacebookProvider() {
         String provider = "facebook";
         String token = "test-token";
