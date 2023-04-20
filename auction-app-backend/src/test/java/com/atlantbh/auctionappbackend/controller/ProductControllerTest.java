@@ -1,21 +1,20 @@
 package com.atlantbh.auctionappbackend.controller;
 
-import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
+import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import java.time.LocalDateTime;
@@ -28,10 +27,9 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(ProductController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ProductControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -181,7 +179,7 @@ public class ProductControllerTest {
     public void testGetAllProducts_ReturnsAllProducts() throws Exception {
 
         ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Fashion",false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Home",true);
+        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Home",false);
 
         List<ProductDTO> productList = List.of(product1, product2);
 
