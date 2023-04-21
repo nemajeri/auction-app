@@ -19,15 +19,12 @@ export const calculateTimeLeft = (product) => {
 };
 
 export const getJwtFromCookie = () => {
-  const prefix = 'jwt';
+  const prefix = 'auction_app';
   const allCookies = document.cookie.split(';');
-
-  console.log('All cookies: ', allCookies)
 
   for (let i = 0; i < allCookies.length; i++) {
     let cookie = allCookies[i].trim();
 
-    console.log('Cookie in getJwtFromCookie function: ', cookie)
     if (cookie.startsWith(prefix)) {
       const cookieName = cookie.split('=')[0].trim(); 
       return cookie.substring((cookieName + '=').length, cookie.length);

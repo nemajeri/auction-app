@@ -67,7 +67,7 @@
 
 .navbar__suggestion--pop-up {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   background-color: var(--white-200);
   width: 100%;
 }
@@ -75,7 +75,7 @@
 
 .navbar__suggestion--pop-up_container {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   width: 550px;
   gap: 10px;
   margin: auto;

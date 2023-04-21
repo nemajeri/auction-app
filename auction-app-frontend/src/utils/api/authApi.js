@@ -39,7 +39,6 @@ export const callOAuth2LoginSuccess = async (provider, token, handleLoginSuccess
     if (response.status === 200) {
       const cookie = response.data;
       navigate("/");
-      console.log('OAuth2 login success: ', cookie);
       if (handleLoginSuccess) {
         const jwtToken = getJwtFromCookie();
         handleLoginSuccess(jwtToken);

@@ -5,17 +5,22 @@ import Logo from '../../assets/Logo';
 import SearchField from '../../components/search-field/SearchField';
 import NavbarLink from '../../components/nav-link/NavbarLink';
 import navlinks from '../../data/navlinks.json';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { AppContext } from '../../utils/AppContextProvider';
+import { loginPath, registrationPath } from '../../utils/paths';
 
 const Navbar = () => {
   const {
     searchTerm,
     onSearchIconClick,
+    onSearchTermChange,
     setSearchTerm,
     suggestion,
     setSuggestion,
-    user,
+    activeCategory,
+    setSearchProducts,
+    setProducts,
+    user
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
@@ -49,7 +54,15 @@ const Navbar = () => {
           <Logo />
           {!(pathname.includes('login') || pathname.includes('register')) ? (
             <div className='navbar__container--search_and-links'>
-              <SearchField />
+              <SearchField
+                searchTerm={searchTerm}
+                onSearchTermChange={onSearchTermChange}
+                categoryId={activeCategory}
+                onSearchIconClick={onSearchIconClick}
+                setSearchTerm={setSearchTerm}
+                setSearchProducts={setSearchProducts}
+                setProducts={setProducts}
+              />
               <div className='navbar__navigation'>
                 {navlinks.map((link) => (
                   <NavbarLink

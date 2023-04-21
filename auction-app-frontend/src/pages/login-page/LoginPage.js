@@ -27,7 +27,6 @@ const LoginPage = () => {
     const decoded = jwt_decode(jwtToken);
     const username = `${decoded.firstName} ${decoded.lastName}`;
     setUser(username);
-    console.log('Decoded token: ', decoded);
 
     if (rememberMe) {
       const now = new Date();
