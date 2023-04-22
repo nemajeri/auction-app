@@ -1,0 +1,14 @@
+.pop-out.success {
+    background-color: purple;
+    color: yellow;
+  }
+  
+  .pop-out.warning {
+    background-color: yellow;
+    color: black;
+  }
+  
+  .pop-out.error {
+    background-color: red;
+    color: white;
+  }

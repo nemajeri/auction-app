@@ -4,8 +4,12 @@ export const getProducts = () => {
   return API.get('/products');
 };
 
-export const getProduct = (id) => {
-  return API.get(`/products/${id}`);
+export const getProduct = (id, token) => {
+  return API.get(`/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export const getAllProducts = (
