@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -58,9 +59,9 @@ public class ProductController {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable("id") Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable("id") Long id, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(productService.getProductById(id));
+            return ResponseEntity.ok(productService.getProductById(id, request));
         } catch (ProductNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

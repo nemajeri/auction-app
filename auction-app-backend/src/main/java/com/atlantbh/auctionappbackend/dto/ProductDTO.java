@@ -27,5 +27,5 @@ public class ProductDTO {
     private Long categoryId;
     private String categoryName;
     private boolean isHighlighted;
-
+    private boolean isOwner;
 }

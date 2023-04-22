@@ -1,6 +1,7 @@
 package com.atlantbh.auctionappbackend.handler;
 
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
+import com.atlantbh.auctionappbackend.exception.BidAmountException;
 import com.atlantbh.auctionappbackend.exception.DuplicateAppUserException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.response.ErrorResponse;
@@ -29,6 +30,12 @@ public class AppUserExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
         ErrorResponse errorResponse = new ErrorResponse("INVALID_CREDENTIALS", null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(BidAmountException.class)
+    public ResponseEntity<ErrorResponse> handleWrongBidAmount(BidAmountException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("WRONG_BID_AMOUNT", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(ProductNotFoundException.class)

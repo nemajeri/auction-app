@@ -15,9 +15,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 
 import java.time.LocalDateTime;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,8 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     private final ProductMapper productMapper;
+
+    private final TokenService tokenService;
 
 
     public String getSuggestion(String query) {
@@ -88,11 +92,21 @@ public class ProductService {
     }
 
 
-    public ProductDTO getProductById(Long id) throws ProductNotFoundException {
+    public ProductDTO getProductById(Long id, HttpServletRequest request) throws ProductNotFoundException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
-        return productMapper.toProductDTO(product);
+        boolean isOwner = false;
+        String jwt = tokenService.getJwtFromHeader(request);
+        if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
+            String email = tokenService.getClaimFromToken(jwt, "email");
+            isOwner = product.isOwner(email);
+        }
+
+        ProductDTO productDTO = productMapper.toProductDTO(product);
+        productDTO.setOwner(isOwner);
+
+        return productDTO;
     }
 
     public Page<ProductDTO> getLastProducts(int pageNumber, int size) {
