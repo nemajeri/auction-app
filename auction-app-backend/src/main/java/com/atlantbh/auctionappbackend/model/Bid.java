@@ -39,6 +39,6 @@ public class Bid {
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "userId",referencedColumnName = "id" ,nullable = false)
+    @JoinColumn(name = "user_id",referencedColumnName = "id" ,nullable = false)
     private AppUser user;
 }

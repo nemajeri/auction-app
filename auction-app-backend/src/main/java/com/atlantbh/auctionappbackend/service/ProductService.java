@@ -99,7 +99,7 @@ public class ProductService {
         boolean isOwner = false;
         String jwt = tokenService.getJwtFromHeader(request);
         if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
-            String email = tokenService.getClaimFromToken(jwt, "email");
+            String email = tokenService.getClaimFromToken(jwt, "sub");
             isOwner = product.isOwner(email);
         }
 

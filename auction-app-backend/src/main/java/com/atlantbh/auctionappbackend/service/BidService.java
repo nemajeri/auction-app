@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
+import com.atlantbh.auctionappbackend.exception.BidAmountException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.model.Bid;
@@ -59,7 +60,7 @@ public class BidService {
         String jwt = tokenService.getJwtFromHeader(request);
 
         if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
-            String email = tokenService.getClaimFromToken(jwt, "email");
+            String email = tokenService.getClaimFromToken(jwt, "sub");
             return appUserRepository.getByEmail(email)
                     .orElseThrow(() -> new AppUserNotFoundException("User with email " + email + " not found"));
         }
@@ -70,11 +71,11 @@ public class BidService {
         float currentMaxBid = product.getCurrentMaxBid();
 
         if (amount <= 0) {
-            throw new IllegalArgumentException("Bid can't be 0 or under that value");
+            throw new BidAmountException("Bid can't be 0 or under that value");
         }
 
         if (currentMaxBid >= amount) {
-            throw new IllegalArgumentException("Place bid that is higher than the current one");
+            throw new BidAmountException("Place bid that is higher than the current one");
         }
     }
 }
