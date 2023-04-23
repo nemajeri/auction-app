@@ -25,7 +25,7 @@ const ProductOverviewPage = () => {
   const [timeLeft, setTimeLeft] = useState('');
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(null);
-  const [bidAmount, setBidAmount] = useState(null);
+  const [bidAmount, setBidAmount] = useState('');
   const [popOut, setPopOut] = useState({
     visible: false,
     message: '',
@@ -57,51 +57,44 @@ const ProductOverviewPage = () => {
     return <LoadingSpinner />;
   }
 
-  const onBidButtonClick = (e) => {
+  const onBidButtonClick = async (e) => {
     e.preventDefault();
     try {
-      updateBid(id, bidAmount);
+      await updateBid(id, bidAmount);
+      const updatedProduct = await getProduct(id, getJwtFromCookie());
+      setProduct(updatedProduct.data);
+  
+      setPopOut({
+        visible: true,
+        message: 'Congrats! You are the highest bidder!',
+        type: 'success',
+      });
     } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
+      let message = 'An error occurred while placing your bid.';
+      let type = 'error';
+  
+      if (error.response && error.response.data && error.response.data.message) {
         const errorMessage = error.response.data.message;
-
-        if (errorMessage === "Bid can't be 0 or under that value") {
-          setPopOut({
-            visible: true,
-            message: "Bid can't be 0 or under that value.",
-            type: 'success',
-          });
-        } else if (
-          errorMessage === 'Place bid that is higher than the current one'
-        ) {
-          setPopOut({
-            visible: true,
-            message:
-              'There are higher bids than yours. You could give a second try.',
-            type: 'warning',
-          });
-        } else {
-          setPopOut({
-            visible: true,
-            message: 'An error occurred while placing your bid.',
-            type: 'error',
-          });
+        switch (errorMessage) {
+          case 'Place bid that is higher than the current one':
+            message = 'There are higher bids than yours. You could give a second try!';
+            type = 'warning';
+            break;
+          default:
+            break;
         }
-      } else {
-        setPopOut({
-          visible: true,
-          message: 'An error occurred while placing your bid.',
-          type: 'error',
-        });
       }
-
+  
+      setPopOut({
+        visible: true,
+        message,
+        type,
+      });
+    } finally {
       setTimeout(() => {
         setPopOut({ visible: false, message: '', type: '' });
-      }, 5000);
+      }, 2000);
+      setBidAmount('');
     }
   };
 
@@ -122,6 +115,7 @@ const ProductOverviewPage = () => {
               isOwner={isOwner}
               setBidAmount={setBidAmount}
               onBidButtonClick={onBidButtonClick}
+              bidAmount={bidAmount}
             />
           </section>
         </div>

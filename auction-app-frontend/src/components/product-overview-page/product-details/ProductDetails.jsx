@@ -33,7 +33,7 @@ const ProductDetails = ({
           </p>
         </div>
         <div className='details__bid--placement'>
-          <input type='text' value={bidAmount} placeholder='Enter 55$ or higher' disabled={isOwner} onChange={(e) => setBidAmount(parseFloat(e.target.value))}/>
+          <input type='text' value={bidAmount} placeholder={`Enter ${product.highestBid}$ or higher`} disabled={isOwner} onChange={(e) => setBidAmount(e.target.value)}/>
           <Button onClick={onBidButtonClick} className={'details__button'} isOwner={isOwner}>
             PLACE BID
           </Button>
