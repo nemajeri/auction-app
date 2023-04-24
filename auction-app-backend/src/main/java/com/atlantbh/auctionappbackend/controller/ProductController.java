@@ -4,6 +4,7 @@ import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
+import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -59,7 +60,7 @@ public class ProductController {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable("id") Long id, HttpServletRequest request) {
+    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("id") Long id, HttpServletRequest request) {
         try {
             return ResponseEntity.ok(productService.getProductById(id, request));
         } catch (ProductNotFoundException e) {

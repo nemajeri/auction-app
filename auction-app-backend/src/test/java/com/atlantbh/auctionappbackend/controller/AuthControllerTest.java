@@ -4,7 +4,6 @@ import com.atlantbh.auctionappbackend.TestGoogleIdToken;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
-import com.atlantbh.auctionappbackend.security.jwt.JwtAuthenticationFilter;
 import com.atlantbh.auctionappbackend.service.AuthService;
 import com.atlantbh.auctionappbackend.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -151,7 +150,7 @@ public class AuthControllerTest {
     @Test
     public void testLogoutAppUser_ReturnsOkResponse() throws Exception {
         String token = "my-token";
-        Cookie cookie = new Cookie("logout-token", token);
+        Cookie cookie = new Cookie("auction_app_logout_token", token);
 
         when(tokenService.getJwtFromCookie(any())).thenReturn(token);
 
@@ -163,7 +162,7 @@ public class AuthControllerTest {
                     MockHttpServletResponse res = result.getResponse();
                     assertNotNull(res);
                     Cookie[] cookies = res.getCookies();
-                    Optional<Cookie> jwtCookie = Arrays.stream(cookies).filter(c -> "logout-token".equals(c.getName())).findFirst();
+                    Optional<Cookie> jwtCookie = Arrays.stream(cookies).filter(c -> "auction_app_logout_token".equals(c.getName())).findFirst();
                     assertTrue(jwtCookie.isPresent());
                     assertEquals("", jwtCookie.get().getValue());
                     assertEquals("/", jwtCookie.get().getPath());

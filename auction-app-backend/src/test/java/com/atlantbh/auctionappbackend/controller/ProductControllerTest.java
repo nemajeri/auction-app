@@ -2,6 +2,7 @@ package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
+import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.servlet.http.HttpServletRequest;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -73,23 +77,20 @@ public class ProductControllerTest {
     @Test
     public void testGetProductById_ReturnsAProductById() throws Exception {
 
-        ProductDTO product = new ProductDTO(
+        SingleProductResponse product = new SingleProductResponse(
                 1L,
-                "Product Name",
-                "Product Description",
-                10.0f,
-                Arrays.asList("image1.jpg", "image2.jpg"),
-                LocalDateTime.of(2023, 3, 23, 0, 0),
-                LocalDateTime.of(2023, 4, 15, 0, 0),
-                5,
+                "Shoes Collection",
+                "New shoes collection",
                 10.00f,
-                1L,
-                "Men",
-                true
+                Collections.singletonList("/images/shoe-4.jpg"),
+                LocalDateTime.of(2023, 3, 23, 0, 0),
+                LocalDateTime.of(2023, 3, 23, 0, 0),
+                5,
+                25.00f,
+                false
         );
 
-        when(productService.getProductById(product.getId())).thenReturn(product);
-
+        when(productService.getProductById(eq(product.getId()), any(HttpServletRequest.class))).thenReturn(product);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
@@ -102,12 +103,11 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.description").value(product.getDescription()))
                 .andExpect(jsonPath("$.startPrice").value(product.getStartPrice()))
                 .andExpect(jsonPath("$.images").isArray())
-                .andExpect(jsonPath("$.images[0]").value(product.getImages().get(0)))
-                .andExpect(jsonPath("$.images[1]").value(product.getImages().get(1)))
                 .andExpect(jsonPath("$.startDate").value(product.getStartDate().format(formatter)))
                 .andExpect(jsonPath("$.endDate").value(product.getEndDate().format(formatter)))
                 .andExpect(jsonPath("$.numberOfBids").value(product.getNumberOfBids()))
                 .andExpect(jsonPath("$.highestBid").value(product.getHighestBid()))
+                .andExpect(jsonPath("$.owner").value(product.isOwner()))
                 .andReturn();
     }
     @Test
