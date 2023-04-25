@@ -12,7 +12,8 @@ const ProductDetails = ({
   isOwner,
   setBidAmount,
   bidAmount,
-  onBidButtonClick
+  onBidButtonClick,
+  isAuctionOver,
 }) => {
   return (
     product && (
@@ -32,12 +33,24 @@ const ProductDetails = ({
             Time left: <span>{timeLeft}</span>
           </p>
         </div>
-        <div className='details__bid--placement'>
-          <input type='text' value={bidAmount} placeholder={`Enter ${product.highestBid}$ or higher`} disabled={isOwner} onChange={(e) => setBidAmount(e.target.value)}/>
-          <Button onClick={onBidButtonClick} className={'details__button'} isOwner={isOwner}>
-            PLACE BID
-          </Button>
-        </div>
+        {!isAuctionOver && (
+          <div className='details__bid--placement'>
+            <input
+              type='text'
+              value={bidAmount}
+              placeholder={`Enter ${product.highestBid}$ or higher`}
+              disabled={isOwner}
+              onChange={(e) => setBidAmount(e.target.value)}
+            />
+            <Button
+              onClick={onBidButtonClick}
+              className={'details__button'}
+              isOwner={isOwner}
+            >
+              PLACE BID
+            </Button>
+          </div>
+        )}
         <Tabs
           tabs={tabs}
           handleTabClick={handleTabClick}

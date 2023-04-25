@@ -26,6 +26,7 @@ const ProductOverviewPage = () => {
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
+  const [isAuctionOver, setIsAuctionOver] = useState(false);
   const [popOut, setPopOut] = useState({
     visible: false,
     message: '',
@@ -42,6 +43,7 @@ const ProductOverviewPage = () => {
         setTimeLeft(calculateTimeLeft(response.data));
         setLoading(false);
         setIsOwner(response.data.owner);
+        setIsAuctionOver(new Date(response.data.endDate) <= new Date());
       });
     } catch (error) {
       console.error(error);
@@ -116,6 +118,7 @@ const ProductOverviewPage = () => {
               setBidAmount={setBidAmount}
               onBidButtonClick={onBidButtonClick}
               bidAmount={bidAmount}
+              isAuctionOver={isAuctionOver}
             />
           </section>
         </div>
