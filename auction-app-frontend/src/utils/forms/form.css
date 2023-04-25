@@ -65,5 +65,23 @@
     top: -20px;
 }
 
+.input-icon-container {
+  position: relative;
+  display: inline-block;
+}
+
+.input-icon-container.before .input-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.input-icon-container.after .input-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
   
   

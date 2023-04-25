@@ -1,0 +1,29 @@
+.sell-page__progress-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .sell-page__progress-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--grey-100);
+    margin: 0 5px;
+  }
+  
+  .sell-page__progress-active_dot {
+    background-color: var(--purple);
+  }
+
+  .third-step__credit-cards {
+    display: flex;
+    align-items: center;
+}
+
+.third-step__credit-cards img {
+    width: 2rem;
+    height: 1.3rem;
+    margin: 0 5px;
+}   

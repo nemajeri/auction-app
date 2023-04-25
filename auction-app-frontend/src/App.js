@@ -13,6 +13,7 @@ import {
   registrationPath,
   myAccountPath,
   shopPagePath,
+  sellerToSellItemPath,
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -24,6 +25,7 @@ import {
   LoginPage,
   RegisterPage,
   MyAccountPage,
+  SellPage,
 } from './pages/index';
 import { Route, Routes } from 'react-router-dom';
 import { AppContextProvider } from './utils/AppContextProvider';
@@ -49,8 +51,7 @@ function App() {
                 <MyAccountPage />
               </ProtectedRoute>
             }
-          >
-          </Route>
+          ></Route>
           <Route path={shopPagePath} element={<ShopPage />} />
           <Route path={shopPagePathToCategory} element={<ShopPage />} />
           <Route
@@ -63,6 +64,7 @@ function App() {
           <Route path={aboutUsPath} element={<AboutPage />} />
           <Route path={privacyPolicyPath} element={<TermsAndCondPage />} />
           <Route path={termsAndCondPath} element={<PrivacyPolicyPage />} />
+          <Route path={sellerToSellItemPath} element={<SellPage />} />
         </Routes>
         <Footer />
       </AppContextProvider>

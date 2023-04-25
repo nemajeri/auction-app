@@ -9,16 +9,18 @@ import { validateFields } from '../helperFunctions';
 import { FcGoogle } from 'react-icons/fc';
 import useFacebookSDK from '../../hooks/useFacebookSDK';
 import useGoogleSDK from '../../hooks/useGoogleSDK';
+import InputWithIcon from './InputWithIcon';
+
 
 const Form = ({
   fields,
-  submitText,
-  onSubmit,
   includeSocial,
   includeRememberMe,
   onRememberMe,
   handleLoginSuccess,
   rememberMe,
+  children,
+  onFormStateChange
 }) => {
   const [formState, setFormState] = useState({
     ...Object.fromEntries(fields.map((field) => [field.name, ''])),
@@ -30,10 +32,15 @@ const Form = ({
   const navigate = useNavigate();
 
   const handleChange = (event) => {
-    setFormState({
+    const newState = {
       ...formState,
       [event.target.name]: event.target.value,
-    });
+    };
+    setFormState(newState);
+
+    if (onFormStateChange) {
+      onFormStateChange(newState);
+    }
   };
 
   const handleGsiEvent = (response) => {
@@ -119,21 +126,16 @@ const Form = ({
       {fields.map((field) => (
         <React.Fragment key={field.name}>
           <label htmlFor={field.name}>{field.label}</label>
-          <input
-            type={field.type}
-            id={field.name}
-            name={field.name}
-            value={formState[field.name]}
-            onChange={handleChange}
-            placeholder={field.placeholder}
-            autoComplete='off'
-            required
-          />
-          {errors[field.name] && (
-            <div className='error-message'>
-              <p>{errors[field.name]}</p>
-            </div>
-          )}
+          <InputWithIcon icon={field.icon}>
+            <input
+              type={field.type}
+              id={field.name}
+              name={field.name}
+              value={formState[field.name]}
+              onChange={handleChange}
+              style={field.layout}
+            />
+          </InputWithIcon>
         </React.Fragment>
       ))}
       {includeRememberMe && (
@@ -149,9 +151,7 @@ const Form = ({
           <label htmlFor='rememberMe'>Remember me</label>
         </div>
       )}
-      <Button onClick={handleSubmit} className={'form__main--call_to-action'}>
-        {submitText}
-      </Button>
+      {children}
       {includeSocial && (
         <div className='form__social-media--buttons'>
           <Button

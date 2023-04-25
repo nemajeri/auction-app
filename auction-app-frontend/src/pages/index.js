@@ -7,4 +7,4 @@ export { default as ShopPage } from './shop-page/ShopPage.js';
 export { default as RegisterPage } from './register-page/RegisterPage.js';
 export { default as LoginPage } from './login-page/LoginPage.js';
 export { default as MyAccountPage } from './my-account-page/MyAccountPage.js';
-
+export { default as SellPage } from './sell-page/SellPage.js';

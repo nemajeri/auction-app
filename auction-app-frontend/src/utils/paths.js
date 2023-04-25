@@ -14,3 +14,4 @@ export const registrationPath = "/register";
 export const myAccountPath = navlinks[2].route;
 export const bidsPath = `${myAccountPath}/bids`;
 export const sellerPath = `${myAccountPath}/seller`;
+export const sellerToSellItemPath  = `${myAccountPath}/sell`;
