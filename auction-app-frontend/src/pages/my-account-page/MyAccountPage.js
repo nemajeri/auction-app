@@ -4,7 +4,7 @@ import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { myAccountTabs } from '../../utils/constants';
 import Button from '../../utils/Button';
 import { sellerPath, bidsPath } from '../../utils/paths';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SellerTab from '../../components/my-account-page/SellerTab';
 import BidsTab from '../../components/my-account-page/BidsTab';
 import { AiOutlinePlus } from 'react-icons/ai';
@@ -29,10 +29,15 @@ const headerClassNames = [
 
 const MyAccountPage = () => {
   const { pathname } = useLocation();
-  const [selectedTab, setSelectedTab] = useState(sellerPath);
+  const [selectedTab, setSelectedTab] = useState(
+    pathname === bidsPath ? bidsPath : sellerPath
+  );
+
+  const navigate = useNavigate();
 
   const handleTabClick = (path) => {
     setSelectedTab(path);
+    navigate(`/my-account${path}`);
   };
 
   return (
@@ -61,36 +66,30 @@ const MyAccountPage = () => {
           </Button>
         </div>
         {(() => {
-          switch (pathname) {
+          switch (selectedTab) {
             case sellerPath:
               return (
-                selectedTab === sellerPath && (
-                  <SellerTab
-                    headings={headings}
-                    headerClassNames={headerClassNames}
-                    sellerCallToActionClassName={''}
-                  />
-                )
+                <SellerTab
+                  headings={headings}
+                  headerClassNames={headerClassNames}
+                  sellerCallToActionClassName={''}
+                />
               );
             case bidsPath:
               return (
-                selectedTab === bidsPath && (
-                  <BidsTab
-                    headings={headings}
-                    headerClassNames={headerClassNames}
-                    bidCallToActionClassName={''}
-                  />
-                )
+                <BidsTab
+                  headings={headings}
+                  headerClassNames={headerClassNames}
+                  bidCallToActionClassName={''}
+                />
               );
             default:
               return (
-                selectedTab === sellerPath && (
-                  <SellerTab
-                    headings={headings}
-                    headerClassNames={headerClassNames}
-                    sellerCallToActionClassName={''}
-                  />
-                )
+                <SellerTab
+                  headings={headings}
+                  headerClassNames={headerClassNames}
+                  sellerCallToActionClassName={''}
+                />
               );
           }
         })()}
