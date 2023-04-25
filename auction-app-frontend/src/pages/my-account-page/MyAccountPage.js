@@ -72,7 +72,6 @@ const MyAccountPage = () => {
                 <SellerTab
                   headings={headings}
                   headerClassNames={headerClassNames}
-                  sellerCallToActionClassName={''}
                 />
               );
             case bidsPath:
@@ -80,7 +79,6 @@ const MyAccountPage = () => {
                 <BidsTab
                   headings={headings}
                   headerClassNames={headerClassNames}
-                  bidCallToActionClassName={''}
                 />
               );
             default:
@@ -88,7 +86,6 @@ const MyAccountPage = () => {
                 <SellerTab
                   headings={headings}
                   headerClassNames={headerClassNames}
-                  sellerCallToActionClassName={''}
                 />
               );
           }
