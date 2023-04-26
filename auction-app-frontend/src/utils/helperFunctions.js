@@ -1,3 +1,10 @@
+import {
+  PASSWORD_VALIDATOR,
+  EMAIL_VALIDATOR,
+  PASSWORD_LENGTH,
+  NAME_VALIDATOR
+} from './constants';
+
 export const getTotalPages = (products, size) => {
   return Math.ceil(products?.totalElements / size);
 };
@@ -37,15 +44,22 @@ export const getJwtFromCookie = () => {
 export const validateFields = (formState) => {
   const errors = {};
 
-  if (!formState.email || !/\S+@\S+\.\S+/.test(formState.email)) {
+
+  if (!formState.firstName || !NAME_VALIDATOR.test(formState.firstName)) {
+    errors.firstName = 'Please enter a valid first name';
+  }
+  
+  if (!formState.lastName || !NAME_VALIDATOR.test(formState.lastName)) {
+    errors.lastName = 'Please enter a valid last name';
+  }
+
+  if (!formState.email || !EMAIL_VALIDATOR.test(formState.email)) {
     errors.email = 'Please enter a valid email address';
   }
 
-  if (!formState.password || formState.password.length < 5) {
-    errors.password = 'Password must be at least 5 characters';
-  } else if (
-    !/(?=.*[!@#$%^&*()_+[\]{}|\\;:'",./<>?`~])(?=.*\d)/.test(formState.password)
-  ) {
+  if (!formState.password || formState.password.length <= PASSWORD_LENGTH) {
+    errors.password = `Password must be at least ${PASSWORD_LENGTH} characters`;
+  } else if (!PASSWORD_VALIDATOR.test(formState.password)) {
     errors.password =
       'Password must contain at least one special sign and one number';
   }

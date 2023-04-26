@@ -61,7 +61,7 @@ const Form = ({
     return () => {};
   }, []);
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     try {
       window.google.accounts.id.prompt();
     } catch (error) {
