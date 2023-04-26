@@ -109,14 +109,14 @@ const Form = ({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     const errors = validateFields(formState);
     setErrors(errors);
-  
+
     if (Object.keys(errors).length === 0) {
       onSubmit(formState);
     }
-  
+
     if (onRememberMe) {
       const rememberMeCheckbox = document.querySelector('[name="rememberMe"]');
       if (rememberMeCheckbox) {
@@ -137,11 +137,13 @@ const Form = ({
             value={formState[field.name]}
             onChange={handleChange}
             placeholder={field.placeholder}
-            autoComplete="off"
+            autoComplete='off'
             required
           />
           {errors[field.name] && (
-            <p className='error-message'>{errors[field.name]}</p>
+            <div className='error-message'>
+              <p>{errors[field.name]}</p>
+            </div>
           )}
         </React.Fragment>
       ))}

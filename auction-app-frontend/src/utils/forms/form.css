@@ -55,8 +55,14 @@
 }
 
 .error-message {
+    position: relative;
+}
+
+.error-message > p {
     color: var(--red);
     margin-bottom: 5px;
+    position: absolute;
+    top: -20px;
 }
 
   

@@ -43,9 +43,11 @@ export const validateFields = (formState) => {
 
   if (!formState.password || formState.password.length < 5) {
     errors.password = 'Password must be at least 5 characters';
-  } else if (!/(?=.*[A-Z])(?=.*\d)/.test(formState.password)) {
+  } else if (
+    !/(?=.*[!@#$%^&*()_+[\]{}|\\;:'",./<>?`~])(?=.*\d)/.test(formState.password)
+  ) {
     errors.password =
-      'Password must contain at least one uppercase letter and one number';
+      'Password must contain at least one special sign and one number';
   }
 
   return errors;
