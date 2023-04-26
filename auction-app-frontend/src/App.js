@@ -24,15 +24,21 @@ import {
 } from './pages/index';
 import { Route, Routes } from 'react-router-dom';
 import { AppContextProvider } from './utils/AppContextProvider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
     <>
       <AppContextProvider>
         <Navbar />
+        <ToastContainer />
         <Routes>
           <Route path={shopPagePathToCategory} element={<ShopPage />} />
-          <Route path={shopPagePathToProduct} element={<ProductOverviewPage />}/>
+          <Route
+            path={shopPagePathToProduct}
+            element={<ProductOverviewPage />}
+          />
           <Route
             path={productOverviewPagePath}
             element={<ProductOverviewPage />}

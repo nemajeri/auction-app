@@ -5,17 +5,20 @@ import { loginUser } from '../../utils/api/authApi';
 import './loginPage.css';
 import { AppContext } from '../../utils/AppContextProvider';
 import jwt_decode from 'jwt-decode';
+import { toast } from 'react-toastify';
 
 const fields = [
   {
     name: 'email',
     label: 'Email',
     type: 'email',
+    placeholder: 'user@domain.com',
   },
   {
     name: 'password',
     label: 'Password',
     type: 'password',
+    placeholder: '••••••••',
   },
 ];
 
@@ -50,7 +53,18 @@ const LoginPage = () => {
         <Form
           fields={fields}
           submitText='LOGIN'
-          onSubmit={(credentials) => loginUser(credentials, handleLoginSuccess, navigate)}
+          onSubmit={(credentials) =>
+            loginUser(
+              credentials,
+              handleLoginSuccess,
+              navigate,
+              () =>
+                toast.error(
+                  'There was an error submitting the form. Please try again.'
+                ),
+              () => toast.success('Login succesful!')
+            )
+          }
           includeSocial={true}
           includeRememberMe={true}
           onRememberMe={handleRememberMe}

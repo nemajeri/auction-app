@@ -26,7 +26,7 @@ export const getJwtFromCookie = () => {
     let cookie = allCookies[i].trim();
 
     if (cookie.startsWith(prefix)) {
-      const cookieName = cookie.split('=')[0].trim(); 
+      const cookieName = cookie.split('=')[0].trim();
       return cookie.substring((cookieName + '=').length, cookie.length);
     }
   }
@@ -34,4 +34,19 @@ export const getJwtFromCookie = () => {
   return null;
 };
 
+export const validateFields = (formState) => {
+  const errors = {};
 
+  if (!formState.email || !/\S+@\S+\.\S+/.test(formState.email)) {
+    errors.email = 'Please enter a valid email address';
+  }
+
+  if (!formState.password || formState.password.length < 5) {
+    errors.password = 'Password must be at least 5 characters';
+  } else if (!/(?=.*[A-Z])(?=.*\d)/.test(formState.password)) {
+    errors.password =
+      'Password must contain at least one uppercase letter and one number';
+  }
+
+  return errors;
+};

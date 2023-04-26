@@ -1,27 +1,55 @@
 import { AuthAPI } from '../constants';
 import { getJwtFromCookie } from '../helperFunctions';
 
-
-
-export const registerUser = async (credentials, navigate) => {
-  const response = await AuthAPI.post('/auth/register', credentials);
-  if (response.status === 201) {
-    navigate("/login");
+export const registerUser = async (
+  credentials,
+  navigate,
+  onError,
+  onSuccess
+) => {
+  try {
+    const response = await AuthAPI.post('/auth/register', credentials);
+    if (response.status === 201) {
+      onSuccess();
+      navigate('/login');
+    }
+  } catch (error) {
+    console.error(error);
+    onError();
   }
   return;
 };
 
-export const loginUser = async (credentials, onLoginSuccess, navigate) => {
-  const response = await AuthAPI.post('/auth/login', credentials);
-  if (response.status === 200 && onLoginSuccess) {
-    const jwtToken = getJwtFromCookie();
-    onLoginSuccess(jwtToken);
-    navigate("/");
+export const loginUser = async (
+  credentials,
+  onLoginSuccess,
+  navigate,
+  onError,
+  onSuccess
+) => {
+  try {
+    const response = await AuthAPI.post('/auth/login', credentials);
+    if (response.status === 200 && onLoginSuccess) {
+      const jwtToken = getJwtFromCookie();
+      onLoginSuccess(jwtToken);
+      onSuccess();
+
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    }
+  } catch (error) {
+    console.error(error);
+    onError();
   }
-  return response;
 };
 
-export const callOAuth2LoginSuccess = async (provider, token, handleLoginSuccess, navigate) => {
+export const callOAuth2LoginSuccess = async (
+  provider,
+  token,
+  handleLoginSuccess,
+  navigate
+) => {
   try {
     const response = await AuthAPI.post(
       `/auth/oauth2-login-success`,
@@ -38,7 +66,7 @@ export const callOAuth2LoginSuccess = async (provider, token, handleLoginSuccess
 
     if (response.status === 200) {
       const cookie = response.data;
-      navigate("/");
+      navigate('/');
       if (handleLoginSuccess) {
         const jwtToken = getJwtFromCookie();
         handleLoginSuccess(jwtToken);
