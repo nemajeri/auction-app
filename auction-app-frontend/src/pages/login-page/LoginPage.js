@@ -30,12 +30,6 @@ const LoginPage = () => {
     const decoded = jwt_decode(jwtToken);
     const username = `${decoded.firstName} ${decoded.lastName}`;
     setUser(username);
-
-    if (rememberMe) {
-      const now = new Date();
-      const expirationTime = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-      document.cookie = `jwtToken=${jwtToken}; expires=${expirationTime.toUTCString()}; path=/; secure=true`;
-    }
   };
 
   const handleRememberMe = (isChecked) => {
@@ -55,20 +49,23 @@ const LoginPage = () => {
           submitText='LOGIN'
           onSubmit={(credentials) =>
             loginUser(
-              credentials,
+              { ...credentials, rememberMe: rememberMe },
               handleLoginSuccess,
               navigate,
               () =>
                 toast.error(
                   'There was an error submitting the form. Please try again.'
                 ),
-              () => toast.success('Login succesful!')
+              () => toast.success('Login succesful!'),
+              () => toast.error('Invalid email or password. Please try again.'),
+              rememberMe
             )
           }
           includeSocial={true}
           includeRememberMe={true}
           onRememberMe={handleRememberMe}
           handleLoginSuccess={handleLoginSuccess}
+          rememberMe={rememberMe}
         />
         <div className='login-page__password'>
           <Link to={'/password'}>Forgot password?</Link>

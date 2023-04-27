@@ -25,7 +25,8 @@ export const loginUser = async (
   onLoginSuccess,
   navigate,
   onError,
-  onSuccess
+  onSuccess,
+  onInvalidCredentials,
 ) => {
   try {
     const response = await AuthAPI.post('/auth/login', credentials);
@@ -39,8 +40,12 @@ export const loginUser = async (
       }, 1000);
     }
   } catch (error) {
-    console.error(error);
-    onError();
+    if (error.response && error.response.status === 401) {
+      onInvalidCredentials();
+    } else {
+      console.error(error);
+      onError();
+    }
   }
 };
 

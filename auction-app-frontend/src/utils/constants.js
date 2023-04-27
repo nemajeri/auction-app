@@ -23,3 +23,8 @@ export const PASSWORD_VALIDATOR = /(?=.*[!@#$%^&*()_+[\]{}|\\;:'",./<>?`~])(?=.*
 
 export const NAME_VALIDATOR = /^[a-zA-Z\s]+$/;
 
+export const FORM_TYPES = {
+  REGISTER: 'register',
+  LOGIN: 'login',
+};
+

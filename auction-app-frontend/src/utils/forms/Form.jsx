@@ -16,10 +16,13 @@ const Form = ({
   includeRememberMe,
   onRememberMe,
   handleLoginSuccess,
+  rememberMe
 }) => {
   const [formState, setFormState] = useState(
-    Object.fromEntries(fields.map((field) => [field.name, '']))
-  );
+    {
+      ...Object.fromEntries(fields.map((field) => [field.name, ''])),
+      isRememberMe: rememberMe,
+    });
   const [errors, setErrors] = useState({});
 
   const location = useLocation();
@@ -114,7 +117,7 @@ const Form = ({
     setErrors(errors);
 
     if (Object.keys(errors).length === 0) {
-      onSubmit(formState);
+      onSubmit({ ...formState, rememberMe: rememberMe });
     }
 
     if (onRememberMe) {
@@ -124,6 +127,13 @@ const Form = ({
       }
     }
   };
+
+  useEffect(() => {
+    setFormState((prevState) => ({
+      ...prevState,
+      isRememberMe: rememberMe,
+    }));
+  }, [rememberMe]);
 
   return (
     <form>

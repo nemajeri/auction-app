@@ -2,7 +2,8 @@ import {
   PASSWORD_VALIDATOR,
   EMAIL_VALIDATOR,
   PASSWORD_LENGTH,
-  NAME_VALIDATOR
+  NAME_VALIDATOR,
+  FORM_TYPES
 } from './constants';
 
 export const getTotalPages = (products, size) => {
@@ -41,16 +42,17 @@ export const getJwtFromCookie = () => {
   return null;
 };
 
-export const validateFields = (formState) => {
+export const validateFields = (formState, formType) => {
   const errors = {};
 
+  if (formType === FORM_TYPES.REGISTER) {
+    if (!formState.firstName || !NAME_VALIDATOR.test(formState.firstName)) {
+      errors.firstName = 'Please enter a valid first name';
+    }
 
-  if (!formState.firstName || !NAME_VALIDATOR.test(formState.firstName)) {
-    errors.firstName = 'Please enter a valid first name';
-  }
-  
-  if (!formState.lastName || !NAME_VALIDATOR.test(formState.lastName)) {
-    errors.lastName = 'Please enter a valid last name';
+    if (!formState.lastName || !NAME_VALIDATOR.test(formState.lastName)) {
+      errors.lastName = 'Please enter a valid last name';
+    }
   }
 
   if (!formState.email || !EMAIL_VALIDATOR.test(formState.email)) {
