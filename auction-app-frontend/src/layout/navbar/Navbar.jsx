@@ -20,7 +20,7 @@ const Navbar = () => {
     activeCategory,
     setSearchProducts,
     setProducts,
-    user
+    user,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
@@ -52,7 +52,7 @@ const Navbar = () => {
       <div className='navbar__white'>
         <div className='navbar__container--white'>
           <Logo />
-          {!(pathname.includes('login') || pathname.includes('register')) ? (
+          {!(pathname.includes('login') || pathname.includes('register')) && (
             <div className='navbar__container--search_and-links'>
               <SearchField
                 searchTerm={searchTerm}
@@ -74,7 +74,7 @@ const Navbar = () => {
                 ))}
               </div>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
       {suggestion !== '' && searchTerm !== '' ? (

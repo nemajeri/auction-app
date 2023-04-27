@@ -45,3 +45,5 @@ export const myAccountTabs = [
     icon: AiOutlineDollarCircle,
   },
 ];
+
+export const COOKIE_PREFIX = "auction_app";

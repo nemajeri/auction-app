@@ -1,6 +1,7 @@
 import foolinks from '../data/foolinks.json';
 import navlinks from '../data/navlinks.json';
 
+export const shopPagePathToCategory = '/shop/:categoryId';
 export const shopPagePathToProduct = '/shop/product/:id';
 export const shopPagePath = navlinks[1].route;
 export const landingPagePath = navlinks[0].route;

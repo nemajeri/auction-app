@@ -3,8 +3,10 @@ import {
   EMAIL_VALIDATOR,
   PASSWORD_LENGTH,
   NAME_VALIDATOR,
-  FORM_TYPES
+  FORM_TYPES,
+  COOKIE_PREFIX
 } from './constants';
+import Cookies from "js-cookie";
 
 export const getTotalPages = (products, size) => {
   return Math.ceil(products?.totalElements / size);
@@ -27,15 +29,12 @@ export const calculateTimeLeft = (product) => {
 };
 
 export const getJwtFromCookie = () => {
-  const prefix = 'auction_app';
-  const allCookies = document.cookie.split(';');
+  const prefix = COOKIE_PREFIX;
+  const allCookies = Cookies.get();
 
-  for (let i = 0; i < allCookies.length; i++) {
-    let cookie = allCookies[i].trim();
-
-    if (cookie.startsWith(prefix)) {
-      const cookieName = cookie.split('=')[0].trim();
-      return cookie.substring((cookieName + '=').length, cookie.length);
+  for (const cookieName in allCookies) {
+    if (allCookies.hasOwnProperty(cookieName) && cookieName.startsWith(prefix)) {
+      return allCookies[cookieName];
     }
   }
 

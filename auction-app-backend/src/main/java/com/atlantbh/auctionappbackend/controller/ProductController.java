@@ -59,14 +59,11 @@ public class ProductController {
             @RequestParam(defaultValue = "8") int size) {
         Page<ProductDTO> productDTOs;
         switch (filter) {
-            case "new-arrival":
-                productDTOs = productService.getNewProducts(pageNumber, size);
-                break;
-            case "last-chance":
-                productDTOs = productService.getLastProducts(pageNumber, size);
-                break;
-            default:
+            case "new-arrival" -> productDTOs = productService.getNewProducts(pageNumber, size);
+            case "last-chance" -> productDTOs = productService.getLastProducts(pageNumber, size);
+            default -> {
                 return ResponseEntity.badRequest().build();
+            }
         }
         return ResponseEntity.ok().body(productDTOs);
     }

@@ -3,6 +3,7 @@ package com.atlantbh.auctionappbackend.security.jwt;
 
 
 import com.atlantbh.auctionappbackend.service.TokenService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -18,14 +19,14 @@ import java.util.Collections;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private TokenService tokenService;
+    private final TokenService tokenService;
 
     public JwtAuthenticationFilter(TokenService tokenService) {
         this.tokenService = tokenService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = tokenService.getJwtFromCookie(request);
 
