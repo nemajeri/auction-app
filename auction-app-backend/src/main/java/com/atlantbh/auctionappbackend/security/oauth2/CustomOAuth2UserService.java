@@ -36,7 +36,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
         }
 
-        String jwt = tokenService.generateToken(new UsernamePasswordAuthenticationToken(oAuth2UserInfo.getEmail(), ""));
+        String jwt = tokenService.generateToken(new UsernamePasswordAuthenticationToken(oAuth2UserInfo.getEmail(), ""), false);
         Map<String, Object> additionalInfo = new HashMap<>(oAuth2User.getAttributes());
         additionalInfo.put("jwt", jwt);
         OAuth2User oAuth2UserWithJwt = new DefaultOAuth2User(oAuth2User.getAuthorities(), additionalInfo, "jwt");
