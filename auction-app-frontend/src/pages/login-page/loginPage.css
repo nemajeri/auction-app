@@ -1,0 +1,34 @@
+.login-page__wrapper {
+    border: 1px solid var(--grey-100);
+    width: 700px;
+    margin: 2rem auto 5rem auto;
+}
+
+.login-page__content {
+    padding: 9%;
+    width: 620px;
+    margin-left: 2rem;
+    height: 42.5rem;
+}
+
+.login-page__headline {
+    text-align: center;
+    width: 100%;
+    height: 60px;
+    background-color: var(--white-400);
+}
+
+.login-page__headline h3 {
+    padding-top: 15px; 
+}
+
+.login-page__password {
+    width: 100%;
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.login-page__password > a {
+    text-decoration: none;
+    color: var(--purple);
+}

@@ -64,6 +64,7 @@ public class AuthService {
     }
 
     public void login(HttpServletRequest request, LoginRequest loginRequest, HttpServletResponse response) {
+        System.out.println("Login Request " + loginRequest);
         AppUser loggedAppUser = appUserRepository.getByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
@@ -76,7 +77,7 @@ public class AuthService {
         CustomUserDetails userDetails = new CustomUserDetails(loggedAppUser.getEmail(), loggedAppUser.getPassword(), firstName, lastName, Collections.emptyList());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        String jwt = tokenService.generateToken(authentication);
+        String jwt = tokenService.generateToken(authentication, loginRequest.isRememberMe());
         boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
         Cookie jwtCookie = new Cookie(LOGIN_COOKIE_NAME, jwt);

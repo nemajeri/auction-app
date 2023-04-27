@@ -1,0 +1,69 @@
+.form__checkbox {
+    display: flex;
+    gap: 10px;
+    margin: 1rem 0 1.5rem 0;
+}
+
+.form__main--call_to-action {
+    width: 100%;
+    background-color: var(--purple);
+    border: none;
+    color: var(--white-100);
+    padding: 17px 0;
+    margin-top: 3rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.form__social-media--buttons {
+    width: 100%;
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 12px;
+}
+
+.form__social-media--button {
+    background-color: var(--white-100);
+    padding: 8px;
+    border: 1px solid var(--grey-100);
+    height: 4rem;
+    width: 18rem;
+    cursor: pointer;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.form__social-media--button span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.form__social-media--button p {
+    font-weight: bold;
+    font-size: medium;
+}
+
+.form__social-media--icon {
+    width: 30px;
+    height: 30px;
+}
+
+.facebook-button__color {
+    color: var(--blue-200);
+}
+
+.error-message {
+    position: relative;
+}
+
+.error-message > p {
+    color: var(--red);
+    margin-bottom: 5px;
+    position: absolute;
+    top: -20px;
+}
+
+  
+  

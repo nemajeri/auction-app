@@ -5,22 +5,23 @@ import Logo from '../../assets/Logo';
 import SearchField from '../../components/search-field/SearchField';
 import NavbarLink from '../../components/nav-link/NavbarLink';
 import navlinks from '../../data/navlinks.json';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { AppContext } from '../../utils/AppContextProvider';
+import { loginPath, registrationPath } from '../../utils/paths';
 
 const Navbar = () => {
   const {
     searchTerm,
-    onSearchTermChange,
     onSearchIconClick,
+    onSearchTermChange,
     setSearchTerm,
     suggestion,
     setSuggestion,
     activeCategory,
     setSearchProducts,
-    setProducts
+    setProducts,
+    user
   } = useContext(AppContext);
-  const [user, setUser] = useState('');
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
 
@@ -35,11 +36,11 @@ const Navbar = () => {
           <div>
             <SocialMediaIcons />
           </div>
-          {user === '' ? (
+          {user === null ? (
             <div className='navbar__account'>
-              <a href='/temp/route'>Login</a>
+              <Link to={loginPath}>Login</Link>
               <span>or</span>
-              <a href='/temp/route'>Create an Account</a>
+              <Link to={registrationPath}>Create an Account</Link>
             </div>
           ) : (
             <div>
@@ -51,27 +52,29 @@ const Navbar = () => {
       <div className='navbar__white'>
         <div className='navbar__container--white'>
           <Logo />
-          <div className='navbar__container--search_and-links'>
-            <SearchField
-              searchTerm={searchTerm}
-              onSearchTermChange={onSearchTermChange}
-              categoryId={activeCategory}
-              onSearchIconClick={onSearchIconClick}
-              setSearchTerm={setSearchTerm}
-              setSearchProducts={setSearchProducts}
-              setProducts={setProducts}
-            />
-            <div className='navbar__navigation'>
-              {navlinks.map((link) => (
-                <NavbarLink
-                  link={link}
-                  key={link.key}
-                  activeLink={activeLink}
-                  onClick={setActiveLink}
-                />
-              ))}
+          {!(pathname.includes('login') || pathname.includes('register')) ? (
+            <div className='navbar__container--search_and-links'>
+              <SearchField
+                searchTerm={searchTerm}
+                onSearchTermChange={onSearchTermChange}
+                categoryId={activeCategory}
+                onSearchIconClick={onSearchIconClick}
+                setSearchTerm={setSearchTerm}
+                setSearchProducts={setSearchProducts}
+                setProducts={setProducts}
+              />
+              <div className='navbar__navigation'>
+                {navlinks.map((link) => (
+                  <NavbarLink
+                    link={link}
+                    key={link.key}
+                    activeLink={activeLink}
+                    onClick={setActiveLink}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
       {suggestion !== '' && searchTerm !== '' ? (
