@@ -1,4 +1,4 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, createContext, useEffect } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { PAGE_SIZE } from './constants';
 
@@ -13,6 +13,7 @@ export const AppContextProvider = ({ children }) => {
   const [activeCategory, setActiveCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState(null);
+  const [isClearButtonPressed, setIsClearButtonPressed] = useState(false);
 
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
@@ -23,33 +24,48 @@ export const AppContextProvider = ({ children }) => {
     if (query.length > 2) {
       try {
         const response = await getSearchSuggestion(query);
-        setSuggestion(response.data[0]);
+        setSuggestion(response.data);
       } catch (error) {
         console.error(error);
       }
     } else {
       setSuggestion('');
     }
-  }
+  };
 
-  const onSearchIconClick = (event, suggestedSearchTerm = null) => {
+  const onSearchIconClick = (
+    event,
+    categoryId,
+    suggestedSearchTerm = null,
+    navigate,
+    pathname
+  ) => {
     event.preventDefault();
     const currentSearchTerm = suggestedSearchTerm || searchTerm;
     setPageNumber(0);
-    getAllProducts(0, PAGE_SIZE, currentSearchTerm, null).then((response) => {
-      setLoading(true);
-      setSearchProducts({
-        content: response.data.content,
-        pageData: response.data,
-      });
-      setLoading(false);
-      setSuggestion('');
-  
-      if (response.data.content.length <= 1) {
-        suggestAlternativePhrases(searchTerm);
+    if (!pathname.includes('/shop')) {
+      navigate('/shop');
+    }
+    getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId).then(
+      (response) => {
+        setLoading(true);
+        setSearchProducts({
+          content: response.data.content,
+          pageData: response.data,
+        });
+        setLoading(false);
+        setSuggestion('');
       }
-    });
+    );
   };
+
+  useEffect(() => {
+    if (searchTerm.length <= 2) {
+      setSuggestion('');
+    } else {
+      suggestAlternativePhrases(searchTerm);
+    }
+  }, [searchTerm]);
 
   return (
     <AppContext.Provider
@@ -71,7 +87,9 @@ export const AppContextProvider = ({ children }) => {
         products,
         setProducts,
         setUser,
-        user
+        user,
+        isClearButtonPressed,
+        setIsClearButtonPressed,
       }}
     >
       {children}

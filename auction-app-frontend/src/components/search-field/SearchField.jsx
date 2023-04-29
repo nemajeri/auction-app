@@ -11,6 +11,9 @@ const SearchField = ({
   categoryId,
   setSearchProducts,
   setProducts,
+  pathname,
+  navigate,
+  setIsClearButtonPressed
 }) => {
   return (
     <div className='search'>
@@ -27,12 +30,15 @@ const SearchField = ({
             setSearchTerm('');
             setSearchProducts(null);
             setProducts([]);
+            setIsClearButtonPressed(true);
           }}
         />
       )}
       <AiOutlineSearch
         className='search__icon'
-        onClick={(event) => onSearchIconClick(event, null, categoryId)}
+        onClick={(event) =>
+          onSearchIconClick(event, categoryId, null, navigate, pathname)
+        }
       />
     </div>
   );

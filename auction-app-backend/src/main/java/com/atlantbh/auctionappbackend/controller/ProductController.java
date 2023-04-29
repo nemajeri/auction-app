@@ -22,9 +22,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/search-suggestions")
-    public ResponseEntity<List<String>> searchSuggestions(@RequestParam("query") String query) {
-        List<String> suggestions = productService.getSuggestion(query);
-        return ResponseEntity.ok(suggestions);
+    public ResponseEntity<String> searchSuggestions(@RequestParam("query") String query) {
+        String bestSuggestion = productService.getSuggestion(query);
+        return ResponseEntity.ok(bestSuggestion);
     }
 
     @GetMapping("/items")

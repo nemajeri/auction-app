@@ -13,17 +13,19 @@ export const getTotalPages = (products, size) => {
 };
 
 export const calculateTimeLeft = (product) => {
-  const startDate = new Date(product.startDate);
+  const currentDate = new Date();
   const endDate = new Date(product.endDate);
 
   const differenceInDays = Math.round(
-    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
   );
 
   const differenceInWeeks = Math.floor(differenceInDays / 7);
 
-  if (differenceInWeeks > 0 && differenceInDays > 0) {
-    return `${differenceInWeeks} weeks ${differenceInDays} days`;
+  const remainingDays = differenceInDays % 7;
+
+  if (differenceInWeeks >= 0 && differenceInDays >= 0) {
+    return `${differenceInWeeks} weeks ${remainingDays} days`;
   }
   return;
 };

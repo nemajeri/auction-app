@@ -5,7 +5,7 @@ import Logo from '../../assets/Logo';
 import SearchField from '../../components/search-field/SearchField';
 import NavbarLink from '../../components/nav-link/NavbarLink';
 import navlinks from '../../data/navlinks.json';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../utils/AppContextProvider';
 import { loginPath, registrationPath } from '../../utils/paths';
 
@@ -21,9 +21,11 @@ const Navbar = () => {
     setSearchProducts,
     setProducts,
     user,
+    setIsClearButtonPressed,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setActiveLink(pathname.replace('/', '') || 'home');
@@ -62,6 +64,9 @@ const Navbar = () => {
                 setSearchTerm={setSearchTerm}
                 setSearchProducts={setSearchProducts}
                 setProducts={setProducts}
+                pathname={pathname}
+                navigate={navigate}
+                setIsClearButtonPressed={setIsClearButtonPressed}
               />
               <div className='navbar__navigation'>
                 {navlinks.map((link) => (
@@ -70,6 +75,7 @@ const Navbar = () => {
                     key={link.key}
                     activeLink={activeLink}
                     onClick={setActiveLink}
+                    user={user}
                   />
                 ))}
               </div>
@@ -84,7 +90,7 @@ const Navbar = () => {
             <p
               onClick={(e) => {
                 if (suggestion) {
-                  onSearchIconClick(e, suggestion);
+                  onSearchIconClick(e, null, suggestion, navigate, pathname);
                   setSearchTerm('');
                   setSuggestion('');
                 } else {

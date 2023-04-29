@@ -12,6 +12,7 @@ import {
   loginPath,
   registrationPath,
   myAccountPath,
+  shopPagePath
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -41,6 +42,7 @@ function App() {
             element={<ProductOverviewPage />}
           />
           <Route path={`${myAccountPath}/*`} element={<MyAccountPage />} />
+          <Route path={shopPagePath} element={<ShopPage />} />
           <Route path={shopPagePathToCategory} element={<ShopPage />} />
           <Route
             path={productOverviewPagePath}

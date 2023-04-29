@@ -23,7 +23,11 @@ const ShopPage = () => {
     activeCategory,
     setActiveCategory,
     products,
-    setProducts
+    setSearchTerm,
+    setSearchProducts,
+    setProducts,
+    isClearButtonPressed,
+    setIsClearButtonPressed,
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
@@ -33,6 +37,19 @@ const ShopPage = () => {
     totalElements: 0,
   });
   const { categoryId } = useParams();
+
+  useEffect(() => {
+    const resetStatesOnUnmount = () => {
+      setSearchTerm('');
+      setProductsByCategories({ content: [], totalElements: 0 });
+      setSearchProducts(null);
+      setProducts([]);
+    };
+
+    return () => {
+      resetStatesOnUnmount();
+    };
+  }, []);
 
   useEffect(() => {
     getCategories().then((response) => {
@@ -45,15 +62,22 @@ const ShopPage = () => {
     if (!loading && searchedProducts) {
       setProducts(searchedProducts.content);
     }
-  }, [loading, searchedProducts]);
+
+    if (isClearButtonPressed) {
+      handleOpeningAndFetchingCategories(activeCategory)();
+      setIsClearButtonPressed(false);
+    }
+  }, [loading, searchedProducts, isClearButtonPressed]);
 
   useEffect(() => {
     if (categoryId) {
       const firstLoadedCategory = categories.find(
         (category) => category.id === parseInt(categoryId)
       );
+
       if (firstLoadedCategory) {
         setOpenedCategory({ [firstLoadedCategory.categoryName]: true });
+        setActiveCategory(firstLoadedCategory.id);
       }
       handleOpeningAndFetchingCategories(parseInt(categoryId))();
     }
@@ -63,13 +87,22 @@ const ShopPage = () => {
     const category = event?.currentTarget.dataset.category;
     const isOpening = category ? !openedCategory[category] : true;
 
+    if (!event && isOpening && category) {
+      setOpenedCategory((prevState) => ({
+        ...prevState,
+        [category]: false,
+      }));
+      setActiveCategory(null);
+      return;
+    }
+
     try {
       setPageNumber(0);
 
       const productsResponse = await getAllProducts(
         0,
         PAGE_SIZE,
-        categoryId === ALL_CATEGORIES_ID ? '' : searchTerm,
+        searchTerm,
         categoryId === ALL_CATEGORIES_ID ? null : categoryId
       );
 
@@ -82,7 +115,14 @@ const ShopPage = () => {
           setProducts([]);
         }
       } else {
-        setProducts(content);
+        if (searchedProducts) {
+          const filteredItems = searchedProducts.content.filter(
+            (product) => product.categoryId === categoryId
+          );
+          setProducts(filteredItems);
+        } else {
+          setProducts(content);
+        }
       }
 
       setProductsByCategories({ content, totalElements });
@@ -114,10 +154,11 @@ const ShopPage = () => {
 
   const onExploreMoreBtnClick = () => {
     const nextPageNumber = pageNumber + 1;
-  
     const categoryId =
-      activeCategory === ALL_CATEGORIES_ID || !activeCategory ? null : activeCategory;
-  
+      activeCategory === ALL_CATEGORIES_ID || !activeCategory
+        ? null
+        : activeCategory;
+
     getAllProducts(nextPageNumber, PAGE_SIZE, searchTerm, categoryId)
       .then((response) => {
         const { content } = response.data;
@@ -126,10 +167,9 @@ const ShopPage = () => {
       .catch((error) => {
         console.error(error);
       });
-  
+
     setPageNumber(nextPageNumber);
   };
-  
 
   if (loading) {
     return <LoadingSpinner />;

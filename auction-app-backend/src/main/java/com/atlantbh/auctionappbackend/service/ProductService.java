@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+
 @Service
 @AllArgsConstructor
 public class ProductService {
@@ -30,9 +31,14 @@ public class ProductService {
     private final ProductMapper productMapper;
 
 
-    public List<String> getSuggestion(String query) {
+    public String getSuggestion(String query) {
         List<String> suggestions = productRepository.findTopNamesByNameSimilarity(query);
-        return suggestions;
+
+        if (suggestions.isEmpty()) {
+            return null;
+        } else {
+            return suggestions.get(0);
+        }
     }
 
 
