@@ -3,7 +3,7 @@ import './myAccountPage.css';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { myAccountTabs } from '../../utils/constants';
 import Button from '../../utils/Button';
-import { sellerPath, bidsPath, sellerToSellItemPath } from '../../utils/paths';
+import { sellerPath, bidsPath, sellerToAddItemPath } from '../../utils/paths';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SellerTab from '../../components/my-account-page/SellerTab';
 import BidsTab from '../../components/my-account-page/BidsTab';
@@ -76,7 +76,7 @@ const MyAccountPage = () => {
               </div>
             ))}
           </div>
-          <Link to={sellerToSellItemPath}>
+          <Link to={sellerToAddItemPath}>
             <Button
               className={'my-account-page__btn'}
               SocialMediaIcon={AiOutlinePlus}

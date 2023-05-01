@@ -1,29 +1,229 @@
 .sell-page__progress-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .sell-page__progress-dot {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: var(--grey-100);
-    margin: 0 5px;
-  }
-  
-  .sell-page__progress-active_dot {
-    background-color: var(--purple);
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 45px 0 35px 0;
+  position: relative;
+}
 
-  .third-step__credit-cards {
-    display: flex;
-    align-items: center;
+.sell-page__progress-line {
+  position: absolute;
+  border-top: 1px solid var(--grey-100);
+  width: 5%;
+  z-index: -1;
+}
+
+.sell-page__progress-dot_circle {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: var(--white-100);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sell-page__progress-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--purple);
+  margin: 0 5px;
+}
+
+.sell-page__progress-active_dot {
+  background-color: var(--purple);
+}
+
+.shared-form-style__wrapper { 
+    border: 1px solid var(--grey-100);
+    width: 650px;
+    padding: 0 80px 60px 80px;
+    margin-bottom: 6rem;
+}
+
+.shared-form_position {
+  display: flex;
+  justify-content: center;
+}
+
+.shared-form-style__headline {
+  text-align: center;
+  width: 100%;
+  height: 60px;
+  background-color: var(--white-400);
+  margin-bottom: 2rem;
+}
+
+.shared-form-style__headline h3 {
+  padding-top: 15px; 
+}
+
+.shared-form__flex {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -10px;
+}
+
+.shared-form__flex label {
+  display: flex;
+  flex-direction: column;
+}
+
+#description {
+  height: 140px;
+  margin: 10px 0 10px 0;
+  border: 1px solid var(--grey-100);
+  background-color: var(--white-200);
+  width: 100%;
+}
+
+#category {
+  width: 14.5rem;
+  height: 2.7rem;
+  font-size: 12px;
+  padding: 9px 11px 11px 20px;
+}
+
+#subcategory {
+  width: 14.5rem;
+  height: 2.7rem;
+  font-size: 12px;
+  padding: 9px 11px 11px 20px;
+}
+
+.shared-form-style__align--text_right > p {
+  text-align: right;
+  color: var(--grey-200);
+}
+
+.dropzone {
+  border: 1px dashed var(--grey-100);
+  padding: 50px;
+  margin: 30px 0 50px 0;
+  background-color: var(--white-200);
+  height: 230px;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.dropzone:hover {
+  cursor: pointer;
+}
+
+.dropzone__text {
+  text-align: center;
+}
+
+.dropzone__text h5{
+  color: var(--purple);
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.dropzone__text p{
+  margin-top: 10px;
+  color: var(--grey-200);
+  font-size: 0.6rem;
+  margin-bottom: 8px;
+}
+
+.shared-form-style__btns {
+  display: flex;
+  gap: 1rem;
+}
+
+.shared-form-style__btn {
+  width: 15rem;
+  height: 2.5rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cancel-btn {
+  background-color: var(--white-100);
+  border: 2px solid var(--grey-100);
+}
+
+.back-btn {
+  background-color: var(--white-100);
+  border: 2px solid var(--purple);
+}
+
+.next-btn {
+  background-color: var(--purple);
+  border: none;
+  color: var(--white-100);
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  bottom: 6px;
+  left: 16px;
+}
+
+.icon-box {
+  border: 1px solid var(--grey-100);
+  width: 3rem;
+  height: 2.93rem;
+  position: absolute;
+  bottom: 20.4px;
+}
+
+.icon-box-focused {
+  border: 1px solid black;
+}
+
+#startingPrice {
+  padding-left: 70px;
+}
+
+#startDate {
+  width: 14rem;
+}
+
+#endDate {
+  width: 14rem;
+}
+
+.shared-form-style__hint {
+  color: var(--grey-200);
+  margin: 0 0 60px 0;
+}
+
+.main-navigation {
+  width: 250px;
+}
+
+.navigation {
+  gap: 130px;
+  justify-content: space-between;
+}
+
+.shared-form-style__card-section hr{
+  border: none; 
+  border-top: 1px solid var(--grey-100);
+  margin: 20px 0;
+}
+
+.third-step__credit-cards {
+  margin-bottom: 20px;
+}
+
+.third-step__credit-cards p{
+  color: var(--grey-200);
+  font-size: small;
+  margin-right: 30px;
 }
 
 .third-step__credit-cards img {
-    width: 2rem;
-    height: 1.3rem;
-    margin: 0 5px;
-}   
+  margin-right: 25px;
+}

@@ -11,7 +11,6 @@ import useFacebookSDK from '../../hooks/useFacebookSDK';
 import useGoogleSDK from '../../hooks/useGoogleSDK';
 import InputWithIcon from './InputWithIcon';
 
-
 const Form = ({
   fields,
   includeSocial,
@@ -20,7 +19,7 @@ const Form = ({
   handleLoginSuccess,
   rememberMe,
   children,
-  onFormStateChange
+  onFormStateChange,
 }) => {
   const [formState, setFormState] = useState({
     ...Object.fromEntries(fields.map((field) => [field.name, ''])),
@@ -114,6 +113,7 @@ const Form = ({
     }
   };
 
+
   useEffect(() => {
     setFormState((prevState) => ({
       ...prevState,
@@ -121,45 +121,128 @@ const Form = ({
     }));
   }, [rememberMe]);
 
+
+  const selectStyles = {
+    position: 'relative',
+  };
+
+  const selectArrowStyles = {
+    content: '',
+    position: 'absolute',
+    right: '1rem',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    backgroundImage: `url(${process.env.REACT_APP_HOME_URL}/images/down-arrow.png)`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: '1rem',
+    width: '1rem',
+    height: '1rem',
+    pointerEvents: 'none',
+  };
+
+  const customSelectStyles = {
+    appearance: 'none',
+    background: 'transparent',
+    paddingRight: '2rem',
+  };
+
+  const renderField = (field) => {
+    const fieldElement =
+      field.type === 'select' ? (
+        <div style={selectStyles}>
+          <select
+            id={field.name}
+            name={field.name}
+            value={formState[field.name]}
+            onChange={handleChange}
+            style={{ ...customSelectStyles }}
+          >
+            <option value=''>{field.placeholder}</option>
+            {field.options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <div style={selectArrowStyles}></div>
+        </div>
+      ) : field.type === 'textarea' ? (
+        <textarea
+          id={field.name}
+          name={field.name}
+          value={formState[field.name]}
+          onChange={handleChange}
+          placeholder={field.placeholder}
+        />
+      ) : field.name === 'phoneNumber' ? (
+        <div className='form-field__phone-number'>
+          <input
+            type={field.type}
+            id={field.name}
+            name={field.name}
+            value={formState[field.name]}
+            onChange={handleChange}
+            placeholder={field.placeholder}
+          />
+          <div className='form-field__phone-number--verfication_status'>Not verified</div>
+        </div>
+      ) : (
+        <input
+          type={field.type}
+          id={field.name}
+          name={field.name}
+          value={formState[field.name]}
+          onChange={handleChange}
+          placeholder={field.placeholder}
+        />
+      );
+
+    return (
+      <InputWithIcon
+        icon={field.icon}
+        label={field.label}
+        htmlFor={field.name}
+        children={fieldElement}
+      />
+    );
+  };
+
   return (
     <form>
-      {fields.map((field) => (
-        <React.Fragment key={field.name}>
-          <label htmlFor={field.name}>{field.label}</label>
-          <InputWithIcon icon={field.icon}>
-            <input
-              type={field.type}
-              id={field.name}
-              name={field.name}
-              value={formState[field.name]}
-              onChange={handleChange}
-              style={field.layout}
-            />
-          </InputWithIcon>
-        </React.Fragment>
-      ))}
+      {fields.map((group) =>
+        group.fields ? (
+          <div key={group.fields[0].name} className={group.className}>
+            {group.fields.map((field) => (
+              <React.Fragment key={field.name}>{renderField(field)}</React.Fragment>
+            ))}
+          </div>
+        ) : (
+          <React.Fragment key={group.name}>{renderField(group)}</React.Fragment>
+        )
+      )}
       {includeRememberMe && (
-        <div className='form__checkbox'>
+        <div className="form__checkbox">
           <input
-            type='checkbox'
-            name='rememberMe'
+            type="checkbox"
+            name="rememberMe"
             value={formState.rememberMe}
             onChange={(event) =>
               onRememberMe && onRememberMe(event.target.checked)
             }
           />
-          <label htmlFor='rememberMe'>Remember me</label>
+          <label htmlFor="rememberMe">Remember me</label>
         </div>
       )}
       {children}
       {includeSocial && (
-        <div className='form__social-media--buttons'>
+        <div className="form__social-media--buttons">
           <Button
             onClick={(e) => {
               e.preventDefault();
               handleFacebookLogin();
             }}
-            className={'form__social-media--button'}
+            className={"form__social-media--button"}
             SocialMediaIcon={AiFillFacebook}
             socialMediaClassName={
               'form__social-media--icon facebook-button__color'

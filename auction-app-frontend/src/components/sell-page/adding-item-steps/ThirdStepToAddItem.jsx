@@ -1,52 +1,64 @@
 import React from 'react';
 import Form from '../../../utils/forms/Form';
-import CardDetails from '../../../utils/forms/CardDetails';
+import CardInput from '../../../utils/forms/CardInput';
+import Button from '../../../utils/Button';
 
-const ThirdStepToAddItem = ({
-  prevStep,
-  setStep3State,
-  handleFinalSubmit,
-}) => {
-
+const ThirdStepToAddItem = ({ prevStep, setStep3State, handleFinalSubmit }) => {
   const fields = [
     {
       name: 'address',
       label: 'Address',
       type: 'text',
-      layout: { width: '100%' },
+      placeholder: '123 Main Street',
     },
     {
-      name: 'city',
-      label: 'City',
-      type: 'text',
-      layout: { width: '50%' },
-    },
-    {
-      name: 'zipCode',
-      label: 'Zip Code',
-      type: 'text',
-      layout: { width: '50%' },
+      className: 'shared-form__flex',
+      fields: [
+        {
+          name: 'city',
+          label: 'City',
+          type: 'text',
+          placeholder: 'eg. Madrid',
+        },
+        {
+          name: 'zipCode',
+          label: 'Zip Code',
+          type: 'text',
+          placeholder: 'XXXXXXX',
+        },
+      ],
     },
     {
       name: 'country',
       label: 'Country',
       type: 'select',
-      layout: { width: '100%' },
-      options: ['Spain', 'Belgium', 'Norway'],
+      options: [
+        { label: 'Italy', value: 'italy' },
+        { label: 'France', value: 'france' },
+        { label: 'Germany', value: 'germany' },
+      ],
+      placeholder: 'eg. Spain',
     },
     {
       name: 'phoneNumber',
       label: 'Phone Number',
       type: 'text',
-      layout: { width: '100%' },
+      placeholder: '+32534231564',
     },
   ];
 
   return (
-    <>
-      <Form fields={fields} onFormStateChange={(newState) => setStep3State(newState)}>
-        <div>
+    <div className='shared-form-style__wrapper'>
+      <div className='shared-form-style__headline'>
+        <h3>LOCATION & SHIPPING</h3>
+      </div>
+      <Form
+        fields={fields}
+        onFormStateChange={(newState) => setStep3State(newState)}
+      >
+        <div className='shared-form-style__card-section'>
           <p>Featured Products</p>
+          <hr/>
           <div>
             <div className='third-step__credit-cards'>
               <p>We accept the following credit cards</p>
@@ -56,13 +68,29 @@ const ThirdStepToAddItem = ({
               <img src='/images/maestro.png' alt='maestro' />
             </div>
           </div>
-          <CardDetails />
-          <button>Cancel</button>
-          <button onClick={prevStep}>Back</button>
-          <button onClick={handleFinalSubmit}>Done</button>
+          <CardInput />
+          <div className='shared-form-style__btns navigation'>
+          <Button className={'shared-form-style__btn cancel-btn'}>
+            Cancel
+          </Button>
+          <div className='shared-form-style__btns main-navigation'>
+            <Button
+              className={'shared-form-style__btn back-btn'}
+              onClick={prevStep}
+            >
+              Back
+            </Button>
+            <Button
+              className={'shared-form-style__btn next-btn'}
+              onClick={handleFinalSubmit}
+            >
+              Done
+            </Button>
+          </div>
+        </div>
         </div>
       </Form>
-    </>
+    </div>
   );
 };
 

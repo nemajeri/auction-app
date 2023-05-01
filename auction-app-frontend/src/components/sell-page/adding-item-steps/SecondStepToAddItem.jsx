@@ -1,49 +1,67 @@
 import React from 'react';
 import Form from '../../../utils/forms/Form';
 import { BsCurrencyDollar } from 'react-icons/bs';
+import Button from '../../../utils/Button';
 
-const SecondStepToAddItem = ({
-  nextStep,
-  prevStep,
-  setStep2State,
-}) => {
-
+const SecondStepToAddItem = ({ nextStep, prevStep, setStep2State }) => {
   const fields = [
     {
       name: 'startingPrice',
       label: 'Your start Price',
       type: 'text',
-      layout: { width: '100%' },
       icon: <BsCurrencyDollar />,
     },
     {
-      name: 'startDate',
-      label: 'Start date',
-      type: 'date',
-      layout: { width: '50%' },
-    },
-    {
-      name: 'endDate',
-      label: 'End date',
-      type: 'date',
-      layout: { width: '50%' },
+      className: 'shared-form__flex',
+      fields: [
+        {
+          name: 'startDate',
+          label: 'Start date',
+          type: 'date',
+        },
+        {
+          name: 'endDate',
+          label: 'End date',
+          type: 'date',
+        },
+      ],
     },
   ];
 
   return (
-    <>
-      <Form fields={fields} onFormStateChange={(newState) => setStep2State(newState)}>
-        <div>
-          <p>
-            This auction will be automatically closed when the end time comes.
-            The highest bid will win the auction
-          </p>
-          <button>Cancel</button>
-          <button onClick={prevStep}>Back</button>
-          <button onClick={nextStep}>Next</button>
+    <div className='shared-form-style__wrapper'>
+      <div className='shared-form-style__headline'>
+        <h3>SET PRICES</h3>
+      </div>
+      <Form
+        fields={fields}
+        onFormStateChange={(newState) => setStep2State(newState)}
+      >
+        <p className='shared-form-style__hint'>
+          This auction will be automatically closed when the end time comes. The
+          highest bid will win the auction
+        </p>
+        <div className='shared-form-style__btns navigation'>
+          <Button className={'shared-form-style__btn cancel-btn'}>
+            Cancel
+          </Button>
+          <div className='shared-form-style__btns main-navigation'>
+            <Button
+              className={'shared-form-style__btn back-btn'}
+              onClick={prevStep}
+            >
+              Back
+            </Button>
+            <Button
+              className={'shared-form-style__btn next-btn'}
+              onClick={nextStep}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </Form>
-    </>
+    </div>
   );
 };
 

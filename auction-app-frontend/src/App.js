@@ -13,7 +13,7 @@ import {
   registrationPath,
   myAccountPath,
   shopPagePath,
-  sellerToSellItemPath,
+  sellerToAddItemPath
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -64,7 +64,7 @@ function App() {
           <Route path={aboutUsPath} element={<AboutPage />} />
           <Route path={privacyPolicyPath} element={<TermsAndCondPage />} />
           <Route path={termsAndCondPath} element={<PrivacyPolicyPage />} />
-          <Route path={sellerToSellItemPath} element={<SellPage />} />
+          <Route path={sellerToAddItemPath} element={<SellPage />}/>
         </Routes>
         <Footer />
       </AppContextProvider>

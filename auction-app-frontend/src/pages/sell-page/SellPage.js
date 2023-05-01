@@ -5,32 +5,36 @@ import {
   ThirdStepToAddItem,
 } from '../../components/sell-page/adding-item-steps';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import './sellpage.css';
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHED_KEY);
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
   const [images, setImages] = useState([]);
 
-    const [step1State, setStep1State] = useState({
-      productName: "",
-      description: "",
-      categoryId: "",
-      subcategoryId: "",
-    });
-  
-    const [step2State, setStep2State] = useState({
-      startPrice: "",
-      startDate: new Date(),
-      endDate: "",
-    });
-  
-    const [step3State, setStep3State] = useState({
-      address: "",
-      city: "",
-      zipCode: "",
-      country: "",
-      phone: "",
-    });
+  const [step1State, setStep1State] = useState({
+    productName: '',
+    description: '',
+    categoryId: '',
+    subcategoryId: '',
+  });
+
+  const [step2State, setStep2State] = useState({
+    startPrice: '',
+    startDate: new Date(),
+    endDate: '',
+  });
+
+  const [step3State, setStep3State] = useState({
+    address: '',
+    city: '',
+    zipCode: '',
+    country: '',
+    phone: '',
+  });
 
   const onDrop = useCallback(
     (acceptedImages) => {
@@ -68,11 +72,13 @@ const SellPage = () => {
         );
       case 3:
         return (
-          <ThirdStepToAddItem
-            prevStep={prevStep}
-            step3State={step3State}
-            setStep3State={setStep3State}
-          />
+          <Elements stripe={stripePromise}>
+            <ThirdStepToAddItem
+              prevStep={prevStep}
+              step3State={step3State}
+              setStep3State={setStep3State}
+            />
+          </Elements>
         );
       default:
         return null;
@@ -82,24 +88,32 @@ const SellPage = () => {
   const renderProgressDots = () => {
     const totalSteps = 3;
     const dots = [];
-
+  
     for (let i = 1; i <= totalSteps; i++) {
       dots.push(
-        <div
-          key={i}
-          className={`sell-page__progress-dot ${(i <= step) ? 'sell-page__progress-active_dot' : ''}`}
-        />
+        <div className='sell-page__progress-dot_circle' key={i}>
+          <div
+            className={`sell-page__progress-dot ${
+              i <= step ? 'sell-page__progress-active_dot' : ''
+            }`}
+          />
+        </div>
       );
     }
-
-    return <div className="sell-page__progress-container">{dots}</div>;
+  
+    return (
+      <div className='sell-page__progress-container'>
+        <div className='sell-page__progress-line' />
+        {dots}
+      </div>
+    );
   };
 
   return (
     <>
       <BreadCrumbs title='SELLER' />
       {renderProgressDots()}
-      {MultiStepForm()}
+      <div className='shared-form_position'>{MultiStepForm()}</div>
     </>
   );
 };
