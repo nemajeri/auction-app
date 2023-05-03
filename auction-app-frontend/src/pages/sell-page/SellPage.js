@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   FirstStepToAddItem,
   SecondStepToAddItem,
@@ -8,12 +8,19 @@ import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import './sellpage.css';
+import { addNewItemForAuction } from '../../utils/api/productsApi';
+import Modal from '../../utils/forms/Modal.jsx';
+import { sellerPath } from '../../utils/paths';
+import { useLocation } from 'react-router-dom';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHED_KEY);
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
-  const [images, setImages] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+  const location = useLocation();
+  console.log('Pathname: ',location.pathname)
 
   const [step1State, setStep1State] = useState({
     productName: '',
@@ -24,9 +31,10 @@ const SellPage = () => {
 
   const [step2State, setStep2State] = useState({
     startPrice: '',
-    startDate: new Date(),
+    startDate: '',
     endDate: '',
   });
+
 
   const [step3State, setStep3State] = useState({
     address: '',
@@ -35,13 +43,6 @@ const SellPage = () => {
     country: '',
     phone: '',
   });
-
-  const onDrop = useCallback(
-    (acceptedImages) => {
-      setImages([...images, ...acceptedImages]);
-    },
-    [images]
-  );
 
   const MultiStepForm = () => {
     const nextStep = () => {
@@ -59,6 +60,7 @@ const SellPage = () => {
             nextStep={nextStep}
             step1State={step1State}
             setStep1State={setStep1State}
+            sellerPath={sellerPath}
           />
         );
       case 2:
@@ -68,6 +70,7 @@ const SellPage = () => {
             prevStep={prevStep}
             step2State={step2State}
             setStep2State={setStep2State}
+            sellerPath={sellerPath}
           />
         );
       case 3:
@@ -77,6 +80,8 @@ const SellPage = () => {
               prevStep={prevStep}
               step3State={step3State}
               setStep3State={setStep3State}
+              handleFinalSubmit={handleFinalSubmit}
+              sellerPath={sellerPath}
             />
           </Elements>
         );
@@ -85,10 +90,38 @@ const SellPage = () => {
     }
   };
 
+  const formatFormData = () => {
+    return {
+      productName: step1State.productName,
+      description: step1State.description,
+      categoryId: 8,
+      subcategoryId: 1,
+      startPrice: step1State.startPrice,
+      startDate: step2State.startDate,
+      endDate: step2State.endDate,
+      address: step3State.address,
+      city: step3State.city,
+      zipCode: step3State.zipCode,
+      country: step3State.country,
+      phone: step3State.phoneNumber,
+    };
+  };
+
+  const handleFinalSubmit = async (e, stripe, elements) => {
+    e.preventDefault();
+    if (!stripe || !elements) {
+      return;
+    }
+
+    const formData = formatFormData();
+
+    addNewItemForAuction(formData, setShowModal);
+  };
+
   const renderProgressDots = () => {
     const totalSteps = 3;
     const dots = [];
-  
+
     for (let i = 1; i <= totalSteps; i++) {
       dots.push(
         <div className='sell-page__progress-dot_circle' key={i}>
@@ -100,7 +133,7 @@ const SellPage = () => {
         </div>
       );
     }
-  
+
     return (
       <div className='sell-page__progress-container'>
         <div className='sell-page__progress-line' />
@@ -114,6 +147,10 @@ const SellPage = () => {
       <BreadCrumbs title='SELLER' />
       {renderProgressDots()}
       <div className='shared-form_position'>{MultiStepForm()}</div>
+      <Modal
+        showModal={showModal}
+        successPath={sellerPath}
+      />
     </>
   );
 };

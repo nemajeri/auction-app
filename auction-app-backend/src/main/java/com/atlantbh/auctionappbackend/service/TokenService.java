@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.security.enums.TokenType;
@@ -73,7 +74,7 @@ public class TokenService {
 
     public Cookie generateJwtCookieForOAuth2User(OAuth2UserInfo oAuth2UserInfo) {
         String email = oAuth2UserInfo.getEmail();
-        AppUser appUser = appUserRepository.findByEmail(email);
+        AppUser appUser = appUserRepository.getByEmail(email).orElseThrow(() -> new AppUserNotFoundException("User with" + email + "not found"));
         if (Objects.equals(appUser, null)) {
             appUser = new AppUser();
             appUser.setEmail(email);

@@ -2,11 +2,17 @@ import React from 'react';
 import Form from '../../../utils/forms/Form';
 import { BsCurrencyDollar } from 'react-icons/bs';
 import Button from '../../../utils/Button';
+import { Link } from 'react-router-dom';
 
-const SecondStepToAddItem = ({ nextStep, prevStep, setStep2State }) => {
+const SecondStepToAddItem = ({
+  nextStep,
+  prevStep,
+  setStep2State,
+  sellerPath,
+}) => {
   const fields = [
     {
-      name: 'startingPrice',
+      name: 'startPrice',
       label: 'Your start Price',
       type: 'text',
       icon: <BsCurrencyDollar />,
@@ -42,9 +48,11 @@ const SecondStepToAddItem = ({ nextStep, prevStep, setStep2State }) => {
           highest bid will win the auction
         </p>
         <div className='shared-form-style__btns navigation'>
-          <Button className={'shared-form-style__btn cancel-btn'}>
-            Cancel
-          </Button>
+          <Link to={sellerPath}>
+            <Button className={'shared-form-style__btn cancel-btn__short'}>
+              Cancel
+            </Button>
+          </Link>
           <div className='shared-form-style__btns main-navigation'>
             <Button
               className={'shared-form-style__btn back-btn'}

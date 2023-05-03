@@ -4,8 +4,13 @@ import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.mapper.ProductMapper;
+import com.atlantbh.auctionappbackend.model.AppUser;
+import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.model.Product;
+import com.atlantbh.auctionappbackend.repository.AppUserRepository;
+import com.atlantbh.auctionappbackend.repository.CategoryRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
+import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
@@ -21,7 +26,10 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletRequest;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
@@ -36,6 +44,10 @@ public class ProductService {
     private final ProductMapper productMapper;
 
     private final TokenService tokenService;
+
+    private final AppUserRepository appUserRepository;
+
+    private final CategoryRepository categoryRepository;
 
 
     public String getSuggestion(String query) {
@@ -84,6 +96,23 @@ public class ProductService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Product> products = productRepository.findAll(specification, pageable);
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
+    }
+
+    public Product createProduct(NewProductRequest request, String email) {
+        Optional<AppUser> user =  appUserRepository.getByEmail(email);
+        AppUser appUser = user.get();
+        Product product = new Product();
+        product.setProductName(request.getProductName());
+        product.setDescription(request.getDescription());
+        product.setStartPrice(Float.parseFloat(request.getStartPrice()));
+        product.setStartDate(LocalDateTime.ofInstant(request.getStartDate().toInstant(), ZoneId.systemDefault()));
+        product.setEndDate(LocalDateTime.ofInstant(request.getEndDate().toInstant(), ZoneId.systemDefault()));
+        product.setUser(appUser);
+
+        Category category = categoryRepository.findById(Long.parseLong(request.getCategoryId())).orElseThrow(() -> new NoSuchElementException("Category not found."));
+        product.setCategory(category);
+
+        return productRepository.save(product);
     }
 
     public Page<ProductDTO> getNewProducts(int pageNumber, int size) {

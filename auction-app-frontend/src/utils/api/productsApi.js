@@ -1,6 +1,7 @@
 import { API, AuthAPI, LANDING_PAGE_SIZE } from '../constants';
 import { getJwtFromCookie } from '../helperFunctions';
 
+
 export const getProducts = () => {
   return API.get('/products');
 };
@@ -62,4 +63,22 @@ export const getProductsForUser = (userId, type) => {
       type: type,
     },
   });
+};
+
+export const addNewItemForAuction = async (formData, setShowModal) => {
+  try {
+    const jwtToken = getJwtFromCookie();
+    const response = await API.post('/products/add-item', formData, {
+      headers: { Authorization: `Bearer ${jwtToken}` },
+    });
+
+    if (response.status === 201) {
+      console.log('Product created:', response.data);
+      setShowModal(true);
+    } else {
+      console.error('Error creating product:', response.data);
+    }
+  } catch (error) {
+    console.error('Error creating product:', error.message);
+  }
 };

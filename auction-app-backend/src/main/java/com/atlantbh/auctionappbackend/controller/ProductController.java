@@ -3,20 +3,26 @@ package com.atlantbh.auctionappbackend.controller;
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.model.Product;
+import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
+import com.atlantbh.auctionappbackend.service.TokenService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -27,6 +33,8 @@ import static org.springframework.http.HttpStatus.OK;
 public class ProductController {
 
     private final ProductService productService;
+
+    private final TokenService tokenService;
 
     @GetMapping("/search-suggestions")
     public ResponseEntity<String> searchSuggestions(@RequestParam("query") String query) {
@@ -57,6 +65,23 @@ public class ProductController {
         List<Product> products = productService.retrieveUserProductsByType(userId, sortBy);
 
         return new ResponseEntity<>(products, OK);
+    }
+
+    @PostMapping(path = "/add-item")
+    public ResponseEntity<?> addNewItem(@Valid @RequestBody NewProductRequest request, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
+        String token = tokenService.getJwtFromHeader(httpServletRequest);
+        String email = tokenService.getClaimFromToken(token, "sub");
+        try {
+            Product savedProduct = productService.createProduct(request, email);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating product: " + e.getMessage());
+        }
     }
 
     @GetMapping(path = "/{id}")

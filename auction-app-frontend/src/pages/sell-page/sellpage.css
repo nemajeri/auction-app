@@ -144,9 +144,15 @@
   font-weight: bold;
 }
 
-.cancel-btn {
+.cancel-btn__long {
   background-color: var(--white-100);
   border: 2px solid var(--grey-100);
+}
+
+.cancel-btn__short {
+  background-color: var(--white-100);
+  border: 2px solid var(--grey-100);
+  width: 100px;
 }
 
 .back-btn {

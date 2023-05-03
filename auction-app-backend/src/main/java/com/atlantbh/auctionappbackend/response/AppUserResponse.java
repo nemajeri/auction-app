@@ -16,4 +16,12 @@ public class AppUserResponse {
     private String firstName;
 
     private String lastName;
+
+    private String city;
+
+    private String zipCode;
+
+    private String country;
+
+    private String phone;
 }

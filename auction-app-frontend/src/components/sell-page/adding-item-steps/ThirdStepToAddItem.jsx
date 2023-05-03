@@ -1,9 +1,21 @@
 import React from 'react';
 import Form from '../../../utils/forms/Form';
-import CardInput from '../../../utils/forms/CardInput';
 import Button from '../../../utils/Button';
+import {
+  useStripe,
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from '@stripe/react-stripe-js';
+import { Link } from 'react-router-dom';
 
-const ThirdStepToAddItem = ({ prevStep, setStep3State, handleFinalSubmit }) => {
+const ThirdStepToAddItem = ({
+  prevStep,
+  setStep3State,
+  handleFinalSubmit,
+  sellerPath,
+}) => {
   const fields = [
     {
       name: 'address',
@@ -47,6 +59,25 @@ const ThirdStepToAddItem = ({ prevStep, setStep3State, handleFinalSubmit }) => {
     },
   ];
 
+  const options = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: '#424770',
+        '::placeholder': {
+          color: '#d8d8d8',
+          fontWeight: '100',
+          fontSize: '1rem',
+        },
+        padding: '15px 20px',
+        boxSizing: 'border-box',
+      },
+    },
+  };
+
+  const stripe = useStripe();
+  const elements = useElements();
+
   return (
     <div className='shared-form-style__wrapper'>
       <div className='shared-form-style__headline'>
@@ -58,7 +89,7 @@ const ThirdStepToAddItem = ({ prevStep, setStep3State, handleFinalSubmit }) => {
       >
         <div className='shared-form-style__card-section'>
           <p>Featured Products</p>
-          <hr/>
+          <hr />
           <div>
             <div className='third-step__credit-cards'>
               <p>We accept the following credit cards</p>
@@ -68,26 +99,54 @@ const ThirdStepToAddItem = ({ prevStep, setStep3State, handleFinalSubmit }) => {
               <img src='/images/maestro.png' alt='maestro' />
             </div>
           </div>
-          <CardInput />
+          <>
+            <label htmlFor='name-on-card'>Name on Card</label>
+            <input type='text' name='name-on-card' placeholder='JOHN DOE' />
+
+            <label htmlFor='card-number'>Card Number</label>
+            <div className='card-input__wrapper'>
+              <CardNumberElement id='card-number' options={options} />
+            </div>
+
+            <div className='card-input__flex-container'>
+              <div>
+                <label htmlFor='expiration-date'>Expiration Date</label>
+                <div className='card-input__wrapper'>
+                  <CardExpiryElement id='expiration-date' options={options} />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor='cvc'>CVC</label>
+                <div className='card-input__wrapper'>
+                  <CardCvcElement id='cvc' options={options} />
+                </div>
+              </div>
+            </div>
+
+            <div id='card-errors' role='alert'></div>
+          </>
           <div className='shared-form-style__btns navigation'>
-          <Button className={'shared-form-style__btn cancel-btn'}>
-            Cancel
-          </Button>
-          <div className='shared-form-style__btns main-navigation'>
-            <Button
-              className={'shared-form-style__btn back-btn'}
-              onClick={prevStep}
-            >
-              Back
+          <Link to={sellerPath}>
+            <Button className={'shared-form-style__btn cancel-btn__short'}>
+              Cancel
             </Button>
-            <Button
-              className={'shared-form-style__btn next-btn'}
-              onClick={handleFinalSubmit}
-            >
-              Done
-            </Button>
+          </Link>
+            <div className='shared-form-style__btns main-navigation'>
+              <Button
+                className={'shared-form-style__btn back-btn'}
+                onClick={prevStep}
+              >
+                Back
+              </Button>
+              <Button
+                className={'shared-form-style__btn next-btn'}
+                onClick={(e) => handleFinalSubmit(e, stripe, elements)}
+              >
+                Done
+              </Button>
+            </div>
           </div>
-        </div>
         </div>
       </Form>
     </div>

@@ -24,7 +24,7 @@ const CardInput = () => {
   };
 
   return (
-    <div>
+    <>
       <label htmlFor='name-on-card'>Name on Card</label>
       <input
         type='text'
@@ -54,7 +54,7 @@ const CardInput = () => {
       </div>
 
       <div id='card-errors' role='alert'></div>
-    </div>
+    </>
   );
 };
 

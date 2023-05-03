@@ -53,8 +53,27 @@ public class Product {
     private Category category;
 
     @ManyToOne
+    @JoinColumn(name = "subcategory_id")
+    private Subcategory subcategory;
+
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "zip_code")
+    private String zipCode;
+
+    @Column(name = "country")
+    private String country;
+
+    @Column(name = "phone")
+    private String phone;
 
     public Float getCurrentMaxBid() {
         if (numberOfBids == 0) {
