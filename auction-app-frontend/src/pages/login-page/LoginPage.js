@@ -26,6 +26,11 @@ const fields = [
 const LoginPage = () => {
   const { setUser } = useContext(AppContext);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loginUserDetails, setLoginUserDetails] = useState({
+    email: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState({});
 
   const handleLoginSuccess = async (jwtToken) => {
     const decoded = jwt_decode(jwtToken);
@@ -68,6 +73,10 @@ const LoginPage = () => {
           onRememberMe={handleRememberMe}
           handleLoginSuccess={handleLoginSuccess}
           rememberMe={rememberMe}
+          initialValues={loginUserDetails}
+          errors={errors}
+          setErrors={setErrors}
+          onFormStateChange={setLoginUserDetails}
         />
         <div className='login-page__password'>
           <Link to={'/password'}>Forgot password?</Link>

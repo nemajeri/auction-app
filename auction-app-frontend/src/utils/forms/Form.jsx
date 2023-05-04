@@ -10,6 +10,7 @@ import { FcGoogle } from 'react-icons/fc';
 import useFacebookSDK from '../../hooks/useFacebookSDK';
 import useGoogleSDK from '../../hooks/useGoogleSDK';
 import InputWithIcon from './InputWithIcon';
+import { selectStyles, selectArrowStyles, customSelectStyles } from '../styles';
 
 const Form = ({
   fields,
@@ -23,13 +24,17 @@ const Form = ({
   updateSubcategories,
   errors,
   setErrors,
-  initialValues 
+  initialValues,
 }) => {
-
-const [formState, setFormState] = useState(
-  Object.fromEntries(fields.map((field) => [field.name, '', initialValues[field.name] || '']))
-);
-  const [errors, setErrors] = useState({});
+  const [formState, setFormState] = useState(() => {
+    const flattenedFields = fields.flatMap((field) =>
+      field.fields ? field.fields : field
+    );
+    const initialValuesFromProps = Object.fromEntries(
+      flattenedFields.map((field) => [field.name, initialValues[field.name]])
+    );
+    return initialValuesFromProps;
+  });
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -43,12 +48,15 @@ const [formState, setFormState] = useState(
 
     const field = fields.find((field) => field.name === name);
     if (field?.validation && !field.validation(value)) {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: field.errorMessage }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: field.errorMessage,
+      }));
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
     }
 
-    if (name === 'category' && updateSubcategories) {
+    if (name === 'categoryId' && updateSubcategories) {
       updateSubcategories(value);
     }
 
@@ -130,7 +138,6 @@ const [formState, setFormState] = useState(
     }
   };
 
-
   useEffect(() => {
     setFormState((prevState) => ({
       ...prevState,
@@ -138,36 +145,7 @@ const [formState, setFormState] = useState(
     }));
   }, [rememberMe]);
 
-
-  const selectStyles = {
-    position: 'relative',
-  };
-
-  const selectArrowStyles = {
-    content: '',
-    position: 'absolute',
-    right: '1rem',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    backgroundImage: `url(${process.env.REACT_APP_HOME_URL}/images/down-arrow.png)`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-    backgroundSize: '1rem',
-    width: '1rem',
-    height: '1rem',
-    pointerEvents: 'none',
-  };
-
-  const customSelectStyles = {
-    appearance: 'none',
-    background: 'transparent',
-    paddingRight: '2rem',
-  };
-
-  console.log("formState:", formState);
-
   const renderField = (field) => {
-    console.log(console.log("field.name:", field.name, "value:", formState[field.name]))
     const fieldElement =
       field.type === 'select' ? (
         <div style={selectStyles}>
@@ -222,13 +200,17 @@ const [formState, setFormState] = useState(
 
     return (
       <div>
-      <InputWithIcon
-        icon={field.icon}
-        label={field.label}
-        htmlFor={field.name}
-        children={fieldElement}
-      />
-      {errors[field.name] && <div className="error-message"><p>{errors[field.name]}</p></div>}
+        <InputWithIcon
+          icon={field.icon}
+          label={field.label}
+          htmlFor={field.name}
+          children={fieldElement}
+        />
+        {errors[field.name] && (
+          <div className='error-message'>
+            <p>{errors[field.name]}</p>
+          </div>
+        )}
       </div>
     );
   };

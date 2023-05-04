@@ -32,7 +32,7 @@ export const ADDRESS_VALIDATOR = /^\d+ [A-Z][a-z]*( [A-Z][a-z]*)* Street$/;
 
 export const ZIP_CODE_VALIDATOR = /^\d{7}$/;
 
-export const PHONE_NUMBER_VALIDATOR = /^\d{7}$/;
+export const PHONE_NUMBER_VALIDATOR = /^\+?\d{10,15}$/;
 
 export const FORM_TYPES = {
   REGISTER: 'register',

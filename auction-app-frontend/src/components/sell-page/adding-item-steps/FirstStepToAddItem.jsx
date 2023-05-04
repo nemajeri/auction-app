@@ -28,7 +28,7 @@ const FirstStepToAddItem = ({
         errors={errors}
         setErrors={setErrors}
         fields={fields}
-        onFormStateChange={(newState) => setProductDetails(newState)}
+        onFormStateChange={(newState) => setProductDetails({ ...initialValues, ...newState })}
         updateSubcategories={updateSubcategories}
         initialValues={initialValues}
       >

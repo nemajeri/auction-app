@@ -22,7 +22,7 @@ const SecondStepToAddItem = ({
       </div>
       <Form
         fields={fields}
-        onFormStateChange={(newState) => setProductDetails(newState)}
+        onFormStateChange={(newState) => setProductDetails({ ...initialValues, ...newState })}
         errors={errors}
         setErrors={setErrors}
         initialValues={initialValues}

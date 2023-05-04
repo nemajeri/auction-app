@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Form from '../../../utils/forms/Form';
 import Button from '../../../utils/Button';
 import {
@@ -10,6 +10,8 @@ import {
 } from '@stripe/react-stripe-js';
 import { Link } from 'react-router-dom';
 import { getStep3Fields } from '../../../data/multiformfields';
+import { loadAppUser } from '../../../utils/api/userApi';
+
 
 const ThirdStepToAddItem = ({
   prevStep,
@@ -50,7 +52,7 @@ const ThirdStepToAddItem = ({
         errors={errors}
         setErrors={setErrors}
         fields={fields}
-        onFormStateChange={(newState) => setProductDetails(newState)}
+        onFormStateChange={(newState) => setProductDetails({ ...initialValues, ...newState })}
         initialValues={initialValues}
       >
         <div className='shared-form-style__card-section'>

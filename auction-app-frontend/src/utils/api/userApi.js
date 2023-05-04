@@ -8,3 +8,4 @@ export const getUserByEmail = async (email) => {
     });
     return response.data;
   };
+

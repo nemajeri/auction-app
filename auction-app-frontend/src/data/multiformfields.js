@@ -18,7 +18,7 @@ export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
     className: 'shared-form__flex',
     fields: [
       {
-        name: 'category',
+        name: 'categoryId',
         type: 'select',
         options: categoryOptions,
         placeholder: 'Select Category',
@@ -26,7 +26,7 @@ export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
         errorMessage: 'Please select the category of the product',
       },
       {
-        name: 'subcategory',
+        name: 'subcategoryId',
         type: 'select',
         options: subcategoryOptions,
         placeholder: 'Select Subcategory',
@@ -119,7 +119,7 @@ export const getStep3Fields = () => [
     errorMessage: 'Please pick the country.',
   },
   {
-    name: 'phoneNumber',
+    name: 'phone',
     label: 'Phone Number',
     type: 'text',
     placeholder: '+32534231564',

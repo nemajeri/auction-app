@@ -127,7 +127,7 @@ const SellPage = () => {
               errors={errors}
               setErrors={setErrors}
               setProductDetails={setProductDetails}
-              
+              initialValues={productDetails}
             />
           </Elements>
         );
