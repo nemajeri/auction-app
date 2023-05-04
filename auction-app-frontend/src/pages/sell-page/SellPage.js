@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FirstStepToAddItem,
   SecondStepToAddItem,
@@ -11,32 +11,66 @@ import './sellpage.css';
 import { addNewItemForAuction } from '../../utils/api/productsApi';
 import Modal from '../../utils/forms/Modal.jsx';
 import { sellerPath } from '../../utils/paths';
-import { useLocation } from 'react-router-dom';
+import { validateMultiFormFields } from '../../utils/helperFunctions';
+import {
+  getStep1Fields,
+  getStep2Fields,
+  getStep3Fields,
+} from '../../data/multiformfields';
+import { getCategories } from '../../utils/api/categoryApi';
+import { getSubcategories } from '../../utils/api/subcategoryApi';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHED_KEY);
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
 
-  const location = useLocation();
-  console.log('Pathname: ',location.pathname)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getCategories();
+        let i = response.data.length - 1;
+        response.data.splice(i, 1);
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error.message);
+      }
+    };
 
-  const [step1State, setStep1State] = useState({
+    fetchCategories();
+  }, []);
+
+  const updateSubcategories = async (categoryId) => {
+    try {
+      const response = await getSubcategories(categoryId);
+      setSubcategories(response.data);
+    } catch (error) {
+      console.error('Error fetching subcategories:', error.message);
+    }
+  };
+
+  const categoryOptions = categories.map((category) => ({
+    label: category.categoryName,
+    value: category.id,
+  }));
+
+  const subcategoryOptions = subcategories.map((subcategory) => ({
+    label: subcategory.subCategoryName,
+    value: subcategory.id,
+  }));
+
+  const [productDetails, setProductDetails] = useState({
     productName: '',
     description: '',
     categoryId: '',
     subcategoryId: '',
-  });
-
-  const [step2State, setStep2State] = useState({
     startPrice: '',
     startDate: '',
     endDate: '',
-  });
-
-
-  const [step3State, setStep3State] = useState({
     address: '',
     city: '',
     zipCode: '',
@@ -58,9 +92,15 @@ const SellPage = () => {
         return (
           <FirstStepToAddItem
             nextStep={nextStep}
-            step1State={step1State}
-            setStep1State={setStep1State}
+            productDetails={productDetails}
             sellerPath={sellerPath}
+            errors={errors}
+            setErrors={setErrors}
+            setProductDetails={setProductDetails}
+            categoryOptions={categoryOptions}
+            subcategoryOptions={subcategoryOptions}
+            updateSubcategories={updateSubcategories}
+            initialValues={productDetails}
           />
         );
       case 2:
@@ -68,9 +108,12 @@ const SellPage = () => {
           <SecondStepToAddItem
             nextStep={nextStep}
             prevStep={prevStep}
-            step2State={step2State}
-            setStep2State={setStep2State}
+            productDetails={productDetails}
             sellerPath={sellerPath}
+            errors={errors}
+            setErrors={setErrors}
+            setProductDetails={setProductDetails}
+            initialValues={productDetails}
           />
         );
       case 3:
@@ -78,10 +121,13 @@ const SellPage = () => {
           <Elements stripe={stripePromise}>
             <ThirdStepToAddItem
               prevStep={prevStep}
-              step3State={step3State}
-              setStep3State={setStep3State}
+              productDetails={productDetails}
               handleFinalSubmit={handleFinalSubmit}
               sellerPath={sellerPath}
+              errors={errors}
+              setErrors={setErrors}
+              setProductDetails={setProductDetails}
+              
             />
           </Elements>
         );
@@ -90,22 +136,18 @@ const SellPage = () => {
     }
   };
 
-  const formatFormData = () => {
-    return {
-      productName: step1State.productName,
-      description: step1State.description,
-      categoryId: 8,
-      subcategoryId: 1,
-      startPrice: step1State.startPrice,
-      startDate: step2State.startDate,
-      endDate: step2State.endDate,
-      address: step3State.address,
-      city: step3State.city,
-      zipCode: step3State.zipCode,
-      country: step3State.country,
-      phone: step3State.phoneNumber,
-    };
-  };
+  const firstStepToAddItemFields = getStep1Fields(
+    categoryOptions,
+    subcategoryOptions
+  );
+  const secondStepToAddItemFields = getStep2Fields();
+  const thirdStepToAddItemFields = getStep3Fields();
+
+  const allFields = [
+    ...firstStepToAddItemFields,
+    ...secondStepToAddItemFields,
+    ...thirdStepToAddItemFields,
+  ];
 
   const handleFinalSubmit = async (e, stripe, elements) => {
     e.preventDefault();
@@ -113,9 +155,17 @@ const SellPage = () => {
       return;
     }
 
-    const formData = formatFormData();
+    const errors = validateMultiFormFields(productDetails, allFields);
 
-    addNewItemForAuction(formData, setShowModal);
+    const hasErrors = Object.values(errors).some(
+      (error) => error !== undefined
+    );
+
+    if (hasErrors) {
+      setErrors(errors);
+    } else {
+      addNewItemForAuction(productDetails, setShowModal);
+    }
   };
 
   const renderProgressDots = () => {
@@ -147,10 +197,7 @@ const SellPage = () => {
       <BreadCrumbs title='SELLER' />
       {renderProgressDots()}
       <div className='shared-form_position'>{MultiStepForm()}</div>
-      <Modal
-        showModal={showModal}
-        successPath={sellerPath}
-      />
+      <Modal showModal={showModal} successPath={sellerPath} />
     </>
   );
 };

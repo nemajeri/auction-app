@@ -20,21 +20,38 @@ const Form = ({
   rememberMe,
   children,
   onFormStateChange,
+  updateSubcategories,
+  errors,
+  setErrors,
+  initialValues 
 }) => {
-  const [formState, setFormState] = useState({
-    ...Object.fromEntries(fields.map((field) => [field.name, ''])),
-    isRememberMe: rememberMe,
-  });
+
+const [formState, setFormState] = useState(
+  Object.fromEntries(fields.map((field) => [field.name, '', initialValues[field.name] || '']))
+);
   const [errors, setErrors] = useState({});
 
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleChange = (event) => {
+    const { name, value } = event.target;
     const newState = {
       ...formState,
-      [event.target.name]: event.target.value,
+      [name]: value,
     };
+
+    const field = fields.find((field) => field.name === name);
+    if (field?.validation && !field.validation(value)) {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: field.errorMessage }));
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
+    }
+
+    if (name === 'category' && updateSubcategories) {
+      updateSubcategories(value);
+    }
+
     setFormState(newState);
 
     if (onFormStateChange) {
@@ -147,7 +164,10 @@ const Form = ({
     paddingRight: '2rem',
   };
 
+  console.log("formState:", formState);
+
   const renderField = (field) => {
+    console.log(console.log("field.name:", field.name, "value:", formState[field.name]))
     const fieldElement =
       field.type === 'select' ? (
         <div style={selectStyles}>
@@ -185,7 +205,9 @@ const Form = ({
             onChange={handleChange}
             placeholder={field.placeholder}
           />
-          <div className='form-field__phone-number--verfication_status'>Not verified</div>
+          <div className='form-field__phone-number--verfication_status'>
+            Not verified
+          </div>
         </div>
       ) : (
         <input
@@ -199,12 +221,15 @@ const Form = ({
       );
 
     return (
+      <div>
       <InputWithIcon
         icon={field.icon}
         label={field.label}
         htmlFor={field.name}
         children={fieldElement}
       />
+      {errors[field.name] && <div className="error-message"><p>{errors[field.name]}</p></div>}
+      </div>
     );
   };
 
@@ -214,7 +239,9 @@ const Form = ({
         group.fields ? (
           <div key={group.fields[0].name} className={group.className}>
             {group.fields.map((field) => (
-              <React.Fragment key={field.name}>{renderField(field)}</React.Fragment>
+              <React.Fragment key={field.name}>
+                {renderField(field)}
+              </React.Fragment>
             ))}
           </div>
         ) : (
@@ -222,27 +249,27 @@ const Form = ({
         )
       )}
       {includeRememberMe && (
-        <div className="form__checkbox">
+        <div className='form__checkbox'>
           <input
-            type="checkbox"
-            name="rememberMe"
+            type='checkbox'
+            name='rememberMe'
             value={formState.rememberMe}
             onChange={(event) =>
               onRememberMe && onRememberMe(event.target.checked)
             }
           />
-          <label htmlFor="rememberMe">Remember me</label>
+          <label htmlFor='rememberMe'>Remember me</label>
         </div>
       )}
       {children}
       {includeSocial && (
-        <div className="form__social-media--buttons">
+        <div className='form__social-media--buttons'>
           <Button
             onClick={(e) => {
               e.preventDefault();
               handleFacebookLogin();
             }}
-            className={"form__social-media--button"}
+            className={'form__social-media--button'}
             SocialMediaIcon={AiFillFacebook}
             socialMediaClassName={
               'form__social-media--icon facebook-button__color'

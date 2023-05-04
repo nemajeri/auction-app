@@ -9,55 +9,18 @@ import {
   CardCvcElement,
 } from '@stripe/react-stripe-js';
 import { Link } from 'react-router-dom';
+import { getStep3Fields } from '../../../data/multiformfields';
 
 const ThirdStepToAddItem = ({
   prevStep,
-  setStep3State,
+  setProductDetails,
   handleFinalSubmit,
   sellerPath,
+  errors,
+  setErrors,
+  initialValues
 }) => {
-  const fields = [
-    {
-      name: 'address',
-      label: 'Address',
-      type: 'text',
-      placeholder: '123 Main Street',
-    },
-    {
-      className: 'shared-form__flex',
-      fields: [
-        {
-          name: 'city',
-          label: 'City',
-          type: 'text',
-          placeholder: 'eg. Madrid',
-        },
-        {
-          name: 'zipCode',
-          label: 'Zip Code',
-          type: 'text',
-          placeholder: 'XXXXXXX',
-        },
-      ],
-    },
-    {
-      name: 'country',
-      label: 'Country',
-      type: 'select',
-      options: [
-        { label: 'Italy', value: 'italy' },
-        { label: 'France', value: 'france' },
-        { label: 'Germany', value: 'germany' },
-      ],
-      placeholder: 'eg. Spain',
-    },
-    {
-      name: 'phoneNumber',
-      label: 'Phone Number',
-      type: 'text',
-      placeholder: '+32534231564',
-    },
-  ];
+  const fields = getStep3Fields();
 
   const options = {
     style: {
@@ -84,8 +47,11 @@ const ThirdStepToAddItem = ({
         <h3>LOCATION & SHIPPING</h3>
       </div>
       <Form
+        errors={errors}
+        setErrors={setErrors}
         fields={fields}
-        onFormStateChange={(newState) => setStep3State(newState)}
+        onFormStateChange={(newState) => setProductDetails(newState)}
+        initialValues={initialValues}
       >
         <div className='shared-form-style__card-section'>
           <p>Featured Products</p>
@@ -127,11 +93,11 @@ const ThirdStepToAddItem = ({
             <div id='card-errors' role='alert'></div>
           </>
           <div className='shared-form-style__btns navigation'>
-          <Link to={sellerPath}>
-            <Button className={'shared-form-style__btn cancel-btn__short'}>
-              Cancel
-            </Button>
-          </Link>
+            <Link to={sellerPath}>
+              <Button className={'shared-form-style__btn cancel-btn__short'}>
+                Cancel
+              </Button>
+            </Link>
             <div className='shared-form-style__btns main-navigation'>
               <Button
                 className={'shared-form-style__btn back-btn'}

@@ -1,38 +1,19 @@
 import React from 'react';
 import Form from '../../../utils/forms/Form';
-import { BsCurrencyDollar } from 'react-icons/bs';
 import Button from '../../../utils/Button';
 import { Link } from 'react-router-dom';
+import { getStep2Fields } from '../../../data/multiformfields';
 
 const SecondStepToAddItem = ({
   nextStep,
   prevStep,
-  setStep2State,
+  setProductDetails,
   sellerPath,
+  errors,
+  setErrors,
+  initialValues
 }) => {
-  const fields = [
-    {
-      name: 'startPrice',
-      label: 'Your start Price',
-      type: 'text',
-      icon: <BsCurrencyDollar />,
-    },
-    {
-      className: 'shared-form__flex',
-      fields: [
-        {
-          name: 'startDate',
-          label: 'Start date',
-          type: 'date',
-        },
-        {
-          name: 'endDate',
-          label: 'End date',
-          type: 'date',
-        },
-      ],
-    },
-  ];
+  const fields = getStep2Fields();
 
   return (
     <div className='shared-form-style__wrapper'>
@@ -41,7 +22,10 @@ const SecondStepToAddItem = ({
       </div>
       <Form
         fields={fields}
-        onFormStateChange={(newState) => setStep2State(newState)}
+        onFormStateChange={(newState) => setProductDetails(newState)}
+        errors={errors}
+        setErrors={setErrors}
+        initialValues={initialValues}
       >
         <p className='shared-form-style__hint'>
           This auction will be automatically closed when the end time comes. The

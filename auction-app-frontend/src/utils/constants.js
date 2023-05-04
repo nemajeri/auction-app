@@ -1,8 +1,5 @@
 import axios from 'axios';
-import {
-  sellerPath,
-  bidsPath,
-} from "./paths";
+import { sellerPath, bidsPath } from './paths';
 import { AiOutlineDollarCircle, AiOutlineUnorderedList } from 'react-icons/ai';
 
 export const API = axios.create({
@@ -24,9 +21,18 @@ export const EMAIL_VALIDATOR = /\S+@\S+\.\S+/;
 
 export const PASSWORD_LENGTH = 8;
 
-export const PASSWORD_VALIDATOR = /(?=.*[!@#$%^&*()_+[\]{}|\\;:'",./<>?`~])(?=.*\d)/;
+export const PASSWORD_VALIDATOR =
+  /(?=.*[!@#$%^&*()_+[\]{}|\\;:'",./<>?`~])(?=.*\d)/;
 
 export const NAME_VALIDATOR = /^[a-zA-Z\s]+$/;
+
+export const START_PRICE_VALIDATOR = /^\d+(\.\d{1,2})?$/;
+
+export const ADDRESS_VALIDATOR = /^\d+ [A-Z][a-z]*( [A-Z][a-z]*)* Street$/;
+
+export const ZIP_CODE_VALIDATOR = /^\d{7}$/;
+
+export const PHONE_NUMBER_VALIDATOR = /^\d{7}$/;
 
 export const FORM_TYPES = {
   REGISTER: 'register',
@@ -35,12 +41,12 @@ export const FORM_TYPES = {
 
 export const myAccountTabs = [
   {
-    title: "Seller",
+    title: 'Seller',
     path: sellerPath,
     icon: AiOutlineUnorderedList,
   },
   {
-    title: "Bids",
+    title: 'Bids',
     path: bidsPath,
     icon: AiOutlineDollarCircle,
   },
@@ -49,3 +55,4 @@ export const myAccountTabs = [
 export const ACTIVE = "Active";
 
 export const SOLD = "Sold";
+

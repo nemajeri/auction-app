@@ -165,4 +165,16 @@
   .modal-content button:hover {
     background-color: var(--purple-100);
   }
+
+  .error-message {
+    position: relative;
+  }
+
+  .error-message > p {
+    color: var(--red);
+    margin-bottom: 5px;
+    position: absolute;
+    top: -18px;
+  }
+
   

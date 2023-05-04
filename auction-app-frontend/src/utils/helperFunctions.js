@@ -73,3 +73,26 @@ export const validateFields = (formState, formType) => {
 
   return errors;
 };
+
+export const validateMultiFormFields = (formData, fieldsArray) => {
+  const errors = {};
+
+  const validateField = (field, value) => {
+    if (!field.validation(value)) {
+      errors[field.name] = field.errorMessage;
+    }
+  };
+
+  fieldsArray.forEach((field) => {
+    if (field.fields) {
+      field.fields.forEach((subField) => {
+        validateField(subField, formData[subField.name]);
+      });
+    } else {
+      validateField(field, formData[field.name]);
+    }
+  });
+
+  return errors;
+};
+

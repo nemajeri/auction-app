@@ -168,6 +168,7 @@
 
 .input-with-icon {
   position: relative;
+  margin-bottom: -5px;
 }
 
 .input-icon {
@@ -188,9 +189,9 @@
   border: 1px solid black;
 }
 
-#startingPrice {
+#startPrice {
   padding-left: 70px;
-}
+} 
 
 #startDate {
   width: 14rem;
