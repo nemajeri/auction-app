@@ -47,3 +47,7 @@ export const myAccountTabs = [
 ];
 
 export const COOKIE_PREFIX = "auction_app";
+
+export const ACTIVE = "Active";
+
+export const SOLD = "Sold";

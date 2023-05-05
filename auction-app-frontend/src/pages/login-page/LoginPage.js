@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Form from '../../utils/forms/Form';
 import { loginUser } from '../../utils/api/authApi';
+import { getUserByEmail } from '../../utils/api/userApi';
 import './loginPage.css';
 import { AppContext } from '../../utils/AppContextProvider';
 import jwt_decode from 'jwt-decode';
@@ -26,10 +27,11 @@ const LoginPage = () => {
   const { setUser } = useContext(AppContext);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLoginSuccess = (jwtToken) => {
+  const handleLoginSuccess = async (jwtToken) => {
     const decoded = jwt_decode(jwtToken);
-    const username = `${decoded.firstName} ${decoded.lastName}`;
-    setUser(username);
+    const email = decoded.sub;
+    const appUser = await getUserByEmail(email);
+    setUser(appUser);
   };
 
   const handleRememberMe = (isChecked) => {

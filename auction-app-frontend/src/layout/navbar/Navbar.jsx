@@ -46,7 +46,7 @@ const Navbar = () => {
             </div>
           ) : (
             <div>
-              <p>Hi, {user}</p>
+              <p>Hi, {user.firstName}{" "}{user.lastName}</p>
             </div>
           )}
         </div>

@@ -31,16 +31,21 @@ export const calculateTimeLeft = (product) => {
 };
 
 export const getJwtFromCookie = () => {
-  const prefix = COOKIE_PREFIX;
-  const allCookies = Cookies.get();
+  const jwtCookie = Cookies.get('auction_app_token');
+  return jwtCookie || null;
+};
 
-  for (const cookieName in allCookies) {
-    if (allCookies.hasOwnProperty(cookieName) && cookieName.startsWith(prefix)) {
-      return allCookies[cookieName];
-    }
+export const hoursDiff = (date) => {
+  const currentDate = new Date();
+  const endDate = new Date(date);
+  const diffInMilliseconds = endDate - currentDate;
+  const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+
+  if (diffInHours < 0) {
+    return 0;
   }
 
-  return null;
+  return parseFloat(diffInHours).toFixed(2);
 };
 
 export const validateFields = (formState, formType) => {

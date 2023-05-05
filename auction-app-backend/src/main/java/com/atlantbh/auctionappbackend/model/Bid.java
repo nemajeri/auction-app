@@ -1,10 +1,14 @@
 package com.atlantbh.auctionappbackend.model;
 
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bid", schema="auction_app_schema")
@@ -17,8 +21,18 @@ public class Bid {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @CreationTimestamp
+    @Past
+    @Column(nullable = false)
+    private LocalDateTime bidDate;
+
     @Column(name = "price", nullable = false)
-    private Float price;
+    @Positive(message = "value must be positive")
+    private float price;
+
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private AppUser user;
 
     @ManyToOne
     @JoinColumn(name = "productId", nullable = false)

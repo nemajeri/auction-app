@@ -20,8 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.LOGOUT_COOKIE_MAX_AGE;
-import static com.atlantbh.auctionappbackend.utils.Constants.LOGOUT_COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -69,7 +68,7 @@ public class AuthController {
         String token = tokenService.getJwtFromCookie(request);
         tokenService.invalidateToken(token);
 
-        Cookie cookie = new Cookie(LOGOUT_COOKIE_NAME, "");
+        Cookie cookie = new Cookie(COOKIE_NAME, "");
         cookie.setMaxAge(LOGOUT_COOKIE_MAX_AGE);
         cookie.setPath("/");
         response.addCookie(cookie);

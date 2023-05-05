@@ -28,8 +28,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.SOCIAL_MEDIA_COOKIE_MAX_AGE;
-import static com.atlantbh.auctionappbackend.utils.Constants.SOCIAL_MEDIA_COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
+
 @Slf4j
 @Service
 public class TokenService {
@@ -86,9 +86,9 @@ public class TokenService {
         CustomUserDetails customUserDetails = new CustomUserDetails(email, "", firstName, lastName, Collections.emptyList());
 
         String jwt = generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""), TokenType.STANDARD);
-        Cookie cookie = new Cookie(SOCIAL_MEDIA_COOKIE_NAME, jwt);
+        Cookie cookie = new Cookie(COOKIE_NAME, jwt);
         cookie.setPath("/");
-        cookie.setMaxAge(SOCIAL_MEDIA_COOKIE_MAX_AGE);
+        cookie.setMaxAge(COOKIE_MAX_AGE);
         return cookie;
     }
 

@@ -91,3 +91,7 @@
     font-weight: bold;
     cursor: pointer;
 }
+
+.shared-style__call-to-action_position {
+    justify-content: center;
+}

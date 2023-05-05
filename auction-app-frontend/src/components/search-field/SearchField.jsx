@@ -37,7 +37,7 @@ const SearchField = ({
       <AiOutlineSearch
         className='search__icon'
         onClick={(event) =>
-          onSearchIconClick(event, categoryId, null, navigate, pathname)
+          onSearchIconClick(event, categoryId, navigate, pathname)
         }
       />
     </div>

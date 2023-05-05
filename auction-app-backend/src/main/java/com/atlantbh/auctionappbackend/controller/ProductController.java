@@ -1,10 +1,13 @@
 package com.atlantbh.auctionappbackend.controller;
 
+import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
+import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,8 @@ import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
@@ -41,6 +46,15 @@ public class ProductController {
         } catch (CategoryNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
+    }
+
+    @GetMapping("/items/app-user")
+    public ResponseEntity<List<Product>> retrieveProductsFromUser(@RequestParam Long userId,
+                                                                  @RequestParam String type){
+        SortBy sortBy = SortBy.fromValue(type);
+        List<Product> products = productService.retrieveUserProductsByType(userId, sortBy);
+
+        return new ResponseEntity<>(products, OK);
     }
 
     @GetMapping(path = "/{id}")

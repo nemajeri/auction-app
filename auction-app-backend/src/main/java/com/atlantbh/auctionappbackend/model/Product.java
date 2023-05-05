@@ -39,10 +39,10 @@ public class Product {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
-    @Formula("(SELECT COUNT(*) FROM auction_app_schema.bid b INNER JOIN auction_app_schema.product p ON p.id = b.product_id WHERE b.product_id = 5 LIMIT 1)")
+    @Formula("(SELECT COUNT(*) FROM auction_app_schema.bid b INNER JOIN auction_app_schema.product p ON p.id = b.product_id WHERE b.product_id = id)")
     private int numberOfBids;
 
-    @Formula("(SELECT b.price FROM auction_app_schema.product p INNER JOIN auction_app_schema.bid b ON p.id =b.product_id ORDER BY b.price DESC LIMIT 1)")
+    @Formula("(SELECT b.price FROM auction_app_schema.bid b WHERE b.product_id = id ORDER BY b.price DESC LIMIT 1)")
     private float highestBid;
 
     @Column(name = "is_highlighted", nullable = false)
@@ -51,4 +51,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
 }

@@ -1,15 +1,23 @@
 import React from 'react';
+import classNames from 'classnames';
 import './tabs.css';
 
-const Tabs = ({ selectedTab, handleTabClick, tabs, containerClassName, tabClassName, selectedTabClassName }) => {
+const Tabs = ({
+  selectedTab,
+  handleTabClick,
+  tabs,
+  containerClassName,
+  tabClassName,
+  selectedTabClassName,
+}) => {
   return (
-    <div className={`${containerClassName}`} >
+    <div className={containerClassName}>
       {tabs.map((tab) => (
         <div
           key={tab.id}
-          className={`${tabClassName} ${
-            selectedTab === tab.id ? selectedTabClassName : ''
-          }`}
+          className={classNames(tabClassName, {
+            [selectedTabClassName]: selectedTab === tab.id,
+          })}
           onClick={() => handleTabClick(tab.id)}
         >
           <h2>{tab.label}</h2>

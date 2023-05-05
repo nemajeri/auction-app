@@ -31,7 +31,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.LOGIN_COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_MAX_AGE;
 
 
 @Service
@@ -85,8 +86,8 @@ public class AuthService {
         String jwt = tokenService.generateToken(authentication, tokenType);
         boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
-        Cookie jwtCookie = new Cookie(LOGIN_COOKIE_NAME, jwt);
-        jwtCookie.setMaxAge(4 * 60 * 60);
+        Cookie jwtCookie = new Cookie(COOKIE_NAME, jwt);
+        jwtCookie.setMaxAge(COOKIE_MAX_AGE);
         jwtCookie.setHttpOnly(false);
         jwtCookie.setPath("/");
         jwtCookie.setSecure(isSecure);

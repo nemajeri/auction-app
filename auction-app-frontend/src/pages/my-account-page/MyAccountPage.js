@@ -9,7 +9,7 @@ import SellerTab from '../../components/my-account-page/SellerTab';
 import BidsTab from '../../components/my-account-page/BidsTab';
 import { AiOutlinePlus } from 'react-icons/ai';
 
-const headings = [
+const bidHeadings = [
   'Item',
   'Name',
   'Time left',
@@ -18,13 +18,31 @@ const headings = [
   'Highest bid',
 ];
 
+const sellerHeadings = [
+  'Item',
+  'Name',
+  'Time left',
+  'Your price',
+  'No. bids',
+  'Highest bid',
+];
+
 const headerClassNames = [
   'auction-table__first-header space-left',
-  'auction-table__second-header space-right space-left',
+  'auction-table__second-header space-right space-left-second__header',
   'auction-table__third-header',
   'auction-table__fourth-header',
   'auction-table__fifth-header',
   'auction-table__sixth-header space-right',
+];
+
+const bodyClassNames = [
+  'auction-table__first-body space-left',
+  'auction-table__second-body',
+  'auction-table__third-body',
+  'auction-table__fourth-body',
+  'auction-table__fifth-body',
+  'auction-table__sixth-body',
 ];
 
 const MyAccountPage = () => {
@@ -70,22 +88,25 @@ const MyAccountPage = () => {
             case sellerPath:
               return (
                 <SellerTab
-                  headings={headings}
+                  sellerHeadings={sellerHeadings}
                   headerClassNames={headerClassNames}
+                  bodyClassNames={bodyClassNames}
                 />
               );
             case bidsPath:
               return (
                 <BidsTab
-                  headings={headings}
+                  bidHeadings={bidHeadings}
                   headerClassNames={headerClassNames}
+                  bodyClassNames={bodyClassNames}
                 />
               );
             default:
               return (
                 <SellerTab
-                  headings={headings}
+                  sellerHeadings={sellerHeadings}
                   headerClassNames={headerClassNames}
+                  bodyClassNames={bodyClassNames}
                 />
               );
           }

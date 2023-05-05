@@ -41,7 +41,15 @@ export const getAllProductsToSeparateHighlighted = () => {
   return API.get('/products/all-products');
 };
 
-
 export const getSearchSuggestion = (query) => {
   return API.get(`/products/search-suggestions?query=${query}`);
+};
+
+export const getProductsForUser = (userId, type) => {
+  return API.get('/products/items/app-user', {
+    params: {
+      userId: userId,
+      type: type,
+    },
+  });
 };

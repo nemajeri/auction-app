@@ -1,6 +1,7 @@
 package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
+import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.mapper.ProductMapper;
 import com.atlantbh.auctionappbackend.model.Product;
@@ -11,15 +12,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
-
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
 
 @Service
@@ -37,10 +39,35 @@ public class ProductService {
         if (suggestions.isEmpty()) {
             return null;
         } else {
-            return suggestions.get(0);
+            String bestSuggestion = null;
+            int bestWeight = Integer.MAX_VALUE;
+
+            for (String suggestion : suggestions) {
+                int weight = calculate(query.toLowerCase(), suggestion.toLowerCase());
+                if (weight < bestWeight) {
+                    bestSuggestion = suggestion;
+                    bestWeight = weight;
+                }
+            }
+
+            return bestSuggestion;
         }
     }
 
+    public List<Product> retrieveUserProductsByType(Long userId, SortBy sortingType) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        List<Product> userProducts;
+
+        if (sortingType == SortBy.SOLD) {
+            userProducts = productRepository.findAllProductsByUserIdAndEndDateIsBefore(
+                    userId, currentTime, Sort.by(Sort.Direction.DESC, SortBy.END_DATE.getSort()));
+        } else {
+            userProducts = productRepository.findAllProductsByUserIdAndEndDateIsAfter(
+                    userId, currentTime, Sort.by(Sort.Direction.DESC, SortBy.START_DATE.getSort()));
+        }
+
+        return userProducts;
+    }
 
     public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId) {
         Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));

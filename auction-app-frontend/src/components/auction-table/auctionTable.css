@@ -21,7 +21,7 @@ th {
 
 tbody > tr {
   display: flex;
-  justify-content: center;
+  margin: 20px -10px;
 }
 
 .auction-table__first-header,
@@ -44,4 +44,62 @@ tbody > tr {
 .space-left {
   padding-left: 4rem;
   background-clip: padding-box;
+}
+
+td  img {
+  width: 70px;
+  height: 70px;
+}
+
+td {
+  align-self: center;
+}
+
+.auction-table__second-body {
+  width: 20%;
+}
+
+.auction-table__fourth-body {
+  width: 16%;
+}
+
+.auction-table__fifth-body {
+  width: 14%;
+}
+.auction-table__third-body,
+.auction-table__first-body {
+  width: 13.5%;
+}
+
+.auction-table__sixth-body {
+  width: 12%;
+}
+
+.auction-table__button {
+  width: 80px;
+  height: 40px;
+  border: 2px solid var(--grey-100);
+  background-color: var(--white-100);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.space-left-second__header {
+  padding-left: 1rem;
+}
+
+.auction-table__second-body span:first-child {
+  font-weight: bold;
+}
+
+.auction-table__second-body span:nth-child(3) {
+  color: var(--purple);
+}
+
+.text-green {
+  color: var(--green);
+}
+
+.text-blue {
+  color: var(--blue-200);
 }

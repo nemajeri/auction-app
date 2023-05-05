@@ -3,12 +3,14 @@ package com.atlantbh.auctionappbackend.repository;
 import com.atlantbh.auctionappbackend.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -30,5 +32,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Query("SELECT p.productName FROM Product p WHERE LOWER(p.productName) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<String> findTopNamesByNameSimilarity(@Param("query") String query);
+
+    List<Product> findAllProductsByUserIdAndEndDateIsAfter(Long userId, LocalDateTime time, Sort sort);
+
+    List<Product> findAllProductsByUserIdAndEndDateIsBefore(Long userId, LocalDateTime time, Sort sort);
 }
 
