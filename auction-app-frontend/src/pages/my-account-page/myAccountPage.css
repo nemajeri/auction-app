@@ -1,0 +1,97 @@
+.my-account-page__tabs--and-btn {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3.5rem;
+}
+
+.my-account-page__tabs {
+    display: flex;
+    gap: 5rem;
+}
+
+.my-account-page__tabs > div {
+    align-items: center;
+    display: flex;
+}
+
+.my-account-page__tabs a {
+    text-decoration: none;
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    color: var(--black);
+}
+
+.selected-tab {
+    background-color: var(--purple);
+    padding: 15px 20px;
+    color: var(--white-100) !important;
+}
+
+.my-account-page__btn {
+    background-color: var(--purple);
+    border: none;
+    color: var(--white-100);
+    padding: 15px 80px;
+    cursor: pointer;
+}
+
+.my-account-page__btn span{
+    font-size: larger;
+    font-weight: 500;
+}
+
+.my-account-page__btn span {
+    display: flex;
+    gap: 15px;
+}
+
+.seller-tab__btn span{
+    font-size: larger;
+}
+
+.seller-tab__tabs--container {
+    display: flex;
+}
+
+.seller-tab__tabs--individual_tab {
+    padding: 8px 22px;
+    border: 1px solid var(--grey-100);
+    cursor: pointer;
+}
+
+.seller-tab__tabs--individual_tab h2{
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.seller-tab__tabs--individual_tab-selected {
+    background-color: var(--purple);
+    color: var(--white-100);
+    border: none;
+}
+
+.call-to-action {
+    text-align: center;
+    margin: 60px 0;
+}
+
+.shared-style--icon {
+    height: 80px;
+    width: 80px;
+    color: var(--purple);
+    margin-bottom: 2rem;
+}
+
+.shared-style__btn {
+    background-color: var(--white-100);
+    border: 3px solid var(--purple);
+    padding: 15px 80px;
+    margin-top: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.shared-style__call-to-action_position {
+    justify-content: center;
+}

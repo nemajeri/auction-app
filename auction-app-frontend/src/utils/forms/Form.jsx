@@ -7,6 +7,8 @@ import { AiFillFacebook } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import { validateFields } from '../helperFunctions';
 import { FcGoogle } from 'react-icons/fc';
+import useFacebookSDK from '../../hooks/useFacebookSDK';
+import useGoogleSDK from '../../hooks/useGoogleSDK';
 
 const Form = ({
   fields,
@@ -16,13 +18,12 @@ const Form = ({
   includeRememberMe,
   onRememberMe,
   handleLoginSuccess,
-  rememberMe
+  rememberMe,
 }) => {
-  const [formState, setFormState] = useState(
-    {
-      ...Object.fromEntries(fields.map((field) => [field.name, ''])),
-      isRememberMe: rememberMe,
-    });
+  const [formState, setFormState] = useState({
+    ...Object.fromEntries(fields.map((field) => [field.name, ''])),
+    isRememberMe: rememberMe,
+  });
   const [errors, setErrors] = useState({});
 
   const location = useLocation();
@@ -35,34 +36,30 @@ const Form = ({
     });
   };
 
-  useEffect(() => {
-    initFacebookSDK();
+  const handleGsiEvent = (response) => {
+    if (response && response.credential) {
+      callOAuth2LoginSuccess(
+        'google',
+        response.credential,
+        handleLoginSuccess,
+        navigate
+      );
+    } else {
+      console.error('Google Sign-In error: credential not found');
+    }
+  };
 
-    const handleGsiEvent = (response) => {
-      if (response && response.credential) {
-        callOAuth2LoginSuccess(
-          'google',
-          response.credential,
-          handleLoginSuccess,
-          navigate
-        );
-      } else {
-        console.error('Google Sign-In error: credential not found');
-      }
-    };
+  const handleGsiError = (event) => {
+    console.error('Google Sign-In error:', event.detail);
+  };
 
-    const handleGsiError = (event) => {
-      console.error('Google Sign-In error:', event.detail);
-    };
-
+  const handleGoogleSDKLoad = () => {
     window.google?.accounts?.id.initialize({
       client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
       callback: handleGsiEvent,
       onerror: handleGsiError,
     });
-
-    return () => {};
-  }, []);
+  };
 
   const handleGoogleLogin = () => {
     try {
@@ -89,26 +86,8 @@ const Form = ({
     );
   };
 
-  const initFacebookSDK = () => {
-    window.fbAsyncInit = () => {
-      window.FB.init({
-        appId: process.env.REACT_APP_FACEBOOK_APP_ID,
-        cookie: true,
-        xfbml: true,
-        version: 'v16.0',
-      });
-    };
-
-    ((d, s, id) => {
-      var js,
-        fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s);
-      js.id = id;
-      js.src = '//connect.facebook.net/en_US/sdk.js';
-      fjs.parentNode.insertBefore(js, fjs);
-    })(document, 'script', 'facebook-jssdk');
-  };
+  useGoogleSDK(handleGoogleSDKLoad);
+  useFacebookSDK();
 
   const handleSubmit = async (event) => {
     event.preventDefault();

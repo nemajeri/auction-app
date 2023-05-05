@@ -3,43 +3,49 @@ import {
   EMAIL_VALIDATOR,
   PASSWORD_LENGTH,
   NAME_VALIDATOR,
-  FORM_TYPES
+  FORM_TYPES,
+  COOKIE_PREFIX
 } from './constants';
+import Cookies from "js-cookie";
 
 export const getTotalPages = (products, size) => {
   return Math.ceil(products?.totalElements / size);
 };
 
 export const calculateTimeLeft = (product) => {
-  const startDate = new Date(product.startDate);
+  const currentDate = new Date();
   const endDate = new Date(product.endDate);
 
   const differenceInDays = Math.round(
-    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
   );
 
   const differenceInWeeks = Math.floor(differenceInDays / 7);
 
-  if (differenceInWeeks > 0 && differenceInDays > 0) {
-    return `${differenceInWeeks} weeks ${differenceInDays} days`;
+  const remainingDays = differenceInDays % 7;
+
+  if (differenceInWeeks >= 0 && differenceInDays >= 0) {
+    return `${differenceInWeeks} weeks ${remainingDays} days`;
   }
   return;
 };
 
 export const getJwtFromCookie = () => {
-  const prefix = 'auction_app';
-  const allCookies = document.cookie.split(';');
+  const jwtCookie = Cookies.get('auction_app_token');
+  return jwtCookie || null;
+};
 
-  for (let i = 0; i < allCookies.length; i++) {
-    let cookie = allCookies[i].trim();
+export const hoursDiff = (date) => {
+  const currentDate = new Date();
+  const endDate = new Date(date);
+  const diffInMilliseconds = endDate - currentDate;
+  const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
 
-    if (cookie.startsWith(prefix)) {
-      const cookieName = cookie.split('=')[0].trim();
-      return cookie.substring((cookieName + '=').length, cookie.length);
-    }
+  if (diffInHours < 0) {
+    return 0;
   }
 
-  return null;
+  return parseFloat(diffInHours).toFixed(2);
 };
 
 export const validateFields = (formState, formType) => {

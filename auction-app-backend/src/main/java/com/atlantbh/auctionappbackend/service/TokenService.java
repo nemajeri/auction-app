@@ -2,6 +2,7 @@ package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
+import com.atlantbh.auctionappbackend.security.enums.TokenType;
 import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -27,10 +28,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.SOCIAL_MEDIA_COOKIE_MAX_AGE;
-import static com.atlantbh.auctionappbackend.utils.Constants.SOCIAL_MEDIA_COOKIE_NAME;
-import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.HOURS;
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
 
 @Slf4j
 @Service
@@ -87,21 +85,21 @@ public class TokenService {
         String lastName = oAuth2UserInfo.getLastName();
         CustomUserDetails customUserDetails = new CustomUserDetails(email, "", firstName, lastName, Collections.emptyList());
 
-        String jwt = generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""), false);
-        Cookie cookie = new Cookie(SOCIAL_MEDIA_COOKIE_NAME, jwt);
+        String jwt = generateToken(new UsernamePasswordAuthenticationToken(customUserDetails, ""), TokenType.STANDARD);
+        Cookie cookie = new Cookie(COOKIE_NAME, jwt);
         cookie.setPath("/");
-        cookie.setMaxAge(SOCIAL_MEDIA_COOKIE_MAX_AGE);
+        cookie.setMaxAge(COOKIE_MAX_AGE);
         return cookie;
     }
 
-    public String generateToken(Authentication authentication, boolean rememberMe) {
+    public String generateToken(Authentication authentication, TokenType tokenType) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String email = userDetails.getEmail();
         String firstName = userDetails.getFirstName();
         String lastName = userDetails.getLastName();
 
         Instant now = Instant.now();
-        Instant expiration = rememberMe ? now.plus(2, DAYS) : now.plus(4, HOURS);
+        Instant expiration = now.plus(tokenType.getDuration(), tokenType.getUnit());
 
         return Jwts.builder()
                 .setSubject(email)

@@ -1,10 +1,13 @@
 package com.atlantbh.auctionappbackend.controller;
 
+import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
+import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,8 @@ import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
@@ -22,9 +27,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/search-suggestions")
-    public ResponseEntity<List<String>> searchSuggestions(@RequestParam("query") String query) {
-        List<String> suggestions = productService.getSuggestion(query);
-        return ResponseEntity.ok(suggestions);
+    public ResponseEntity<String> searchSuggestions(@RequestParam("query") String query) {
+        String bestSuggestion = productService.getSuggestion(query);
+        return ResponseEntity.ok(bestSuggestion);
     }
 
     @GetMapping("/items")
@@ -43,6 +48,15 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/items/app-user")
+    public ResponseEntity<List<Product>> retrieveProductsFromUser(@RequestParam Long userId,
+                                                                  @RequestParam String type){
+        SortBy sortBy = SortBy.fromValue(type);
+        List<Product> products = productService.retrieveUserProductsByType(userId, sortBy);
+
+        return new ResponseEntity<>(products, OK);
+    }
+
     @GetMapping(path = "/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable("id") Long id) {
         try {
@@ -59,14 +73,11 @@ public class ProductController {
             @RequestParam(defaultValue = "8") int size) {
         Page<ProductDTO> productDTOs;
         switch (filter) {
-            case "new-arrival":
-                productDTOs = productService.getNewProducts(pageNumber, size);
-                break;
-            case "last-chance":
-                productDTOs = productService.getLastProducts(pageNumber, size);
-                break;
-            default:
+            case "new-arrival" -> productDTOs = productService.getNewProducts(pageNumber, size);
+            case "last-chance" -> productDTOs = productService.getLastProducts(pageNumber, size);
+            default -> {
                 return ResponseEntity.badRequest().build();
+            }
         }
         return ResponseEntity.ok().body(productDTOs);
     }

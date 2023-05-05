@@ -6,6 +6,7 @@ import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.request.LoginRequest;
 import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
+import com.atlantbh.auctionappbackend.security.enums.TokenType;
 import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import com.atlantbh.auctionappbackend.security.oauth2.FacebookOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
@@ -30,7 +31,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.LOGIN_COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_MAX_AGE;
 
 
 @Service
@@ -64,7 +66,6 @@ public class AuthService {
     }
 
     public void login(HttpServletRequest request, LoginRequest loginRequest, HttpServletResponse response) {
-        System.out.println("Login Request " + loginRequest);
         AppUser loggedAppUser = appUserRepository.getByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
@@ -72,16 +73,21 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        String firstName = loggedAppUser.getFirstName();
-        String lastName = loggedAppUser.getLastName();
-        CustomUserDetails userDetails = new CustomUserDetails(loggedAppUser.getEmail(), loggedAppUser.getPassword(), firstName, lastName, Collections.emptyList());
+        CustomUserDetails userDetails = new CustomUserDetails(
+                loggedAppUser.getEmail(),
+                loggedAppUser.getPassword(),
+                loggedAppUser.getFirstName(),
+                loggedAppUser.getLastName(),
+                Collections.emptyList()
+        );
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        String jwt = tokenService.generateToken(authentication, loginRequest.isRememberMe());
+        TokenType tokenType = loginRequest.isRememberMe() ? TokenType.REMEMBER_ME : TokenType.STANDARD;
+        String jwt = tokenService.generateToken(authentication, tokenType);
         boolean isSecure = request.isSecure() && !request.getServerName().equals("localhost");
 
-        Cookie jwtCookie = new Cookie(LOGIN_COOKIE_NAME, jwt);
-        jwtCookie.setMaxAge(4 * 60 * 60);
+        Cookie jwtCookie = new Cookie(COOKIE_NAME, jwt);
+        jwtCookie.setMaxAge(COOKIE_MAX_AGE);
         jwtCookie.setHttpOnly(false);
         jwtCookie.setPath("/");
         jwtCookie.setSecure(isSecure);
@@ -90,7 +96,7 @@ public class AuthService {
     }
 
     public Cookie processOAuth2Login(OAuth2LoginRequest oauth2LoginRequest) {
-        OAuth2UserInfo oAuth2UserInfo = new GoogleOAuth2UserInfo(Collections.emptyMap());
+        OAuth2UserInfo oAuth2UserInfo;
 
         if ("google".equalsIgnoreCase(oauth2LoginRequest.getProvider())) {
             GoogleIdToken googleIdToken = tokenService.verifyGSIToken(oauth2LoginRequest.getToken());

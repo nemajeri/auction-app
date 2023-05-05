@@ -69,7 +69,7 @@ input::placeholder {
 .logo {
   display: flex;
   gap: 15px;
-  align-items: center;
+  align-self: center;
 }
 
 .logo > h1 {

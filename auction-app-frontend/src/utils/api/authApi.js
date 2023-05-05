@@ -70,7 +70,6 @@ export const callOAuth2LoginSuccess = async (
     );
 
     if (response.status === 200) {
-      const cookie = response.data;
       navigate('/');
       if (handleLoginSuccess) {
         const jwtToken = getJwtFromCookie();

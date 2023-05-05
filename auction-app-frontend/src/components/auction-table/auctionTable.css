@@ -1,0 +1,105 @@
+table {
+    width: 100%;
+    border: 2px solid var(--grey-100);
+    border-collapse: collapse;
+    display: flex;
+    margin-top: -2px;
+    flex-direction: column;
+    justify-content: center !important;
+}
+
+thead {
+    background-color: var(--white-200);
+    padding: 8px 0;
+  }
+  
+th {
+    text-align: left;
+    padding: 8px;
+    font-weight: 500;
+}
+
+tbody > tr {
+  display: flex;
+  margin: 20px -10px;
+}
+
+.auction-table__first-header,
+.auction-table__second-header {
+  width: 5%;
+}
+
+.auction-table__third-header,
+.auction-table__fourth-header,
+.auction-table__fifth-header,
+.auction-table__sixth-header {
+  width: 10%;
+}
+
+.space-right {
+  padding-right: 10rem;
+  background-clip: padding-box;
+}
+
+.space-left {
+  padding-left: 4rem;
+  background-clip: padding-box;
+}
+
+td  img {
+  width: 70px;
+  height: 70px;
+}
+
+td {
+  align-self: center;
+}
+
+.auction-table__second-body {
+  width: 20%;
+}
+
+.auction-table__fourth-body {
+  width: 16%;
+}
+
+.auction-table__fifth-body {
+  width: 14%;
+}
+.auction-table__third-body,
+.auction-table__first-body {
+  width: 13.5%;
+}
+
+.auction-table__sixth-body {
+  width: 12%;
+}
+
+.auction-table__button {
+  width: 80px;
+  height: 40px;
+  border: 2px solid var(--grey-100);
+  background-color: var(--white-100);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.space-left-second__header {
+  padding-left: 1rem;
+}
+
+.auction-table__second-body span:first-child {
+  font-weight: bold;
+}
+
+.auction-table__second-body span:nth-child(3) {
+  color: var(--purple);
+}
+
+.text-green {
+  color: var(--green);
+}
+
+.text-blue {
+  color: var(--blue-200);
+}
