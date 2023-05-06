@@ -21,6 +21,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static com.atlantbh.auctionappbackend.utils.Constants.AUTH_SECURED_ENDPOINTS;
+
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -49,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/sell", "/buy", "/dashboard").authenticated()
+                .antMatchers(AUTH_SECURED_ENDPOINTS).authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .oauth2Login()
@@ -73,11 +75,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login");
     }
 
-
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(tokenService);
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

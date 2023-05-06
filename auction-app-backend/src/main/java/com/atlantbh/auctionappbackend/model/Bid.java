@@ -31,7 +31,7 @@ public class Bid {
     private float price;
 
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
     @ManyToOne

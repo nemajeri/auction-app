@@ -1,7 +1,12 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.exception.BadRequestException;
+import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.exception.BidAmountException;
@@ -12,15 +17,16 @@ import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BidService {
 
     private final BidRepository bidRepository;
@@ -41,13 +47,18 @@ public class BidService {
 
 
     @Transactional
-    public void createBid(Long productId, float amount, HttpServletRequest request) throws ProductNotFoundException {
-        AppUser appUser = getAppUserFromRequest(request);
+    public void createBid(Long productId, float amount) throws ProductNotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+
+        AppUser appUser = appUserRepository.getByEmail(email)
+                .orElseThrow(() -> new AppUserNotFoundException("User with email " + email + " not found"));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        validateBidAmount(product, amount);
+        validateBidAmount(product, amount, appUser);
 
         Bid bid = new Bid();
         bid.setUser(appUser);
@@ -56,18 +67,8 @@ public class BidService {
         bidRepository.save(bid);
     }
 
-    private AppUser getAppUserFromRequest(HttpServletRequest request) {
-        String jwt = tokenService.getJwtFromHeader(request);
 
-        if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
-            String email = tokenService.getClaimFromToken(jwt, "sub");
-            return appUserRepository.getByEmail(email)
-                    .orElseThrow(() -> new AppUserNotFoundException("User with email " + email + " not found"));
-        }
-        throw new BadCredentialsException("Invalid JWT token");
-    }
-
-    private void validateBidAmount(Product product, float amount) {
+    private void validateBidAmount(Product product, float amount, AppUser appUser) {
         float currentMaxBid = product.getCurrentMaxBid();
 
         if (amount <= 0) {
@@ -76,6 +77,26 @@ public class BidService {
 
         if (currentMaxBid >= amount) {
             throw new BidAmountException("Place bid that is higher than the current one");
+        }
+
+        if (product.getStartDate().isAfter(LocalDateTime.now(ZoneOffset.UTC).plusHours(2))) {
+            throw new BadRequestException("Auction is yet to start for this product");
+        }
+
+        if (product.getEndDate().isBefore(LocalDateTime.now(ZoneOffset.UTC).plusHours(2))) {
+            throw new BadRequestException("Auction ended for this product");
+        }
+
+        if (product.isOwner(appUser.getEmail())) {
+            throw new BadRequestException("You can't bid on your own product");
+        }
+
+        Optional<Float> usersMaxBidForProductOpt = bidRepository.getMaxBidFromPersonForProduct(appUser.getId(), product.getId());
+        if (usersMaxBidForProductOpt.isPresent() && usersMaxBidForProductOpt.get() >= 0) {
+            float usersMaxBidForProduct = usersMaxBidForProductOpt.get();
+            if (amount <= usersMaxBidForProduct) {
+                throw new BadRequestException("Price can't be lower than your previous bid of $" + usersMaxBidForProduct);
+            }
         }
     }
 }

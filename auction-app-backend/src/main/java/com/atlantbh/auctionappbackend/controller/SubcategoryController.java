@@ -15,7 +15,7 @@ import java.util.Set;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("api/v1/subcategories")
+@RequestMapping("/api/v1/subcategories")
 public class SubcategoryController {
 
     private final SubcategoryService subcategoryService;

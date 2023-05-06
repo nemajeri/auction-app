@@ -18,8 +18,6 @@ import static org.springframework.http.HttpStatus.OK;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 
 @AllArgsConstructor
 @RestController
@@ -35,8 +33,8 @@ public class BidController {
     }
 
     @PostMapping("/create-bid")
-    public ResponseEntity<?> createBid(@Valid @RequestBody BidRequest bidRequest, HttpServletRequest request) {
-        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount(), request);
+    public ResponseEntity<?> createBid(@Valid @RequestBody BidRequest bidRequest) {
+        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount());
         return new ResponseEntity<>(CREATED);
     }
 }
