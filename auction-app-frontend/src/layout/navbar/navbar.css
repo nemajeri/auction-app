@@ -95,3 +95,12 @@
   color: var(--grey-200);
   font-size: 1.1rem;
 }
+
+.navbar__active-account {
+  display: flex;
+  gap: 30px;
+}
+
+.logout-link {
+  cursor: pointer;
+}

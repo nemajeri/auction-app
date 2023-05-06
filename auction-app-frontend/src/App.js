@@ -12,7 +12,7 @@ import {
   loginPath,
   registrationPath,
   myAccountPath,
-  shopPagePath
+  shopPagePath,
 } from './utils/paths';
 import {
   TermsAndCondPage,
@@ -29,6 +29,7 @@ import { Route, Routes } from 'react-router-dom';
 import { AppContextProvider } from './utils/AppContextProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ProtectedRoute from './utils/ProtectedRoutes';
 
 function App() {
   return (
@@ -41,7 +42,15 @@ function App() {
             path={shopPagePathToProduct}
             element={<ProductOverviewPage />}
           />
-          <Route path={`${myAccountPath}/*`} element={<MyAccountPage />} />
+          <Route
+            path={`${myAccountPath}/*`}
+            element={
+              <ProtectedRoute>
+                <MyAccountPage />
+              </ProtectedRoute>
+            }
+          >
+          </Route>
           <Route path={shopPagePath} element={<ShopPage />} />
           <Route path={shopPagePathToCategory} element={<ShopPage />} />
           <Route

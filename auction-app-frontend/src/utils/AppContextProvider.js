@@ -1,6 +1,9 @@
 import React, { useState, createContext, useEffect } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
+import { getUserByEmail } from '../utils/api/userApi';
 import { PAGE_SIZE } from './constants';
+import jwt_decode from 'jwt-decode';
+import { getJwtFromCookie } from './helperFunctions';
 
 export const AppContext = createContext();
 
@@ -58,6 +61,20 @@ export const AppContextProvider = ({ children }) => {
       }
     );
   };
+
+  const loadUserFromCookie = async () => {
+    const jwtToken = getJwtFromCookie();
+    if (jwtToken) {
+      const decoded = jwt_decode(jwtToken);
+      const email = decoded.sub;
+      const appUser = await getUserByEmail(email);
+      setUser(appUser);
+    }
+  };
+
+  useEffect(() => {
+    loadUserFromCookie();
+  }, []);
 
   useEffect(() => {
     if (searchTerm.length <= 2) {

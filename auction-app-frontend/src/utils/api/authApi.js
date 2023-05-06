@@ -82,3 +82,15 @@ export const callOAuth2LoginSuccess = async (
     console.error('Error during OAuth2 login: ', error);
   }
 };
+
+export const logoutUser = async () => {
+  try {
+    const response = await AuthAPI.post('/auth/logout');
+    return response;
+  } catch (error) {
+    console.error(error);
+    throw ('Error during logging out: ', error);
+  }
+};
+
+

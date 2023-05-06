@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Button from '../../../utils/Button';
 import Tabs from '../../tabs/Tabs';
 import './productDetails.css';
+import { AppContext } from '../../../utils/AppContextProvider';
 
 const ProductDetails = ({
   tabs,
@@ -15,6 +16,7 @@ const ProductDetails = ({
   onBidButtonClick,
   isAuctionOver,
 }) => {
+  const { user } = useContext(AppContext);
   return (
     product && (
       <div className='details'>
@@ -33,7 +35,7 @@ const ProductDetails = ({
             Time left: <span>{timeLeft}</span>
           </p>
         </div>
-        {!isAuctionOver && (
+        {user && !isAuctionOver && (
           <div className='details__bid--placement'>
             <input
               type='text'
