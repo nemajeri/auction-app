@@ -80,8 +80,6 @@ const SellPage = () => {
     phone: user?.phone || '',
   });
 
-  console.log('Product details: ',productDetails)
-
   const MultiStepForm = () => {
     const nextStep = () => {
       setStep(step + 1);
