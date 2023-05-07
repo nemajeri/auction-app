@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   FirstStepToAddItem,
   SecondStepToAddItem,
@@ -11,7 +11,7 @@ import './sellpage.css';
 import { addNewItemForAuction } from '../../utils/api/productsApi';
 import Modal from '../../utils/forms/Modal.jsx';
 import { sellerPath } from '../../utils/paths';
-import { validateMultiFormFields } from '../../utils/helperFunctions';
+import { validateFormFields } from '../../utils/helperFunctions';
 import {
   getStep1Fields,
   getStep2Fields,
@@ -19,6 +19,7 @@ import {
 } from '../../data/multiformfields';
 import { getCategories } from '../../utils/api/categoryApi';
 import { getSubcategories } from '../../utils/api/subcategoryApi';
+import { AppContext } from '../../utils/AppContextProvider';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHED_KEY);
 
@@ -28,6 +29,7 @@ const SellPage = () => {
   const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const { user } = useContext(AppContext);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -71,12 +73,14 @@ const SellPage = () => {
     startPrice: '',
     startDate: '',
     endDate: '',
-    address: '',
-    city: '',
-    zipCode: '',
-    country: '',
-    phone: '',
+    address: user?.address || '',
+    city: user?.city || '',
+    zipCode: user?.zipCode || '',
+    country: 'usa' || '',
+    phone: user?.phone || '',
   });
+
+  console.log('Product details: ',productDetails)
 
   const MultiStepForm = () => {
     const nextStep = () => {
@@ -155,7 +159,7 @@ const SellPage = () => {
       return;
     }
 
-    const errors = validateMultiFormFields(productDetails, allFields);
+    const errors = validateFormFields(productDetails, allFields);
 
     const hasErrors = Object.values(errors).some(
       (error) => error !== undefined

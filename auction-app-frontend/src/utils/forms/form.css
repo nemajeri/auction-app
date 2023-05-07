@@ -1,18 +1,7 @@
 .form__checkbox {
     display: flex;
     gap: 10px;
-    margin: 1rem 0 1.5rem 0;
-}
-
-.form__main--call_to-action {
-    width: 100%;
-    background-color: var(--purple);
-    border: none;
-    color: var(--white-100);
-    padding: 17px 0;
-    margin-top: 3rem;
-    cursor: pointer;
-    font-weight: bold;
+    margin: 2rem 0 1.5rem 0;
 }
 
 .form__social-media--buttons {
@@ -63,25 +52,6 @@
     margin-bottom: 5px;
     position: absolute;
     top: -20px;
-}
-
-.input-icon-container {
-  position: relative;
-  display: inline-block;
-}
-
-.input-icon-container.before .input-icon {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.input-icon-container.after .input-icon {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .card-input__flex-container div {
@@ -174,7 +144,26 @@
     color: var(--red);
     margin-bottom: 5px;
     position: absolute;
-    top: -18px;
   }
 
+  .input-with-icon {
+    position: relative;
+  }
+
+  .icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 46px;
+    position: absolute;
+    z-index: 1;
+  }
+  
+  .input-icon {
+    font-size: 1.2em;
+  }
+
+  .icon-box-focused {
+    border: 2px solid black !important;
+  }
   

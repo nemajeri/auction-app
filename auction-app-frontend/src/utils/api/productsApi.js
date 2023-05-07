@@ -67,10 +67,7 @@ export const getProductsForUser = (userId, type) => {
 
 export const addNewItemForAuction = async (formData, setShowModal) => {
   try {
-    const jwtToken = getJwtFromCookie();
-    const response = await API.post('/products/add-item', formData, {
-      headers: { Authorization: `Bearer ${jwtToken}` },
-    });
+    const response = await AuthAPI.post('/products/add-item', formData);
 
     if (response.status === 201) {
       console.log('Product created:', response.data);

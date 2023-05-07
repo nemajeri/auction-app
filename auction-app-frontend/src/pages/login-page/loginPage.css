@@ -32,3 +32,14 @@
     text-decoration: none;
     color: var(--purple);
 }
+
+.login-page__call_to-action {
+    width: 100%;
+    background-color: var(--purple);
+    border: none;
+    color: var(--white-100);
+    padding: 17px 0;
+    margin-top: 3rem;
+    cursor: pointer;
+    font-weight: bold;
+}

@@ -166,27 +166,12 @@
   color: var(--white-100);
 }
 
-.input-with-icon {
-  position: relative;
-  margin-bottom: -5px;
-}
-
-.input-icon {
-  position: absolute;
-  bottom: 6px;
-  left: 16px;
-}
-
 .icon-box {
   border: 1px solid var(--grey-100);
   width: 3rem;
   height: 2.93rem;
   position: absolute;
   bottom: 20.4px;
-}
-
-.icon-box-focused {
-  border: 1px solid black;
 }
 
 #startPrice {
@@ -223,14 +208,19 @@
 
 .third-step__credit-cards {
   margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .third-step__credit-cards p{
   color: var(--grey-200);
   font-size: small;
-  margin-right: 30px;
+  margin-right: 20px;
 }
 
 .third-step__credit-cards img {
   margin-right: 25px;
+  width: 40px;
+  height: 25px;
 }

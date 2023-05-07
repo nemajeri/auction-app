@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Button from '../Button';
 import './form.css';
 import { useLocation } from 'react-router-dom';
 import { callOAuth2LoginSuccess } from '../api/authApi';
 import { AiFillFacebook } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
-import { validateFields } from '../helperFunctions';
 import { FcGoogle } from 'react-icons/fc';
 import useFacebookSDK from '../../hooks/useFacebookSDK';
 import useGoogleSDK from '../../hooks/useGoogleSDK';
-import InputWithIcon from './InputWithIcon';
-import { selectStyles, selectArrowStyles, customSelectStyles } from '../styles';
+import SelectField from './SelectField';
+import TextAreaField from './TextAreaField';
+import PhoneNumberField from './PhoneNumberField';
+import InputField from './InputField';
+import StartPriceInput from './StartPriceInput';
 
 const Form = ({
   fields,
@@ -18,7 +20,6 @@ const Form = ({
   includeRememberMe,
   onRememberMe,
   handleLoginSuccess,
-  rememberMe,
   children,
   onFormStateChange,
   updateSubcategories,
@@ -120,98 +121,33 @@ const Form = ({
   useGoogleSDK(handleGoogleSDKLoad);
   useFacebookSDK();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const errors = validateFields(formState);
-    setErrors(errors);
-
-    if (Object.keys(errors).length === 0) {
-      onSubmit({ ...formState, rememberMe: rememberMe });
-    }
-
-    if (onRememberMe) {
-      const rememberMeCheckbox = document.querySelector('[name="rememberMe"]');
-      if (rememberMeCheckbox) {
-        onRememberMe(rememberMeCheckbox.checked);
+  const renderField = (field) => {
+    let FieldComponent;
+    if (field.name === 'startPrice') {
+      FieldComponent = StartPriceInput;
+    } else if (field.isPhoneNumber) {
+      FieldComponent = PhoneNumberField;
+    } else {
+      switch (field.type) {
+        case 'select':
+          FieldComponent = SelectField;
+          break;
+        case 'textarea':
+          FieldComponent = TextAreaField;
+          break;
+        default:
+          FieldComponent = InputField;
       }
     }
-  };
-
-  useEffect(() => {
-    setFormState((prevState) => ({
-      ...prevState,
-      isRememberMe: rememberMe,
-    }));
-  }, [rememberMe]);
-
-  const renderField = (field) => {
-    const fieldElement =
-      field.type === 'select' ? (
-        <div style={selectStyles}>
-          <select
-            id={field.name}
-            name={field.name}
-            value={formState[field.name]}
-            onChange={handleChange}
-            style={{ ...customSelectStyles }}
-          >
-            <option value=''>{field.placeholder}</option>
-            {field.options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <div style={selectArrowStyles}></div>
-        </div>
-      ) : field.type === 'textarea' ? (
-        <textarea
-          id={field.name}
-          name={field.name}
-          value={formState[field.name]}
-          onChange={handleChange}
-          placeholder={field.placeholder}
-        />
-      ) : field.name === 'phoneNumber' ? (
-        <div className='form-field__phone-number'>
-          <input
-            type={field.type}
-            id={field.name}
-            name={field.name}
-            value={formState[field.name]}
-            onChange={handleChange}
-            placeholder={field.placeholder}
-          />
-          <div className='form-field__phone-number--verfication_status'>
-            Not verified
-          </div>
-        </div>
-      ) : (
-        <input
-          type={field.type}
-          id={field.name}
-          name={field.name}
-          value={formState[field.name]}
-          onChange={handleChange}
-          placeholder={field.placeholder}
-        />
-      );
 
     return (
-      <div>
-        <InputWithIcon
-          icon={field.icon}
-          label={field.label}
-          htmlFor={field.name}
-          children={fieldElement}
-        />
-        {errors[field.name] && (
-          <div className='error-message'>
-            <p>{errors[field.name]}</p>
-          </div>
-        )}
-      </div>
+      <FieldComponent
+        key={field.name}
+        field={field}
+        value={formState[field.name] || ''}
+        onChange={handleChange}
+        error={errors[field.name] || ''}
+      />
     );
   };
 

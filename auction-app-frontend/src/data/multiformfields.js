@@ -1,9 +1,10 @@
-import { BsCurrencyDollar } from 'react-icons/bs';
 import {
   PHONE_NUMBER_VALIDATOR,
   ZIP_CODE_VALIDATOR,
   START_PRICE_VALIDATOR,
+  TODAY
 } from '../utils/constants';
+import { countries } from './countries';
 
 export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
   {
@@ -23,7 +24,7 @@ export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
         options: categoryOptions,
         placeholder: 'Select Category',
         validation: (value) => value !== '',
-        errorMessage: 'Please select the category of the product',
+        errorMessage: 'Please select the category.',
       },
       {
         name: 'subcategoryId',
@@ -31,7 +32,7 @@ export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
         options: subcategoryOptions,
         placeholder: 'Select Subcategory',
         validation: (value) => value !== '',
-        errorMessage: 'Please select the subcategory of the product',
+        errorMessage: 'Please select the subcategory.',
       },
     ],
   },
@@ -49,7 +50,6 @@ export const getStep2Fields = () => [
     name: 'startPrice',
     label: 'Your start Price',
     type: 'text',
-    icon: <BsCurrencyDollar />,
     validation: (value) => START_PRICE_VALIDATOR.test(value),
     errorMessage: 'Please enter the valid price!',
   },
@@ -60,14 +60,14 @@ export const getStep2Fields = () => [
         name: 'startDate',
         label: 'Start date',
         type: 'date',
-        validation: (value) => value !== '' && new Date(value) > new Date(),
+        validation: (value) => value !== '' && new Date(value) >= TODAY,
         errorMessage: 'Please pick a valid date!',
       },
       {
         name: 'endDate',
         label: 'End date',
         type: 'date',
-        validation: (value) => value !== '' && new Date(value) > new Date(),
+        validation: (value) => value !== '' && new Date(value) >= TODAY,
         errorMessage: 'Please pick a valid date!',
       },
     ],
@@ -80,8 +80,7 @@ export const getStep3Fields = () => [
     label: 'Address',
     type: 'text',
     placeholder: '123 Main Street',
-    validation: (value) =>
-    value !== '',
+    validation: (value) => value !== '',
     errorMessage: 'Please enter the right address',
   },
   {
@@ -109,11 +108,7 @@ export const getStep3Fields = () => [
     name: 'country',
     label: 'Country',
     type: 'select',
-    options: [
-      { label: 'Italy', value: 'italy' },
-      { label: 'France', value: 'france' },
-      { label: 'Germany', value: 'germany' },
-    ],
+    options: countries,
     placeholder: 'eg. Spain',
     validation: (value) => value !== '',
     errorMessage: 'Please pick the country.',
@@ -122,6 +117,7 @@ export const getStep3Fields = () => [
     name: 'phone',
     label: 'Phone Number',
     type: 'text',
+    isPhoneNumber: true,
     placeholder: '+32534231564',
     validation: (value) => PHONE_NUMBER_VALIDATOR.test(value),
     errorMessage: 'Please enter the valid phone number.',

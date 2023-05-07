@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { sellerPath, bidsPath } from './paths';
 import { AiOutlineDollarCircle, AiOutlineUnorderedList } from 'react-icons/ai';
+import { getTodayWithoutTime } from './helperFunctions';
 
 export const API = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
@@ -34,11 +35,6 @@ export const ZIP_CODE_VALIDATOR = /^\d{7}$/;
 
 export const PHONE_NUMBER_VALIDATOR = /^\+?\d{10,15}$/;
 
-export const FORM_TYPES = {
-  REGISTER: 'register',
-  LOGIN: 'login',
-};
-
 export const myAccountTabs = [
   {
     title: 'Seller',
@@ -55,4 +51,6 @@ export const myAccountTabs = [
 export const ACTIVE = "Active";
 
 export const SOLD = "Sold";
+
+export const TODAY =  getTodayWithoutTime();
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Form from '../../../utils/forms/Form';
 import Button from '../../../utils/Button';
+
 import {
   useStripe,
   useElements,
@@ -10,8 +11,6 @@ import {
 } from '@stripe/react-stripe-js';
 import { Link } from 'react-router-dom';
 import { getStep3Fields } from '../../../data/multiformfields';
-import { loadAppUser } from '../../../utils/api/userApi';
-
 
 const ThirdStepToAddItem = ({
   prevStep,
@@ -20,9 +19,10 @@ const ThirdStepToAddItem = ({
   sellerPath,
   errors,
   setErrors,
-  initialValues
+  initialValues,
 }) => {
   const fields = getStep3Fields();
+
 
   const options = {
     style: {
@@ -52,20 +52,20 @@ const ThirdStepToAddItem = ({
         errors={errors}
         setErrors={setErrors}
         fields={fields}
-        onFormStateChange={(newState) => setProductDetails({ ...initialValues, ...newState })}
+        onFormStateChange={(newState) =>
+          setProductDetails({ ...initialValues, ...newState })
+        }
         initialValues={initialValues}
       >
         <div className='shared-form-style__card-section'>
           <p>Featured Products</p>
           <hr />
-          <div>
-            <div className='third-step__credit-cards'>
-              <p>We accept the following credit cards</p>
-              <img src='/images/visa.png' alt='visa' />
-              <img src='/images/mastercard.png' alt='mastercard' />
-              <img src='/images/americanexpress.png' alt='american express' />
-              <img src='/images/maestro.png' alt='maestro' />
-            </div>
+          <div className='third-step__credit-cards'>
+            <p>We accept the following credit cards</p>
+            <img src='/images/visa.png' alt='visa' />
+            <img src='/images/mastercard.png' alt='mastercard' />
+            <img src='/images/americanexpress.png' alt='american express' />
+            <img src='/images/maestro.png' alt='maestro' />
           </div>
           <>
             <label htmlFor='name-on-card'>Name on Card</label>

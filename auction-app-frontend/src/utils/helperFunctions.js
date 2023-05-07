@@ -1,10 +1,3 @@
-import {
-  PASSWORD_VALIDATOR,
-  EMAIL_VALIDATOR,
-  PASSWORD_LENGTH,
-  NAME_VALIDATOR,
-  FORM_TYPES,
-} from './constants';
 import Cookies from "js-cookie";
 
 export const getTotalPages = (products, size) => {
@@ -47,34 +40,7 @@ export const hoursDiff = (date) => {
   return parseFloat(diffInHours).toFixed(2);
 };
 
-export const validateFields = (formState, formType) => {
-  const errors = {};
-
-  if (formType === FORM_TYPES.REGISTER) {
-    if (!formState.firstName || !NAME_VALIDATOR.test(formState.firstName)) {
-      errors.firstName = 'Please enter a valid first name';
-    }
-
-    if (!formState.lastName || !NAME_VALIDATOR.test(formState.lastName)) {
-      errors.lastName = 'Please enter a valid last name';
-    }
-  }
-
-  if (!formState.email || !EMAIL_VALIDATOR.test(formState.email)) {
-    errors.email = 'Please enter a valid email address';
-  }
-
-  if (!formState.password || formState.password.length <= PASSWORD_LENGTH) {
-    errors.password = `Password must be at least ${PASSWORD_LENGTH} characters`;
-  } else if (!PASSWORD_VALIDATOR.test(formState.password)) {
-    errors.password =
-      'Password must contain at least one special sign and one number';
-  }
-
-  return errors;
-};
-
-export const validateMultiFormFields = (formData, fieldsArray) => {
+export const validateFormFields = (formData, fieldsArray) => {
   const errors = {};
 
   const validateField = (field, value) => {
@@ -83,16 +49,18 @@ export const validateMultiFormFields = (formData, fieldsArray) => {
     }
   };
 
-  fieldsArray.forEach((field) => {
-    if (field.fields) {
-      field.fields.forEach((subField) => {
-        validateField(subField, formData[subField.name]);
-      });
-    } else {
-      validateField(field, formData[field.name]);
-    }
+  const flattenedFields = fieldsArray.flatMap((field) =>
+    field.fields ? field.fields : field
+  );
+
+  flattenedFields.forEach((field) => {
+    validateField(field, formData[field.name]);
   });
 
   return errors;
 };
 
+export const getTodayWithoutTime = () => {
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+};
