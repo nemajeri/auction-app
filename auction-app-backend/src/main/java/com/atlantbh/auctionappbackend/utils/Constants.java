@@ -16,5 +16,8 @@ public final class Constants {
             "/api/v1/bid/app-user",
             "/api/v1/bid/create-bid",
             "/api/v1/products/items/app-user",
+            "/api/v1/products/add-item",
     };
+
+    public static final String S3_KEY_PREFIX = "product-images/";
 }

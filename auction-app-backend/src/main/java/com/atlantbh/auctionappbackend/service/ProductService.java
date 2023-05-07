@@ -1,6 +1,7 @@
 package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
+import com.atlantbh.auctionappbackend.exception.ImageIndexNotFoundException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.model.Category;
@@ -158,5 +159,13 @@ public class ProductService {
     public List<Product> getAllProducts() {
         List<Product> products = productRepository.findAll();
         return products;
+    }
+
+    public void addProductImage(Long productId, String imageUrl) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+
+        product.getImages().add(imageUrl);
+        productRepository.save(product);
     }
 }

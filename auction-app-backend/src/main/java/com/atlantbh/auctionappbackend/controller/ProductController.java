@@ -79,10 +79,10 @@ public class ProductController {
     }
 
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("id") Long id, HttpServletRequest request) {
+    @GetMapping(path = "/{productId}")
+    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(productService.getProductById(id, request));
+            return ResponseEntity.ok(productService.getProductById(productId, request));
         } catch (ProductNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

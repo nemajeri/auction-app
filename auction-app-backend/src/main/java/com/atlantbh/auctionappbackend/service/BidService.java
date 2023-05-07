@@ -18,7 +18,6 @@ import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

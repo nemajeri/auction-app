@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
@@ -106,10 +108,10 @@ public class ProductServiceTest {
         String jwt = "jwt-token";
 
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(tokenService.getJwtFromHeader(null)).thenReturn(jwt);
+        Mockito.when(tokenService.getJwtFromCookie(any(HttpServletRequest.class))).thenReturn(jwt);
         Mockito.when(tokenService.validateToken(jwt)).thenReturn(false);
 
-        SingleProductResponse actualProductDTO = underTest.getProductById(id, null);
+        SingleProductResponse actualProductDTO = underTest.getProductById(id, any(HttpServletRequest.class));
 
         assertEquals(expectedProduct, actualProductDTO);
     }

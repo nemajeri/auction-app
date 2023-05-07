@@ -21,9 +21,9 @@ public class S3Service {
     @Value("${app.s3.bucket}")
     private String bucketName;
 
-    public String uploadFile(MultipartFile file) {
+    public String uploadFile(MultipartFile file, String s3KeyPrefix) {
         File fileObj = convertMultiPartFileToFile(file);
-        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         s3client.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
         fileObj.delete();
         return s3client.getUrl(bucketName, fileName).toString();
