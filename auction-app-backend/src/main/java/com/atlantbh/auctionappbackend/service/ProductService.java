@@ -1,14 +1,11 @@
 package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
+import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.exception.ImageIndexNotFoundException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
-import com.atlantbh.auctionappbackend.model.AppUser;
-import com.atlantbh.auctionappbackend.model.Category;
-import com.atlantbh.auctionappbackend.model.Product;
-import com.atlantbh.auctionappbackend.repository.AppUserRepository;
-import com.atlantbh.auctionappbackend.repository.CategoryRepository;
-import com.atlantbh.auctionappbackend.repository.ProductRepository;
+import com.atlantbh.auctionappbackend.model.*;
+import com.atlantbh.auctionappbackend.repository.*;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
@@ -21,16 +18,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletRequest;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 
+import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
 
@@ -45,6 +43,12 @@ public class ProductService {
     private final AppUserRepository appUserRepository;
 
     private final CategoryRepository categoryRepository;
+
+    private final SubcategoryRepository subcategoryRepository;
+
+    private final ImageRepository imageRepository;
+
+    private final S3Service s3Service;
 
 
     public String getSuggestion(String query) {
@@ -95,24 +99,40 @@ public class ProductService {
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
     }
 
-    public Product createProduct(NewProductRequest request, HttpServletRequest httpServletRequest) {
+    public void createProduct(NewProductRequest request, List<MultipartFile> images, HttpServletRequest httpServletRequest) {
         String token = tokenService.getJwtFromCookie(httpServletRequest);
         String email = tokenService.getClaimFromToken(token, "sub");
 
         Optional<AppUser> user = appUserRepository.getByEmail(email);
         AppUser appUser = user.get();
-        Product product = new Product();
-        product.setProductName(request.getProductName());
-        product.setDescription(request.getDescription());
-        product.setStartPrice(Float.parseFloat(request.getStartPrice()));
-        product.setStartDate(LocalDateTime.ofInstant(request.getStartDate().toInstant(), ZoneId.systemDefault()));
-        product.setEndDate(LocalDateTime.ofInstant(request.getEndDate().toInstant(), ZoneId.systemDefault()));
-        product.setUser(appUser);
+        Product product = Product.builder()
+                .productName(request.getProductName())
+                .description(request.getDescription())
+                .startPrice(Float.parseFloat(request.getStartPrice()))
+                .startDate(LocalDateTime.ofInstant(request.getStartDate().toInstant(), ZoneId.systemDefault()))
+                .endDate(LocalDateTime.ofInstant(request.getEndDate().toInstant(), ZoneId.systemDefault()))
+                .city(request.getCity())
+                .zipCode(request.getZipCode())
+                .country(request.getCountry())
+                .phone(request.getPhone())
+                .user(appUser)
+                .build();
 
-        Category category = categoryRepository.findById(Long.parseLong(request.getCategoryId())).orElseThrow(() -> new NoSuchElementException("Category not found."));
+        Category category = categoryRepository.findById(Long.parseLong(request.getCategoryId())).orElseThrow(() -> new CategoryNotFoundException("Category not found."));
         product.setCategory(category);
 
-        return productRepository.save(product);
+        Subcategory subcategory = subcategoryRepository.findById(Long.parseLong(request.getCategoryId())).orElseThrow(() -> new CategoryNotFoundException("Category not found."));
+        product.setSubcategory(subcategory);
+
+        Product savedProduct = productRepository.save(product);
+
+        for (MultipartFile image : images) {
+            String imageUrl = s3Service.uploadFile(image, S3_KEY_PREFIX + savedProduct.getId() + "/");
+            Image img = new Image();
+            img.setImageUrl(imageUrl);
+            img.setProduct(savedProduct);
+            imageRepository.save(img);
+        }
     }
 
     public Page<ProductsResponse> getNewProducts(int pageNumber, int size) {
@@ -159,13 +179,5 @@ public class ProductService {
     public List<Product> getAllProducts() {
         List<Product> products = productRepository.findAll();
         return products;
-    }
-
-    public void addProductImage(Long productId, String imageUrl) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-
-        product.getImages().add(imageUrl);
-        productRepository.save(product);
     }
 }

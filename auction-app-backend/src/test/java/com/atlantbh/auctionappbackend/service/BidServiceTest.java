@@ -66,7 +66,7 @@ public class BidServiceTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
         String jwt = "jwt-token";
-        when(tokenService.getJwtFromHeader(request)).thenReturn(jwt);
+        when(tokenService.getJwtFromCookie(request)).thenReturn(jwt);
         when(tokenService.validateToken(jwt)).thenReturn(true);
         when(tokenService.getClaimFromToken(jwt, "sub")).thenReturn("user@example.com");
 

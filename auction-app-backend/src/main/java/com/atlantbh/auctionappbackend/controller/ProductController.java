@@ -11,17 +11,19 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 
 @RestController
@@ -49,7 +51,7 @@ public class ProductController {
             productsList = productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId);
             return ResponseEntity.ok(productsList);
         } catch (CategoryNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(BAD_REQUEST).body(null);
         }
     }
 
@@ -62,19 +64,22 @@ public class ProductController {
         return new ResponseEntity<>(products, OK);
     }
 
-    @PostMapping(path = "/add-item")
-    public ResponseEntity<?> addNewItem(@Valid @RequestBody NewProductRequest request, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+    @PostMapping(path = "/add-item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
+                                        @RequestPart("images") List<MultipartFile> images,
+                                        BindingResult bindingResult,
+                                        HttpServletRequest httpServletRequest) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+            return ResponseEntity.status(BAD_REQUEST).body(errors);
         }
 
         try {
-            Product savedProduct = productService.createProduct(request, httpServletRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+            productService.createProduct(request, images, httpServletRequest);
+            return new ResponseEntity<>(CREATED);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating product: " + e.getMessage());
+            return new ResponseEntity<>("Error creating product: " + e.getMessage(),BAD_REQUEST);
         }
     }
 
