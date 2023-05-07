@@ -16,7 +16,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     List<Bid> findAllByUserId(Long userId, Sort sort);
 
     @Query("SELECT MAX(b.price) FROM Bid b WHERE b.user.id = :userId AND b.product.id = :productId")
-    Optional<Float> getMaxBidFromPersonForProduct(@Param("userId") Long userId, @Param("productId") Long productId);
+    Optional<Float> getMaxBidFromUserForProduct(@Param("userId") Long userId, @Param("productId") Long productId);
 
 }
 
