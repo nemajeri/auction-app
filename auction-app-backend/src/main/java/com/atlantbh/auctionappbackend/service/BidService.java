@@ -90,7 +90,7 @@ public class BidService {
             throw new BadRequestException("You can't bid on your own product");
         }
 
-        Optional<Float> usersMaxBidForProductOpt = bidRepository.getMaxBidFromPersonForProduct(appUser.getId(), product.getId());
+        Optional<Float> usersMaxBidForProductOpt = bidRepository.getMaxBidFromUserForProduct(appUser.getId(), product.getId());
         if (usersMaxBidForProductOpt.isPresent() && usersMaxBidForProductOpt.get() >= 0) {
             float usersMaxBidForProduct = usersMaxBidForProductOpt.get();
             if (amount <= usersMaxBidForProduct) {
