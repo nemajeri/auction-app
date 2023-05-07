@@ -15,7 +15,6 @@ const PhoneNumberField = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        defaultValue={value}
       />
       <div className='form-field__phone-number--verfication_status'>
         Not verified

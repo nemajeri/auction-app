@@ -64,7 +64,7 @@ const SellPage = () => {
     label: subcategory.subCategoryName,
     value: subcategory.id,
   }));
-
+  const [images, setImages] = useState([]);
   const [productDetails, setProductDetails] = useState({
     productName: '',
     description: '',
@@ -76,7 +76,7 @@ const SellPage = () => {
     address: user?.address || '',
     city: user?.city || '',
     zipCode: user?.zipCode || '',
-    country: 'usa' || '',
+    country: user?.country || '',
     phone: user?.phone || '',
   });
 
@@ -103,6 +103,8 @@ const SellPage = () => {
             subcategoryOptions={subcategoryOptions}
             updateSubcategories={updateSubcategories}
             initialValues={productDetails}
+            setImages={setImages}
+            images={images}
           />
         );
       case 2:
@@ -166,7 +168,7 @@ const SellPage = () => {
     if (hasErrors) {
       setErrors(errors);
     } else {
-      addNewItemForAuction(productDetails, setShowModal);
+      addNewItemForAuction(productDetails, images, setShowModal);
     }
   };
 

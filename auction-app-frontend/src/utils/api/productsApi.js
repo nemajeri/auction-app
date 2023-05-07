@@ -65,9 +65,20 @@ export const getProductsForUser = (userId, type) => {
   });
 };
 
-export const addNewItemForAuction = async (formData, setShowModal) => {
+export const addNewItemForAuction = async (productDetails, images, setShowModal) => {
   try {
-    const response = await AuthAPI.post('/products/add-item', formData);
+    const formData = new FormData();
+
+    const productDetailsBlob = new Blob([JSON.stringify(productDetails)], { type: 'application/json' });
+    formData.append('productDetails', productDetailsBlob);
+
+    images.forEach((image, index) => {
+      formData.append(`images`, image, image.name);
+    });
+
+    const response = await AuthAPI.post('/products/add-item', formData, {
+      headers: { 'Content-Type': undefined },
+    });
 
     if (response.status === 201) {
       console.log('Product created:', response.data);

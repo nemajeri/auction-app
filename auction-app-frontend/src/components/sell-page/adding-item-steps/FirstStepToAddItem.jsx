@@ -14,9 +14,10 @@ const FirstStepToAddItem = ({
   categoryOptions,
   subcategoryOptions,
   updateSubcategories,
-  initialValues
+  initialValues,
+  setImages,
+  images
 }) => {
-
   const fields = getStep1Fields(categoryOptions, subcategoryOptions);
 
   return (
@@ -28,13 +29,15 @@ const FirstStepToAddItem = ({
         errors={errors}
         setErrors={setErrors}
         fields={fields}
-        onFormStateChange={(newState) => setProductDetails({ ...initialValues, ...newState })}
+        onFormStateChange={(newState) =>
+          setProductDetails({ ...initialValues, ...newState })
+        }
         updateSubcategories={updateSubcategories}
         initialValues={initialValues}
       >
         <div className='shared-form-style__align--text_right'>
           <p>100 words (700 characters)</p>
-          <Dropzone />
+          <Dropzone Dropzone onDrop={(acceptedFiles) => setImages([...images, ...acceptedFiles])} />
           <div className='shared-form-style__btns'>
             <Link to={sellerPath}>
               <Button className={'shared-form-style__btn cancel-btn__long'}>

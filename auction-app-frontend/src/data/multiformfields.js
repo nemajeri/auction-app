@@ -100,7 +100,7 @@ export const getStep3Fields = () => [
         type: 'text',
         placeholder: 'XXXXXXX',
         validation: (value) => ZIP_CODE_VALIDATOR.test(value),
-        errorMessage: 'Please enter the valid zip code.',
+        errorMessage: 'Enter the valid zip code.',
       },
     ],
   },

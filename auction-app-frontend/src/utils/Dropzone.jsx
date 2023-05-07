@@ -1,16 +1,7 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { useDropzone } from 'react-dropzone';
-import { uploadImages } from './api/fileApi';
 
-const Dropzone = () => {
-  const onDrop = useCallback(async (acceptedFiles) => {
-    const formData = new FormData();
-    acceptedFiles.forEach((file) => {
-      formData.append('file', file);
-    });
-
-    uploadImages(formData);
-  }, []);
+const Dropzone = ({ onDrop }) => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
