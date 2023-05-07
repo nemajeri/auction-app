@@ -7,16 +7,13 @@ import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
-import com.atlantbh.auctionappbackend.service.TokenService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,8 +30,6 @@ import static org.springframework.http.HttpStatus.OK;
 public class ProductController {
 
     private final ProductService productService;
-
-    private final TokenService tokenService;
 
     @GetMapping("/search-suggestions")
     public ResponseEntity<String> searchSuggestions(@RequestParam("query") String query) {
@@ -74,15 +69,15 @@ public class ProductController {
             bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
-        String token = tokenService.getJwtFromHeader(httpServletRequest);
-        String email = tokenService.getClaimFromToken(token, "sub");
+
         try {
-            Product savedProduct = productService.createProduct(request, email);
+            Product savedProduct = productService.createProduct(request, httpServletRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating product: " + e.getMessage());
         }
     }
+
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("id") Long id, HttpServletRequest request) {
@@ -94,11 +89,11 @@ public class ProductController {
     }
 
     @GetMapping("/filtered-products")
-    public ResponseEntity<Page<ProductDTO>> getFilteredProducts(
+    public ResponseEntity<Page<ProductsResponse>> getFilteredProducts(
             @RequestParam String filter,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "8") int size) {
-        Page<ProductDTO> productDTOs;
+        Page<ProductsResponse> productDTOs;
         switch (filter) {
             case "new-arrival" -> productDTOs = productService.getNewProducts(pageNumber, size);
             case "last-chance" -> productDTOs = productService.getLastProducts(pageNumber, size);
@@ -110,8 +105,8 @@ public class ProductController {
     }
 
     @GetMapping("/all-products")
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        List<ProductDTO> productDTOs = productService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> productDTOs = productService.getAllProducts();
         return ResponseEntity.ok(productDTOs);
     }
 }

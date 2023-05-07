@@ -1,9 +1,7 @@
 package com.atlantbh.auctionappbackend.service;
 
-import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
-import com.atlantbh.auctionappbackend.mapper.ProductMapper;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.model.Product;
@@ -30,7 +28,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
@@ -40,8 +38,6 @@ import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculatio
 public class ProductService {
 
     private final ProductRepository productRepository;
-
-    private final ProductMapper productMapper;
 
     private final TokenService tokenService;
 
@@ -98,8 +94,11 @@ public class ProductService {
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
     }
 
-    public Product createProduct(NewProductRequest request, String email) {
-        Optional<AppUser> user =  appUserRepository.getByEmail(email);
+    public Product createProduct(NewProductRequest request, HttpServletRequest httpServletRequest) {
+        String token = tokenService.getJwtFromCookie(httpServletRequest);
+        String email = tokenService.getClaimFromToken(token, "sub");
+
+        Optional<AppUser> user = appUserRepository.getByEmail(email);
         AppUser appUser = user.get();
         Product product = new Product();
         product.setProductName(request.getProductName());
@@ -115,10 +114,10 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Page<ProductDTO> getNewProducts(int pageNumber, int size) {
+    public Page<ProductsResponse> getNewProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getNewArrivalsProducts(pageable);
-        return products.map(productMapper::toProductDTO);
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
     }
 
 
@@ -127,7 +126,7 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
         boolean isOwner = false;
-        String jwt = tokenService.getJwtFromHeader(request);
+        String jwt = tokenService.getJwtFromCookie(request);
 
         if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
             String email = tokenService.getClaimFromToken(jwt, "sub");
@@ -150,20 +149,14 @@ public class ProductService {
         return response;
     }
 
-    public Page<ProductDTO> getLastProducts(int pageNumber, int size) {
+    public Page<ProductsResponse> getLastProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getLastChanceProducts(pageable);
-        return products.map(productMapper::toProductDTO);
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
     }
 
-    public List<ProductDTO> getAllProducts() {
+    public List<Product> getAllProducts() {
         List<Product> products = productRepository.findAll();
-        return mapToProductDTOList(products);
-    }
-
-    private List<ProductDTO> mapToProductDTOList(List<Product> products) {
-        return products.stream()
-                .map(productMapper::toProductDTO)
-                .collect(Collectors.toList());
+        return products;
     }
 }

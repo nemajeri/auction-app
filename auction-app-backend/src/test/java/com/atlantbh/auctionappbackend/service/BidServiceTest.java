@@ -83,7 +83,7 @@ public class BidServiceTest {
         });
         when(bidRepository.findAll()).thenReturn(createdBids);
 
-        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount(), request);
+        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount());
 
         List<Bid> bidList = bidRepository.findAll();
         assertEquals(1, bidList.size());

@@ -42,7 +42,7 @@ public class NewProductRequest {
     private String country;
 
     @NotBlank(message = "Phone is required")
-    @Pattern(regexp = "\\d{10,15}", message = "Phone number must be between 10 and 15 digits")
+    @Pattern(regexp = "\\+\\d{10,15}", message = "Phone number must be between 10 and 15 digits")
     private String phone;
 
 }

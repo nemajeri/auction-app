@@ -54,13 +54,12 @@ public class AuthService {
 
         String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
-        AppUser userToCreate = new AppUser(
-                null,
-                registerRequest.getFirstName(),
-                registerRequest.getLastName(),
-                registerRequest.getEmail(),
-                encodedPassword
-        );
+        AppUser userToCreate = AppUser.builder()
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
+                .email(registerRequest.getEmail())
+                .password(encodedPassword)
+                .build();
 
         appUserRepository.save(userToCreate);
     }

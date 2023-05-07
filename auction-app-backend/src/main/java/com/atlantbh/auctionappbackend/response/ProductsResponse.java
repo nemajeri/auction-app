@@ -9,8 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductsResponse {
     private Long id;
+
     private String productName;
+
     private float startPrice;
+
     private String images;
+
     private Long categoryId;
 }

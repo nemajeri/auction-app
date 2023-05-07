@@ -1,12 +1,14 @@
 package com.atlantbh.auctionappbackend.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class AppUserResponse {
 
     private Long id;
@@ -24,4 +26,6 @@ public class AppUserResponse {
     private String country;
 
     private String phone;
+
+    private String address;
 }

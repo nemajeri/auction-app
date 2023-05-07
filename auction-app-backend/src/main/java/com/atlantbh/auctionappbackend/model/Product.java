@@ -43,7 +43,7 @@ public class Product {
     private int numberOfBids;
 
     @Formula("(SELECT b.price FROM auction_app_schema.bid b WHERE b.product_id = id ORDER BY b.price DESC LIMIT 1)")
-    private float highestBid;
+    private Float highestBid;
 
     @Column(name = "is_highlighted", nullable = false)
     private boolean isHighlighted;
@@ -75,11 +75,18 @@ public class Product {
     @Column(name = "phone")
     private String phone;
 
-    public Float getCurrentMaxBid() {
-        if (numberOfBids == 0) {
-            return startPrice;
+    public Float getHighestBid() {
+        if (highestBid == null && numberOfBids == 0) {
+            return this.startPrice;
         }
-        return highestBid;
+        return this.highestBid;
+    }
+
+    public int getNumberOfBids() {
+        if (highestBid == null && numberOfBids == 0) {
+            return 0;
+        }
+        return this.numberOfBids;
     }
 
     public boolean isOwner(String email) {

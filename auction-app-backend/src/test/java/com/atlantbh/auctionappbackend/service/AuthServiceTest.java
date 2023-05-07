@@ -70,13 +70,18 @@ public class AuthServiceTest {
     public void testLogin() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
-        LoginRequest loginRequest = new LoginRequest("john.doe@example.com", passwordEncoder.encode("password123"));
+        LoginRequest loginRequest = new LoginRequest("john.doe@example.com", passwordEncoder.encode("password123"), true);
         AppUser appUser = new AppUser(
                 1L,
                 "John",
                 "Doe",
                 "john.doe@example.com",
-                passwordEncoder.encode("password123")
+                passwordEncoder.encode("password123"),
+                null,
+                null,
+                null,
+                null,
+                null
         );
 
         when(appUserRepository.getByEmail(loginRequest.getEmail())).thenReturn(Optional.of(appUser));

@@ -83,7 +83,7 @@ public class AuthControllerTest {
         String password = encodePassword("12345");
 
         LoginRequest request = new LoginRequest(
-                "john@gmail.com", password
+                "john@gmail.com", password, true
         );
 
         Cookie expectedCookie = new Cookie("jwt-token", "a1b2");

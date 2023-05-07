@@ -69,7 +69,7 @@ public class BidService {
 
 
     private void validateBidAmount(Product product, float amount, AppUser appUser) {
-        float currentMaxBid = product.getCurrentMaxBid();
+        float currentMaxBid = product.getHighestBid();
 
         if (amount <= 0) {
             throw new BidAmountException("Bid can't be 0 or under that value");

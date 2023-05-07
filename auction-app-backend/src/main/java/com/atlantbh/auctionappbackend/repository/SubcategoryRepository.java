@@ -1,6 +1,5 @@
 package com.atlantbh.auctionappbackend.repository;
 
-import com.atlantbh.auctionappbackend.dto.SubcategoryDTO;
 import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.model.Subcategory;
 import org.springframework.data.jpa.repository.JpaRepository;
