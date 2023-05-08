@@ -2,7 +2,6 @@ package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
-import com.atlantbh.auctionappbackend.exception.ImageIndexNotFoundException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.*;
 import com.atlantbh.auctionappbackend.repository.*;

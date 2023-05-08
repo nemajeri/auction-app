@@ -9,7 +9,6 @@ import { getProduct } from '../../utils/api/productsApi';
 import { updateBid } from '../../utils/api/bidApi';
 import {
   calculateTimeLeft,
-  getJwtFromCookie,
 } from '../../utils/helperFunctions';
 import './productOverviewPage.css';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
@@ -36,8 +35,7 @@ const ProductOverviewPage = () => {
 
   useEffect(() => {
     try {
-      const jwtToken = getJwtFromCookie();
-      getProduct(id, jwtToken).then((response) => {
+      getProduct(id).then((response) => {
         setProduct(response.data);
         setImages(response.data.images);
         setTimeLeft(calculateTimeLeft(response.data));
@@ -63,7 +61,7 @@ const ProductOverviewPage = () => {
     e.preventDefault();
     try {
       await updateBid(id, bidAmount);
-      const updatedProduct = await getProduct(id, getJwtFromCookie());
+      const updatedProduct = await getProduct(id);
       setProduct(updatedProduct.data);
   
       setPopOut({

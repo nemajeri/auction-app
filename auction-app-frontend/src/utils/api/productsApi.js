@@ -7,11 +7,7 @@ export const getProducts = () => {
 };
 
 export const getProduct = (id, token) => {
-  return API.get(`/products/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return AuthAPI.get(`/products/${id}`);
 };
 
 export const getAllProducts = (
