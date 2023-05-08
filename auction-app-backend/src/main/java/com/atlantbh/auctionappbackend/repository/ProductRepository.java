@@ -36,5 +36,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     List<Product> findAllProductsByUserIdAndEndDateIsAfter(Long userId, LocalDateTime time, Sort sort);
 
     List<Product> findAllProductsByUserIdAndEndDateIsBefore(Long userId, LocalDateTime time, Sort sort);
+
+    @Query("SELECT p FROM Product p " +
+            "JOIN Bid b ON p.id = b.product.id " +
+            "WHERE b.user.id = :userId " +
+            "GROUP BY p.id " +
+            "HAVING COUNT(b) > 0 " +
+            "ORDER BY COUNT(b) DESC, MAX(b.bidDate) DESC")
+    Page<Product> findRecommendedProducts(@Param("userId") Long userId, Pageable pageable);
 }
 
