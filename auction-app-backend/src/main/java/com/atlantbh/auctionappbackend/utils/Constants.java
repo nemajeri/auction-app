@@ -15,8 +15,10 @@ public final class Constants {
     public static final String[] AUTH_SECURED_ENDPOINTS = {
             "/api/v1/bid/app-user",
             "/api/v1/bid/create-bid",
+            "/api/v1/highest-bidder/",
             "/api/v1/products/items/app-user",
             "/api/v1/products/add-item",
+            "/api/v1/app-user/by-email",
     };
 
     public static final String S3_KEY_PREFIX = "product-images/";

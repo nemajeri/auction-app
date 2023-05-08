@@ -114,24 +114,28 @@ const LandingPage = () => {
             <HighlightedProduct highlightedProduct={highlightedProducts[0]} />
           )}
         </section>
-        <Tabs
-          tabs={[
-            {
-              id: 'recommendedProducts',
-              label: 'Recommended Products',
-              filter: 'recommended-products',
-            },
-          ]}
-          disableClick
-          labelClassName='landing-page__recommended--products_tab'
-        />
-        <GridViewRecommendedProducts
-          products={recommendedProducts}
-          fetchNextPage={fetchNextPage}
-          hasMore={hasMore}
-          loading={loading}
-          className={'landing-page__recommended-products_grid-view'}
-        />
+        {user && (
+          <>
+            <Tabs
+              tabs={[
+                {
+                  id: 'recommendedProducts',
+                  label: 'Recommended Products',
+                  filter: 'recommended-products',
+                },
+              ]}
+              disableClick
+              labelClassName='landing-page__recommended--products_tab'
+            />
+            <GridViewRecommendedProducts
+              products={recommendedProducts}
+              fetchNextPage={fetchNextPage}
+              hasMore={hasMore}
+              loading={loading}
+              className={'landing-page__recommended-products_grid-view'}
+            />
+          </>
+        )}
         <Tabs
           selectedTab={selectedTab}
           handleTabClick={handleTabClick}

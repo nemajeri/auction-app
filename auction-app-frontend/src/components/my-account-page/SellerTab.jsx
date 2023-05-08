@@ -67,11 +67,11 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
               <td className={bodyClassNames[2]}>
                 {hoursDiff(product.endDate)} h
               </td>
-              <td className={bodyClassNames[3]}>$ {product.startPrice}</td>
+              <td className={bodyClassNames[3]}>$ {product.startPrice.toFixed(2)}</td>
               <td className={bodyClassNames[4]}>{product.numberOfBids}</td>
               <td className={bodyClassNames[5]}>
                 {product.highestBid !== null
-                  ? '$ ' + product.highestBid
+                  ? '$ ' + product.highestBid.toFixed(2)
                   : 'No bids'}
               </td>
               <td>

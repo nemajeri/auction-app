@@ -6,7 +6,7 @@ export const getProducts = () => {
   return API.get('/products');
 };
 
-export const getProduct = (id, token) => {
+export const getProduct = (id) => {
   return AuthAPI.get(`/products/${id}`);
 };
 

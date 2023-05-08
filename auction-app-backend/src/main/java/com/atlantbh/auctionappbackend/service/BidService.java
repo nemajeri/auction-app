@@ -34,8 +34,6 @@ public class BidService {
 
     private final AppUserRepository appUserRepository;
 
-    private final TokenService tokenService;
-
     public List<Bid> getBidsForAppUser(Long userId) {
         List<Bid> bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, "bidDate"));
         if (bids.isEmpty()) {
@@ -43,6 +41,13 @@ public class BidService {
         }
         return bids;
     }
+
+    public Float getHighestBidder(Long userId, Long productId) {
+        Optional<Float> highestBidOpt = bidRepository.getMaxBidFromUserForProduct(userId, productId);
+        Float highestBidForUser = highestBidOpt.orElse(0f);
+        return highestBidForUser;
+    }
+
 
 
     @Transactional

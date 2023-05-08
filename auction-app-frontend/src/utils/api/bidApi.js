@@ -21,3 +21,13 @@ export const updateBid = (id, bidAmount) => {
     amount: bidAmount,
   });
 };
+
+export const getHighestBidForUserAndProduct = (userId, productId) => {
+  const jwtToken = getJwtFromCookie('auction_app_token');
+  if (!jwtToken) {
+    return;
+  }
+
+  return AuthAPI.get(`/bid/app-user/highest-bidder?userId=${userId}&productId=${productId}`);
+};
+

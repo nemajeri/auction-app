@@ -61,6 +61,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Stripe -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>20.108.0</version>
+        </dependency>
+
         <!-- Amazon -->
         <dependency>
             <groupId>com.amazonaws</groupId>

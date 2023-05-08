@@ -45,7 +45,7 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
               <td className={bodyClassNames[2]}>
                 {hoursDiff(bid.product.endDate)} h
               </td>
-              <td className={bodyClassNames[3]}>$ {bid.price}</td>
+              <td className={bodyClassNames[3]}>$ {bid.price.toFixed(2)}</td>
               <td className={bodyClassNames[4]}>{bid.product.numberOfBids}</td>
               <td
                 className={`${bodyClassNames[5]} ${
@@ -55,12 +55,18 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
                 }`}
               >
                 {bid.product.highestBid !== null
-                  ? '$ ' + bid.product.highestBid
+                  ? '$ ' + bid.product.highestBid.toFixed(2)
                   : 'No bids'}
               </td>
               <td>
                 <Link to={shopPagePathToProduct.replace(':id', bid.product.id)}>
-                  <Button className={'auction-table__button'}>BID</Button>
+                  <Button className={'auction-table__button'}>
+                    {hoursDiff(bid.product.endDate) === 0 &&
+                    !bid.product.sold &&
+                    bid.product.highestBid === bid.price
+                      ? 'BUY'
+                      : 'VIEW'}
+                  </Button>
                 </Link>
               </td>
             </tr>
