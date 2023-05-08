@@ -13,7 +13,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "api/v1/app-user")
+@RequestMapping(path = "/api/v1/app-user")
 public class AppUserController {
 
     private final AppUserService appUserService;

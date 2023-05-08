@@ -4,7 +4,6 @@ import {
   PASSWORD_LENGTH,
   NAME_VALIDATOR,
   FORM_TYPES,
-  COOKIE_PREFIX
 } from './constants';
 import Cookies from "js-cookie";
 
@@ -27,7 +26,7 @@ export const calculateTimeLeft = (product) => {
   if (differenceInWeeks >= 0 && differenceInDays >= 0) {
     return `${differenceInWeeks} weeks ${remainingDays} days`;
   }
-  return;
+  return 'Auction ended';
 };
 
 export const getJwtFromCookie = () => {

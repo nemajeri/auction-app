@@ -8,6 +8,7 @@ import navlinks from '../../data/navlinks.json';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../utils/AppContextProvider';
 import { loginPath, registrationPath } from '../../utils/paths';
+import { logoutUser } from '../../utils/api/authApi.js';
 
 const Navbar = () => {
   const {
@@ -22,6 +23,7 @@ const Navbar = () => {
     setProducts,
     user,
     setIsClearButtonPressed,
+    setUser,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
@@ -30,6 +32,16 @@ const Navbar = () => {
   useEffect(() => {
     setActiveLink(pathname.replace('/', '') || 'home');
   }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      setUser(null);
+      navigate('/login');
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -45,8 +57,13 @@ const Navbar = () => {
               <Link to={registrationPath}>Create an Account</Link>
             </div>
           ) : (
-            <div>
-              <p>Hi, {user.firstName}{" "}{user.lastName}</p>
+            <div className='navbar__active-account'>
+              <p>
+                Hi, {user.firstName} {user.lastName}
+              </p>
+              <p className='logout-link' onClick={handleLogout}>
+                Log Out
+              </p>
             </div>
           )}
         </div>

@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = tokenService.getJwtFromCookie(request);
 
             if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
-                String email = tokenService.getClaimFromToken(jwt, "email");
+                String email = tokenService.getClaimFromToken(jwt, "sub");
                 String firstName = tokenService.getClaimFromToken(jwt, "firstName");
                 String lastName = tokenService.getClaimFromToken(jwt, "lastName");
 

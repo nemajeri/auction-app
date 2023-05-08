@@ -7,10 +7,11 @@ const Button = ({
   Icon,
   iconClassName,
   SocialMediaIcon,
-  socialMediaClassName
+  socialMediaClassName,
+  isOwner
 }) => {
   return (
-    <button onClick={onClick} className={className}>
+    <button onClick={onClick} className={className} disabled={isOwner}>
       <span>
         {SocialMediaIcon && <SocialMediaIcon className={socialMediaClassName}/>}
         <p>{children}</p>

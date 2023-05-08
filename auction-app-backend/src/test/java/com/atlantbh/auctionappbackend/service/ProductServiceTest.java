@@ -3,11 +3,12 @@ package com.atlantbh.auctionappbackend.service;
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.mapper.ProductMapper;
+import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
-import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
+import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,13 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,10 +36,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ProductServiceTest {
 
     @Mock
+    TokenService tokenService;
+
+    @Mock
     private ProductRepository productRepository;
 
     @Mock
     private ProductMapper productMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private ProductService underTest;
@@ -49,9 +55,11 @@ public class ProductServiceTest {
     void testGetAllFilteredProducts() {
         List<Product> products = new ArrayList<>();
         Category category1 = new Category(1L, "Women");
+        String encodedPassword = passwordEncoder.encode("12345");
+        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword);
 
-        products.add(new Product(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1));
-        products.add(new Product(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1));
+        products.add(new Product(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, appUser));
+        products.add(new Product(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, appUser));
 
         int pageNumber = 0;
         int pageSize = 9;
@@ -78,16 +86,32 @@ public class ProductServiceTest {
         Long id = 1L;
 
         Category category2 = new Category(2L, "Men");
+        String encodedPassword = passwordEncoder.encode("12345");
+        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword);
 
-        Product product = new Product(id, "Shoes Collection", "New shoes collection", 10.00f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,true ,category2);
-        ProductDTO expectedProductDTO = new ProductDTO(id, "Shoes Collection", "New shoes collection", 10.00f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25,2L, "Men" ,false);
+        Product product = new Product(id, "Shoes Collection", "New shoes collection", 10.00f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 3, 23, 0, 0), 5, 25.00f,true ,category2, appUser);
+        SingleProductResponse expectedProduct = new SingleProductResponse(
+                1L,
+                "Shoes Collection",
+                "New shoes collection",
+                10.00f,
+                Collections.singletonList("/images/shoe-4.jpg"),
+                LocalDateTime.of(2023, 3, 23, 0, 0),
+                LocalDateTime.of(2023, 3, 23, 0, 0),
+                5,
+                25.00f,
+                false
+        );
+
+        String jwt = "jwt-token";
 
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productMapper.toProductDTO(product)).thenReturn(expectedProductDTO);
+        Mockito.when(tokenService.getJwtFromHeader(null)).thenReturn(jwt);
+        Mockito.when(tokenService.validateToken(jwt)).thenReturn(false);
 
-        ProductDTO actualProductDTO = underTest.getProductById(id);
+        SingleProductResponse actualProductDTO = underTest.getProductById(id, null);
 
-        assertEquals(expectedProductDTO, actualProductDTO);
+        assertEquals(expectedProduct, actualProductDTO);
     }
 
     @Test
@@ -96,9 +120,11 @@ public class ProductServiceTest {
         List<Product> products = new ArrayList<>();
 
         Category category1 = new Category(1L, "Women");
+        String encodedPassword = passwordEncoder.encode("12345");
+        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword);
 
-        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1));
-        products.add(new Product(2L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1));
+        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1, appUser));
+        products.add(new Product(2L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f,false, category1, appUser));
 
 
         int pageNumber = 0;
@@ -124,9 +150,11 @@ public class ProductServiceTest {
         List<Product> products = new ArrayList<>();
 
         Category category2 = new Category(2L, "Men");
+        String encodedPassword = passwordEncoder.encode("12345");
+        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword);
 
-        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, true, category2));
-        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category2));
+        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, true, category2, appUser));
+        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category2, appUser));
 
         int pageNumber = 0;
         int size = 2;
@@ -151,9 +179,11 @@ public class ProductServiceTest {
         List<Product> products = new ArrayList<>();
 
         Category category1 = new Category(1L, "Women");
+        String encodedPassword = passwordEncoder.encode("12345");
+        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword);
 
-        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0),5,35.00f,true, category1));
-        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1));
+        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0),5,35.00f,true, category1, appUser));
+        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, appUser));
         Mockito.when(productRepository.findAll()).thenReturn(products);
 
         products.forEach(product -> Mockito.when(productMapper.toProductDTO(product)).thenReturn(createProductDTOFromProduct(product)));

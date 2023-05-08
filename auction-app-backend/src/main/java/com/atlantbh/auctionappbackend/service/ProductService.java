@@ -7,17 +7,20 @@ import com.atlantbh.auctionappbackend.mapper.ProductMapper;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
+import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 
 import java.time.LocalDateTime;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,12 +28,14 @@ import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculatio
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
 
     private final ProductMapper productMapper;
+
+    private final TokenService tokenService;
 
 
     public String getSuggestion(String query) {
@@ -88,11 +93,32 @@ public class ProductService {
     }
 
 
-    public ProductDTO getProductById(Long id) throws ProductNotFoundException {
+    public SingleProductResponse getProductById(Long id, HttpServletRequest request) throws ProductNotFoundException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
-        return productMapper.toProductDTO(product);
+        boolean isOwner = false;
+        String jwt = tokenService.getJwtFromHeader(request);
+
+        if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
+            String email = tokenService.getClaimFromToken(jwt, "sub");
+            isOwner = product.isOwner(email);
+        }
+
+        SingleProductResponse response = new SingleProductResponse(
+                product.getId(),
+                product.getProductName(),
+                product.getDescription(),
+                product.getStartPrice(),
+                product.getImages(),
+                product.getStartDate(),
+                product.getEndDate(),
+                product.getNumberOfBids(),
+                product.getHighestBid(),
+                isOwner
+        );
+
+        return response;
     }
 
     public Page<ProductDTO> getLastProducts(int pageNumber, int size) {

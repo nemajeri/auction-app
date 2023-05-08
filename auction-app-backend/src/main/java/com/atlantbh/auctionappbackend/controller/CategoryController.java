@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "api/v1/categories")
+@RequestMapping(path = "/api/v1/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;

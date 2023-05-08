@@ -4,6 +4,7 @@ import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
+import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -21,7 +23,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/v1/products")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -58,9 +60,9 @@ public class ProductController {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable("id") Long id) {
+    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("id") Long id, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(productService.getProductById(id));
+            return ResponseEntity.ok(productService.getProductById(id, request));
         } catch (ProductNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

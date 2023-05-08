@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Button from '../../../utils/Button';
 import Tabs from '../../tabs/Tabs';
 import './productDetails.css';
+import { AppContext } from '../../../utils/AppContextProvider';
 
 const ProductDetails = ({
   tabs,
@@ -9,11 +10,13 @@ const ProductDetails = ({
   selectedTab,
   timeLeft,
   product,
+  isOwner,
+  setBidAmount,
+  bidAmount,
+  onBidButtonClick,
+  isAuctionOver,
 }) => {
-  const handleButtonClicked = () => {
-    console.log('clicked');
-  };
-
+  const { user } = useContext(AppContext);
   return (
     product && (
       <div className='details'>
@@ -32,12 +35,24 @@ const ProductDetails = ({
             Time left: <span>{timeLeft}</span>
           </p>
         </div>
-        <div className='details__bid--placement'>
-          <input type='text' placeholder='Enter 55$ or higher' />
-          <Button onClick={handleButtonClicked} className={'details__button'}>
-            PLACE BID
-          </Button>
-        </div>
+        {user && !isAuctionOver && (
+          <div className='details__bid--placement'>
+            <input
+              type='text'
+              value={bidAmount}
+              placeholder={`Enter ${product.highestBid}$ or higher`}
+              disabled={isOwner}
+              onChange={(e) => setBidAmount(e.target.value)}
+            />
+            <Button
+              onClick={onBidButtonClick}
+              className={'details__button'}
+              isOwner={isOwner}
+            >
+              PLACE BID
+            </Button>
+          </div>
+        )}
         <Tabs
           tabs={tabs}
           handleTabClick={handleTabClick}

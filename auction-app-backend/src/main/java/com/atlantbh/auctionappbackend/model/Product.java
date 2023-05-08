@@ -55,4 +55,16 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
+
+    public Float getCurrentMaxBid() {
+        if (numberOfBids == 0) {
+            return startPrice;
+        }
+        return highestBid;
+    }
+
+    public boolean isOwner(String email) {
+        return this.user.getEmail().equals(email);
+    }
+
 }

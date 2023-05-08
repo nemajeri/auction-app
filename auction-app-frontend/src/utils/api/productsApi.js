@@ -1,11 +1,16 @@
-import { API, LANDING_PAGE_SIZE } from '../constants';
+import { API, AuthAPI, LANDING_PAGE_SIZE } from '../constants';
+import { getJwtFromCookie } from '../helperFunctions';
 
 export const getProducts = () => {
   return API.get('/products');
 };
 
-export const getProduct = (id) => {
-  return API.get(`/products/${id}`);
+export const getProduct = (id, token) => {
+  return API.get(`/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export const getAllProducts = (
@@ -46,7 +51,12 @@ export const getSearchSuggestion = (query) => {
 };
 
 export const getProductsForUser = (userId, type) => {
-  return API.get('/products/items/app-user', {
+  const jwtToken = getJwtFromCookie('auction_app_token');
+  if (!jwtToken) {
+    return;
+  }
+
+  return AuthAPI.get('/products/items/app-user', {
     params: {
       userId: userId,
       type: type,
