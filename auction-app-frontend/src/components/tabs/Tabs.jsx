@@ -9,6 +9,8 @@ const Tabs = ({
   containerClassName,
   tabClassName,
   selectedTabClassName,
+  disableClick,
+  labelClassName,
 }) => {
   return (
     <div className={containerClassName}>
@@ -18,9 +20,9 @@ const Tabs = ({
           className={classNames(tabClassName, {
             [selectedTabClassName]: selectedTab === tab.id,
           })}
-          onClick={() => handleTabClick(tab.id)}
+          onClick={disableClick ? undefined : () => handleTabClick(tab.id)}
         >
-          <h2>{tab.label}</h2>
+          <h2 className={labelClassName}>{tab.label}</h2>
         </div>
       ))}
     </div>

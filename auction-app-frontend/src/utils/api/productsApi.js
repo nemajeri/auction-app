@@ -68,7 +68,7 @@ export const addNewItemForAuction = async (productDetails, images, setShowModal)
     const productDetailsBlob = new Blob([JSON.stringify(productDetails)], { type: 'application/json' });
     formData.append('productDetails', productDetailsBlob);
 
-    images.forEach((image, index) => {
+    images.forEach((image) => {
       formData.append(`images`, image, image.name);
     });
 
@@ -84,5 +84,15 @@ export const addNewItemForAuction = async (productDetails, images, setShowModal)
     }
   } catch (error) {
     console.error('Error creating product:', error.message);
+  }
+};
+
+export const getRecommendedProducts = async (userId) => {
+  try {
+    const response = await API.get(`/products/recommended?userId=${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching recommended products:', error);
+    return [];
   }
 };

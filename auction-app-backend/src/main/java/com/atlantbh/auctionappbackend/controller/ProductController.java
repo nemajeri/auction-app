@@ -55,6 +55,13 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/recommended")
+    public ResponseEntity<List<ProductsResponse>> getRecommendedProducts(@RequestParam("userId") Long userId) {
+        List<ProductsResponse> recommendedProducts = productService.getRecommendedProducts(userId);
+        return new ResponseEntity<>(recommendedProducts, HttpStatus.OK);
+    }
+
+
     @GetMapping("/items/app-user")
     public ResponseEntity<List<Product>> retrieveProductsFromUser(@RequestParam Long userId,
                                                                   @RequestParam String type){

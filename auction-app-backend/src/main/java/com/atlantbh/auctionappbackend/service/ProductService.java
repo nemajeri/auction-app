@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
@@ -85,6 +86,15 @@ public class ProductService {
 
         return userProducts;
     }
+
+    public List<ProductsResponse> getRecommendedProducts(Long userId) {
+        PageRequest pageRequest = PageRequest.of(0, 3);
+        Page<Product> recommendedProducts = productRepository.findRecommendedProducts(userId, pageRequest);
+        return recommendedProducts.stream()
+                .map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()))
+                .collect(Collectors.toList());
+    }
+
 
     public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId) {
         Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));
