@@ -28,12 +28,11 @@ public class AppUser {
     @Column(name = "last_name",length = 50,nullable = false)
     private String lastName;
 
-
-    @Column(name = "email", length = 100 ,nullable = false, unique = true)
+    @Column(length = 100 ,nullable = false, unique = true)
     @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}")
     private String email;
 
-    @Column(name = "password", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
