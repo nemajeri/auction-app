@@ -1,10 +1,16 @@
 import React from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { API } from '../constants';
+import { PAYMENT_CURRENCY, PAYMENT_TYPE } from '../constants';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { makePayment } from '../api/userApi';
+import { useNavigate } from 'react-router-dom';
+import { landingPagePath } from '../paths';
 
 const CheckoutForm = ({ product }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -16,31 +22,42 @@ const CheckoutForm = ({ product }) => {
     const cardElement = elements.getElement(CardElement);
 
     const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
+      type: PAYMENT_TYPE,
       card: cardElement,
     });
 
+
     if (error) {
       console.log('[error]', error);
+      toast.error('Payment failed. Please try again.');
     } else {
       console.log('[PaymentMethod]', paymentMethod);
+      toast.info('Processing payment...');
       try {
-        const response = await API.post('/payments', {
-          paymentMethodId: paymentMethod.id,
-          amount: product.id,
-          currency: 'usd',
-        });
+        const response = await makePayment(
+          paymentMethod.id,
+          product.id,
+          PAYMENT_CURRENCY
+        );
 
-        console.log('Payment successful:', response.data);
+        if (response.data.status === 'succeeded') {
+          toast.success('Payment successful!');
+
+          setTimeout(() => {
+            navigate(landingPagePath);
+          }, 5000);
+        } else {
+          toast.warning('Payment is pending.');
+        }
       } catch (error) {
-        console.log('Payment failed:', error.response.data);
+        toast.error('Payment failed. Please try again.');
       }
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className='checkout-form'>
-      <CardElement options={{ hidePostalCode: true }}/>
+      <CardElement options={{ hidePostalCode: true }} />
       <button type='submit' disabled={!stripe}>
         Pay
       </button>

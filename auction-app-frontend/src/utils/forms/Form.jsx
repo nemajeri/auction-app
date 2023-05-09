@@ -37,16 +37,27 @@ const Form = ({
     return initialValuesFromProps;
   });
 
+  console.log('Formstate: ', formState)
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const handleChange = (eventOrName, valueFromSelect) => {
+    let name, value;
+    
+    if (typeof eventOrName === 'object') {
+      name = eventOrName.target.name;
+      value = eventOrName.target.value;
+    } else {
+      name = eventOrName;
+      value = valueFromSelect;
+    }
+  
     const newState = {
       ...formState,
       [name]: value,
     };
-
+    
     const field = fields.find((field) => field.name === name);
     if (field?.validation && !field.validation(value)) {
       setErrors((prevErrors) => ({
@@ -56,13 +67,13 @@ const Form = ({
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
     }
-
+    
     if (name === 'categoryId' && updateSubcategories) {
       updateSubcategories(value);
     }
-
+    
     setFormState(newState);
-
+    
     if (onFormStateChange) {
       onFormStateChange(newState);
     }

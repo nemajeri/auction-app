@@ -16,6 +16,7 @@ import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import PopOut from '../../components/pop-out/PopOut';
 import { AppContext } from '../../utils/AppContextProvider';
+import { AUCTION_ENDED } from '../../utils/constants';
 
 const tabs = [{ id: 'details', label: 'Details' }];
 
@@ -57,7 +58,7 @@ const ProductOverviewPage = () => {
   }, []);
 
   useEffect(() => {
-    if (user && product) {
+    if (!isOwner && timeLeft === AUCTION_ENDED) {
       getHighestBidForUserAndProduct(user.id, product.id)
         .then((response) => {
           setUserHighestBid(response.data);

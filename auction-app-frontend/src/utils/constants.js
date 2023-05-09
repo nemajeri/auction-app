@@ -54,3 +54,10 @@ export const SOLD = "Sold";
 
 export const TODAY =  getTodayWithoutTime();
 
+export const AUCTION_ENDED = "Auction ended";
+
+export const COOKIE_NAME ="auction_app_token";
+
+export const PAYMENT_CURRENCY ="usd";
+
+export const PAYMENT_TYPE = "card";

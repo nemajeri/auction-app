@@ -65,6 +65,7 @@
   display: flex;
   justify-content: space-between;
   margin-top: -10px;
+  margin-bottom: 10px;
 }
 
 .shared-form__flex label {
@@ -81,17 +82,13 @@
 }
 
 #categoryId {
-  width: 14.5rem;
-  height: 2.7rem;
-  font-size: 12px;
-  padding: 9px 11px 11px 20px;
+  margin: 15px 0;
+  width: 14rem;
 }
 
 #subcategoryId {
-  width: 14.5rem;
-  height: 2.7rem;
-  font-size: 12px;
-  padding: 9px 11px 11px 20px;
+  margin: 15px 0;
+  width: 14rem;
 }
 
 .shared-form-style__align--text_right > p {

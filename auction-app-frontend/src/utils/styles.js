@@ -1,24 +1,37 @@
-export const selectStyles = {
-    position: 'relative',
-  };
-  
-  export const selectArrowStyles = {
-    content: '',
-    position: 'absolute',
-    right: '1rem',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    backgroundImage: `url(${process.env.REACT_APP_HOME_URL}/images/down-arrow.png)`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-    backgroundSize: '1rem',
-    width: '1rem',
-    height: '1rem',
-    pointerEvents: 'none',
-  };
-  
-  export const customSelectStyles = {
-    appearance: 'none',
-    background: 'transparent',
-    paddingRight: '2rem',
-  };
+export const customStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    borderRadius: "0",
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 8,
+    paddingRight: 8,
+    border: state.isFocused ? '1px solid black' : '1px solid #d8d8d8',
+    fontFamily: "Lato, sans-serif",
+    fontWeight: "400",
+    boxShadow: "none",
+    "&:hover": {
+      borderColor: "#d8d8d8",
+    },
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    fontSize: "0.8rem",
+    color: "#d8d8d8"
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    color: state.isSelected ? "white" : "black",
+    backgroundColor: state.isSelected ? "#8367d8" : "white",
+    "&:hover": {
+      backgroundColor: "#8367d8",
+      color: "white",
+    },
+    fontFamily: "Lato, sans-serif",
+    fontWeight: "400",
+  }),
+  menu: (provided) => ({
+    ...provided,
+    borderRadius: "0",
+  }),
+};

@@ -16,6 +16,7 @@ import { LANDING_PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import RecommendedProducts from '../../components/landing-page/recommended-products/RecommendedProducts.jsx';
 import { useGridView } from '../../hooks/useGridView';
+import { getTodayWithoutTime } from '../../utils/helperFunctions';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
@@ -43,7 +44,7 @@ const LandingPage = () => {
     const fetchRecommendedProducts = async () => {
       if (user) {
         try {
-          const response = await getRecommendedProducts(user?.id);
+          const response = await getRecommendedProducts(user.id);
           setRecommendedProducts(response);
         } catch (error) {
           console.error('Error fetching recommended products:', error);
@@ -64,9 +65,11 @@ const LandingPage = () => {
     );
 
     let allProducts = await getAllProductsToSeparateHighlighted();
-    setHighlightedProducts(
-      allProducts?.data?.filter((product) => product.highlighted === true)
-    );
+    let highlightedProducts = allProducts?.data?.filter((product) => {
+      const endDate = new Date(product.endDate);
+      return product.highlighted === true && getTodayWithoutTime().getTime() <= endDate.getTime();
+    })
+    setHighlightedProducts(highlightedProducts);
     setProducts(sortedProducts.data.content);
     setLoading(false);
   }

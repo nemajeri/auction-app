@@ -29,6 +29,7 @@ const SellPage = () => {
   const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [modalMessage, setModalMessage] = useState('');
   const { user } = useContext(AppContext);
 
   useEffect(() => {
@@ -165,10 +166,18 @@ const SellPage = () => {
       (error) => error !== undefined
     );
 
+    if (images.length < 3) {
+      setModalMessage('You need to add at least 3 images.');
+      setShowModal(true);
+      return;
+    }
+
     if (hasErrors) {
+      setModalMessage('Please fill in all required fields.');
+      setShowModal(true);
       setErrors(errors);
     } else {
-      addNewItemForAuction(productDetails, images, setShowModal);
+      addNewItemForAuction(productDetails, images, setShowModal, setModalMessage);
     }
   };
 
@@ -201,7 +210,9 @@ const SellPage = () => {
       <BreadCrumbs title='SELLER' />
       {renderProgressDots()}
       <div className='shared-form_position'>{MultiStepForm()}</div>
-      <Modal showModal={showModal} successPath={sellerPath} />
+      <Modal showModal={showModal} closePath={sellerPath}>
+        {modalMessage}
+      </Modal>
     </>
   );
 };

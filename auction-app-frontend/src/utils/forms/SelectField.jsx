@@ -1,5 +1,6 @@
 import React from 'react';
-import { selectStyles, selectArrowStyles, customSelectStyles } from '../styles';
+import { customStyles } from '../styles';
+import Select from 'react-select';
 
 const SelectField = ({
   field: { name, placeholder, options },
@@ -7,23 +8,25 @@ const SelectField = ({
   value,
   error,
 }) => {
+  
+  const handleChange = (option) => {
+    onChange(name, option.value);
+  };
+
+  const selectedOption = options.find((option) => option.value === value);
+
   return (
-    <div style={selectStyles}>
-      <select
+    <div>
+      <Select
         id={name}
         name={name}
-        value={value}
-        onChange={onChange}
-        style={{ ...customSelectStyles }}
-      >
-        <option value=''>{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <div style={selectArrowStyles}></div>
+        value={selectedOption}
+        options={options}
+        placeholder={placeholder}
+        onChange={handleChange}
+        styles={customStyles}
+        components={{ IndicatorSeparator: () => null }}
+      />
       {error && (
         <div className='error-message'>
           <p>{error}</p>

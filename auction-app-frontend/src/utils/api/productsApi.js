@@ -1,4 +1,4 @@
-import { API, AuthAPI, LANDING_PAGE_SIZE } from '../constants';
+import { API, AuthAPI, LANDING_PAGE_SIZE, COOKIE_NAME } from '../constants';
 import { getJwtFromCookie } from '../helperFunctions';
 
 
@@ -48,7 +48,7 @@ export const getSearchSuggestion = (query) => {
 };
 
 export const getProductsForUser = (userId, type) => {
-  const jwtToken = getJwtFromCookie('auction_app_token');
+  const jwtToken = getJwtFromCookie(COOKIE_NAME);
   if (!jwtToken) {
     return;
   }
@@ -61,7 +61,7 @@ export const getProductsForUser = (userId, type) => {
   });
 };
 
-export const addNewItemForAuction = async (productDetails, images, setShowModal) => {
+export const addNewItemForAuction = async (productDetails, images, setShowModal, setModalMessage) => {
   try {
     const formData = new FormData();
 
@@ -78,12 +78,16 @@ export const addNewItemForAuction = async (productDetails, images, setShowModal)
 
     if (response.status === 201) {
       console.log('Product created:', response.data);
+      setModalMessage('Product created.'); 
       setShowModal(true);
     } else {
       console.error('Error creating product:', response.data);
+      setModalMessage('Error creating product.'); 
+      setShowModal(true);
     }
   } catch (error) {
-    console.error('Error creating product:', error.message);
+    setModalMessage('Error creating product.');
+    setShowModal(true);
   }
 };
 
