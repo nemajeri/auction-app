@@ -5,6 +5,8 @@ import './productDetails.css';
 import { AppContext } from '../../../utils/AppContextProvider';
 import Modal from '../../../utils/forms/Modal';
 import StripeCheckout from '../../stripe-checkout/StripeCheckout';
+import { useNavigate } from 'react-router-dom';
+import { landingPagePath } from '../../../utils/paths';
 
 const ProductDetails = ({
   tabs,
@@ -20,21 +22,32 @@ const ProductDetails = ({
 }) => {
   const { user } = useContext(AppContext);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const navigate = useNavigate();
+
+  const onClose = () => {
+    setShowPaymentModal(false);
+    navigate(landingPagePath);
+  };
 
   const onPayButtonClick = () => {
     setShowPaymentModal(true);
   };
+
+  const isAuctionActive = !product.sold && timeLeft !== 'Auction ended';
+  const isAuctionEnded = !product.sold && timeLeft === 'Auction ended';
+  const isProductSold = product.sold && timeLeft === 'Auction ended';
+  const isUserHighestBidder = userHighestBid === product.highestBid;
 
   return (
     product && (
       <div className='details'>
         <h1>{product.productName}</h1>
         <p className='details__start--price'>
-          Starts from <span>${product.startPrice}</span>
+          Starts from <span>${product.startPrice.toFixed(2)}</span>
         </p>
         <div className='details__offer'>
           <p>
-            Highest bid: <span>{product.highestBid}$</span>
+            Highest bid: <span>{product.highestBid.toFixed(2)}$</span>
           </p>
           <p>
             Number of bids: <span>{product.numberOfBids}</span>
@@ -45,12 +58,14 @@ const ProductDetails = ({
         </div>
         {user && (
           <div className='details__bid--placement'>
-            {timeLeft !== 'Auction ended' ? (
+            {isAuctionActive ? (
               <>
                 <input
                   type='text'
                   value={bidAmount}
-                  placeholder={`Enter ${product.highestBid}$ or higher`}
+                  placeholder={`Enter ${product.highestBid.toFixed(
+                    2
+                  )}$ or higher`}
                   disabled={isOwner}
                   onChange={(e) => setBidAmount(e.target.value)}
                 />
@@ -62,7 +77,7 @@ const ProductDetails = ({
                   PLACE BID
                 </Button>
               </>
-            ) : userHighestBid === product.highestBid ? (
+            ) : isAuctionEnded && isUserHighestBidder ? (
               <Button
                 onClick={onPayButtonClick}
                 className={'details__button pay'}
@@ -70,7 +85,7 @@ const ProductDetails = ({
               >
                 PAY
               </Button>
-            ) : null}
+            ) : isProductSold && isUserHighestBidder ? null : null}
           </div>
         )}
         <Tabs
@@ -79,7 +94,7 @@ const ProductDetails = ({
           selectedTab={selectedTab}
         />
         <p className='details__description'>{product.description}</p>
-        <Modal showModal={showPaymentModal} closePath={'/'}>
+        <Modal showModal={showPaymentModal} onClose={onClose}>
           <h2>Complete your payment</h2>
           <StripeCheckout product={product} />
         </Modal>

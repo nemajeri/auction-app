@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Modal = ({ showModal, closePath, children }) => {
+const Modal = ({ showModal, onClose, children }) => {
   if (!showModal) {
     return null;
   }
@@ -9,9 +9,7 @@ const Modal = ({ showModal, closePath, children }) => {
   return (
     <div className='modal'>
       <div className='modal-content'>
-        <Link to={closePath}>
-          <button className='close-button'>X</button>
-        </Link>
+        <button className='close-button' onClick={onClose}>X</button>
         {children}
       </div>
     </div>

@@ -61,9 +61,14 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
               <td>
                 <Link to={shopPagePathToProduct.replace(':id', bid.product.id)}>
                   <Button className={'auction-table__button'}>
-                    {hoursDiff(bid.product.endDate) === 0 &&
-                    !bid.product.sold &&
-                    bid.product.highestBid === bid.price
+                    {bid.product.sold && bid.product.user.id === user.id
+                      ? 'SOLD'
+                      : bid.product.sold &&
+                        bid.product.user.id !== user.id &&
+                        bid.user.id === user.id
+                      ? 'BOUGHT'
+                      : hoursDiff(bid.product.endDate) === 0 &&
+                        bid.product.highestBid === bid.price
                       ? 'BUY'
                       : 'VIEW'}
                   </Button>

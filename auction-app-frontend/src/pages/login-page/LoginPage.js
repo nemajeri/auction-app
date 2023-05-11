@@ -32,7 +32,7 @@ const fields = [
     validation: (value) =>
       value.length > PASSWORD_LENGTH && PASSWORD_VALIDATOR.test(value),
     errorMessage:
-      'Password must be at least 8 characters, contain at least one special sign and one number',
+      'Password contain 8 characters, one special sign and one number',
   },
 ];
 

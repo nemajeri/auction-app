@@ -8,8 +8,9 @@ import { hoursDiff } from '../../utils/helperFunctions';
 import { getProductsForUser } from '../../utils/api/productsApi';
 import { AppContext } from '../../utils/AppContextProvider';
 import Button from '../../utils/Button';
-import { shopPagePathToProduct } from '../../utils/paths';
+import { shopPagePathToProduct, sellerToAddItemPath } from '../../utils/paths';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const tabs = [
   { id: 'active', label: ACTIVE },
@@ -20,10 +21,15 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
   const { user } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(tabs[0].id);
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   const handleTabClick = (id) => {
     setSelectedTab(id);
   };
+
+  const onClick = () => {
+    navigate(sellerToAddItemPath)};
+
 
   useEffect(() => {
     (async () => {
@@ -67,7 +73,9 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
               <td className={bodyClassNames[2]}>
                 {hoursDiff(product.endDate)} h
               </td>
-              <td className={bodyClassNames[3]}>$ {product.startPrice.toFixed(2)}</td>
+              <td className={bodyClassNames[3]}>
+                $ {product.startPrice.toFixed(2)}
+              </td>
               <td className={bodyClassNames[4]}>{product.numberOfBids}</td>
               <td className={bodyClassNames[5]}>
                 {product.highestBid !== null
@@ -75,7 +83,7 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
                   : 'No bids'}
               </td>
               <td>
-              <Link to={shopPagePathToProduct.replace(':id', product.id)}>
+                <Link to={shopPagePathToProduct.replace(':id', product.id)}>
                   <Button className={'auction-table__button'}>VIEW</Button>
                 </Link>
               </td>
@@ -89,6 +97,7 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
                 text='You do not have any scheduled items for sale.'
                 buttonLabel='START SELLING'
                 buttonClassName='shared-style__btn'
+                onClick={onClick}
               />
             </td>
           </tr>

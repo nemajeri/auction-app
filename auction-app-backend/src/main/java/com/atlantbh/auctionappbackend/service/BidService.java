@@ -2,7 +2,6 @@ package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.exception.BadRequestException;
 import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
@@ -21,6 +20,7 @@ import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,9 +35,10 @@ public class BidService {
     private final AppUserRepository appUserRepository;
 
     public List<Bid> getBidsForAppUser(Long userId) {
-        List<Bid> bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, "bidDate"));
+        List<Bid> bids;
+        bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, "bidDate"));
         if (bids.isEmpty()) {
-            throw new AppUserNotFoundException("Bids from user with id: " + userId + " not found");
+            bids = new ArrayList<>();
         }
         return bids;
     }
@@ -93,14 +94,6 @@ public class BidService {
 
         if (product.isOwner(appUser.getEmail())) {
             throw new BadRequestException("You can't bid on your own product");
-        }
-
-        Optional<Float> usersMaxBidForProductOpt = bidRepository.getMaxBidFromUserForProduct(appUser.getId(), product.getId());
-        if (usersMaxBidForProductOpt.isPresent() && usersMaxBidForProductOpt.get() >= 0) {
-            float usersMaxBidForProduct = usersMaxBidForProductOpt.get();
-            if (amount <= usersMaxBidForProduct) {
-                throw new BadRequestException("Price can't be lower than your previous bid of $" + usersMaxBidForProduct);
-            }
         }
     }
 }

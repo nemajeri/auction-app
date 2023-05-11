@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { makePayment } from '../api/userApi';
 import { useNavigate } from 'react-router-dom';
-import { landingPagePath } from '../paths';
+import { bidsPath } from '../paths';
 
 const CheckoutForm = ({ product }) => {
   const stripe = useStripe();
@@ -36,15 +36,16 @@ const CheckoutForm = ({ product }) => {
       try {
         const response = await makePayment(
           paymentMethod.id,
-          product.id,
-          PAYMENT_CURRENCY
+          product.highestBid,
+          PAYMENT_CURRENCY,
+          product.id
         );
 
         if (response.data.status === 'succeeded') {
           toast.success('Payment successful!');
 
           setTimeout(() => {
-            navigate(landingPagePath);
+            navigate(bidsPath);
           }, 5000);
         } else {
           toast.warning('Payment is pending.');

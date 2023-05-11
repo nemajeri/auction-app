@@ -5,8 +5,6 @@ import {
   ThirdStepToAddItem,
 } from '../../components/sell-page/adding-item-steps';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import './sellpage.css';
 import { addNewItemForAuction } from '../../utils/api/productsApi';
 import Modal from '../../utils/forms/Modal.jsx';
@@ -20,8 +18,8 @@ import {
 import { getCategories } from '../../utils/api/categoryApi';
 import { getSubcategories } from '../../utils/api/subcategoryApi';
 import { AppContext } from '../../utils/AppContextProvider';
-
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHED_KEY);
+import { useNavigate } from 'react-router-dom';
+import LoadingSpinner  from '../../components/loading-spinner/LoadingSpinner';
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
@@ -30,7 +28,8 @@ const SellPage = () => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [modalMessage, setModalMessage] = useState('');
-  const { user } = useContext(AppContext);
+  const { user, loading, setLoading } = useContext(AppContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -123,7 +122,6 @@ const SellPage = () => {
         );
       case 3:
         return (
-          <Elements stripe={stripePromise}>
             <ThirdStepToAddItem
               prevStep={prevStep}
               productDetails={productDetails}
@@ -134,7 +132,6 @@ const SellPage = () => {
               setProductDetails={setProductDetails}
               initialValues={productDetails}
             />
-          </Elements>
         );
       default:
         return null;
@@ -154,11 +151,8 @@ const SellPage = () => {
     ...thirdStepToAddItemFields,
   ];
 
-  const handleFinalSubmit = async (e, stripe, elements) => {
+  const handleFinalSubmit = async (e) => {
     e.preventDefault();
-    if (!stripe || !elements) {
-      return;
-    }
 
     const errors = validateFormFields(productDetails, allFields);
 
@@ -177,8 +171,20 @@ const SellPage = () => {
       setShowModal(true);
       setErrors(errors);
     } else {
-      addNewItemForAuction(productDetails, images, setShowModal, setModalMessage);
+      setLoading(true);
+      addNewItemForAuction(
+        productDetails,
+        images,
+        setShowModal,
+        setModalMessage,
+        setLoading
+      );
     }
+  };
+
+  const onClose = () => {
+    setShowModal(false);
+    navigate(sellerPath);
   };
 
   const renderProgressDots = () => {
@@ -210,9 +216,10 @@ const SellPage = () => {
       <BreadCrumbs title='SELLER' />
       {renderProgressDots()}
       <div className='shared-form_position'>{MultiStepForm()}</div>
-      <Modal showModal={showModal} closePath={sellerPath}>
+      <Modal showModal={showModal} onClose={onClose}>
         {modalMessage}
       </Modal>
+      {loading && <LoadingSpinner />}
     </>
   );
 };

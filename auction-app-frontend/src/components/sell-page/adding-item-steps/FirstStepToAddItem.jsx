@@ -16,43 +16,51 @@ const FirstStepToAddItem = ({
   updateSubcategories,
   initialValues,
   setImages,
-  images
+  images,
 }) => {
   const fields = getStep1Fields(categoryOptions, subcategoryOptions);
 
   return (
-    <div className='shared-form-style__wrapper'>
+    <div className='shared-form-style__container'>
       <div className='shared-form-style__headline'>
         <h3>ADD ITEM</h3>
       </div>
-      <Form
-        errors={errors}
-        setErrors={setErrors}
-        fields={fields}
-        onFormStateChange={(newState) =>
-          setProductDetails({ ...initialValues, ...newState })
-        }
-        updateSubcategories={updateSubcategories}
-        initialValues={initialValues}
-      >
-        <div className='shared-form-style__align--text_right'>
-          <p>100 words (700 characters)</p>
-          <Dropzone Dropzone onDrop={(acceptedFiles) => setImages([...images, ...acceptedFiles])} />
-          <div className='shared-form-style__btns'>
-            <Link to={sellerPath}>
-              <Button className={'shared-form-style__btn cancel-btn__long'}>
-                Cancel
+      <div className='shared-form-style__wrapper'>
+        <Form
+          errors={errors}
+          setErrors={setErrors}
+          fields={fields}
+          onFormStateChange={(newState) =>
+            setProductDetails({ ...initialValues, ...newState })
+          }
+          updateSubcategories={updateSubcategories}
+          initialValues={initialValues}
+        >
+          <div className='shared-form-style__align--text_right'>
+            <p>100 words (700 characters)</p>
+            <Dropzone
+              Dropzone
+              onDrop={(acceptedFiles) =>
+                setImages([...images, ...acceptedFiles])
+              }
+              images={images}
+            />
+            <div className='shared-form-style__btns'>
+              <Link to={sellerPath}>
+                <Button className={'shared-form-style__btn cancel-btn__long'}>
+                  Cancel
+                </Button>
+              </Link>
+              <Button
+                className={'shared-form-style__btn next-btn'}
+                onClick={nextStep}
+              >
+                Next
               </Button>
-            </Link>
-            <Button
-              className={'shared-form-style__btn next-btn'}
-              onClick={nextStep}
-            >
-              Next
-            </Button>
+            </div>
           </div>
-        </div>
-      </Form>
+        </Form>
+      </div>
     </div>
   );
 };

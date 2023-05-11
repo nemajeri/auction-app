@@ -77,6 +77,8 @@ public class Product {
     @Column(name = "phone")
     private String phone;
 
+    private boolean sold;
+
     public Float getHighestBid() {
         if (highestBid == null && numberOfBids == 0) {
             return this.startPrice;

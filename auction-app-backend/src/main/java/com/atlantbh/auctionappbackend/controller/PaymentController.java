@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
+
 @RestController
 @RequestMapping("/api/v1/payments")
 @AllArgsConstructor
@@ -25,11 +27,13 @@ public class PaymentController {
 
     @PostMapping
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody Map<String, Object> paymentData) throws StripeException {
-        String paymentMethodId = (String) paymentData.get("paymentMethodId");
-        double amount = ((Number) paymentData.get("amount")).doubleValue();
-        String currency = (String) paymentData.get("currency");
+        String paymentMethodId = (String) paymentData.get(PAYMENT_METHOD_ID);
+        double amount = ((Number) paymentData.get(AMOUNT)).doubleValue();
+        String currency = (String) paymentData.get(CURRENCY);
+        Long productId = Long.parseLong(paymentData.get(PRODUCT_ID).toString());
 
-        PaymentIntent paymentIntent = paymentService.payForProduct(amount, currency, paymentMethodId);
+
+        PaymentIntent paymentIntent = paymentService.payForProduct(amount, currency, paymentMethodId, productId);
 
         PaymentResponse paymentResponse = new PaymentResponse(
                 paymentIntent.getId(),

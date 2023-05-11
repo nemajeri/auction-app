@@ -14,7 +14,7 @@ export const getUserByEmail = async (email) => {
   return response.data;
 };
 
-export const makePayment = (paymentMethodId, amount, currency) => {
+export const makePayment = (paymentMethodId, amount, currency, id) => {
   const jwtToken = getJwtFromCookie(COOKIE_NAME);
   if (!jwtToken) {
     return;
@@ -24,5 +24,6 @@ export const makePayment = (paymentMethodId, amount, currency) => {
     paymentMethodId: paymentMethodId,
     amount: amount,
     currency: currency,
+    productId: id
   });
 };

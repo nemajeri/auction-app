@@ -37,8 +37,6 @@ const Form = ({
     return initialValuesFromProps;
   });
 
-  console.log('Formstate: ', formState)
-
   const location = useLocation();
   const navigate = useNavigate();
 
