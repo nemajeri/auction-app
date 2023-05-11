@@ -22,6 +22,7 @@
 .shop-page__products {
     flex-direction: column;
     display: flex;
+    gap: 2rem;
 }
 
 .shop-page__explore--more_button {
@@ -42,4 +43,8 @@
 .shop-page__no-products {
     text-align: center;
     width: 56.2rem;
+}
+
+#sort {
+    width: 20rem;
 }

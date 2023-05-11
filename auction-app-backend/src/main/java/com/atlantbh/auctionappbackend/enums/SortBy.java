@@ -1,10 +1,14 @@
 package com.atlantbh.auctionappbackend.enums;
 
 public enum SortBy {
+
     START_DATE("startDate"),
     END_DATE("endDate"),
     SOLD("sold"),
-    ACTIVE("Active");
+    ACTIVE("Active"),
+    PRICE_LOW_TO_HIGH("startPrice"),
+    PRICE_HIGH_TO_LOW("startPrice"),
+    DEFAULT_SORTING("productName");
 
 
     private final String value;
@@ -24,6 +28,14 @@ public enum SortBy {
             }
         }
         throw new IllegalArgumentException("Unexpected value: " + value);
+    }
+
+    public static SortBy fromName(String name) {
+        try {
+            return SortBy.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unexpected name: " + name);
+        }
     }
 
 }

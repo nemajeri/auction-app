@@ -44,11 +44,12 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "9") int pageSize,
             @RequestParam(defaultValue = "") String searchTerm,
-            @RequestParam(required = false) Long categoryId) {
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String sort) {
 
         try {
             Page<ProductsResponse> productsList;
-            productsList = productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId);
+            productsList = productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId, SortBy.fromName(sort));
             return ResponseEntity.ok(productsList);
         } catch (CategoryNotFoundException e) {
             return ResponseEntity.status(BAD_REQUEST).body(null);
