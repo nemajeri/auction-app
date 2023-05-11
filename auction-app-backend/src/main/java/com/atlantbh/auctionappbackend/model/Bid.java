@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "bid", schema="auction_app_schema")
@@ -22,9 +24,8 @@ public class Bid {
     private Long id;
 
     @CreationTimestamp
-    @Past
     @Column(nullable = false)
-    private LocalDateTime bidDate;
+    private ZonedDateTime bidDate;
 
     @Column(name = "price", nullable = false)
     @Positive(message = "value must be positive")

@@ -3,6 +3,8 @@ package com.atlantbh.auctionappbackend.request;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -24,10 +26,10 @@ public class NewProductRequest {
     private String startPrice;
 
     @NotNull(message = "Start date is required")
-    private Date startDate;
+    private ZonedDateTime startDate;
 
     @NotNull(message = "End date is required")
-    private Date endDate;
+    private ZonedDateTime endDate;
 
     @NotBlank(message = "Address is required")
     private String address;

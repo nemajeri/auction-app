@@ -1,18 +1,16 @@
 import Cookies from 'js-cookie';
 import { AUCTION_ENDED, COOKIE_NAME } from './constants';
+import moment from 'moment/moment';
 
 export const getTotalPages = (products, size) => {
   return Math.ceil(products?.totalElements / size);
 };
 
 export const calculateTimeLeft = (product) => {
-  const currentDate = new Date();
-  const endDate = new Date(product.endDate);
+  const currentDate = moment.utc();
+  const endDate = moment.utc(product.endDate);
 
-  const differenceInDays = Math.round(
-    (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
+  const differenceInDays = endDate.diff(currentDate, 'days');
   const differenceInWeeks = Math.floor(differenceInDays / 7);
 
   const remainingDays = differenceInDays % 7;
@@ -29,10 +27,9 @@ export const getJwtFromCookie = () => {
 };
 
 export const hoursDiff = (date) => {
-  const currentDate = new Date();
-  const endDate = new Date(date);
-  const diffInMilliseconds = endDate - currentDate;
-  const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+  const currentDate = moment.utc();
+  const endDate = moment.utc(date);
+  const diffInHours = endDate.diff(currentDate, 'hours', true); 
 
   if (diffInHours < 0) {
     return 0;
@@ -61,7 +58,6 @@ export const validateFormFields = (formData, fieldsArray) => {
   return errors;
 };
 
-export const getTodayWithoutTime = () => {
-  const today = new Date();
-  return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+export const getStartOfTodayUTC = () => {
+  return moment.utc().startOf('day');
 };

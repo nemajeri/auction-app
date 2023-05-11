@@ -2,9 +2,10 @@ import {
   PHONE_NUMBER_VALIDATOR,
   ZIP_CODE_VALIDATOR,
   START_PRICE_VALIDATOR,
-  TODAY
+  START_OF_TODAY_UTC
 } from '../utils/constants';
 import { countries } from './countries';
+import moment from 'moment';
 
 export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
   {
@@ -45,7 +46,7 @@ export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
   },
 ];
 
-export const getStep2Fields = () => [
+export const getStep2Fields = (initialValues) => [
   {
     name: 'startPrice',
     label: 'Your start Price',
@@ -60,20 +61,23 @@ export const getStep2Fields = () => [
         name: 'startDate',
         label: 'Start date',
         type: 'date',
-        validation: (value) => value !== '' && new Date(value) >= TODAY,
+        validation: (value) => value !== '' && moment.utc(value).isSameOrAfter(START_OF_TODAY_UTC),
         errorMessage: 'Please pick a valid date!',
       },
       {
         name: 'endDate',
         label: 'End date',
         type: 'date',
-        validation: (value) => value !== '' && new Date(value) >= TODAY,
-        errorMessage: 'Please pick a valid date!',
+        validation: (value) => {
+          const startDate = moment.utc(initialValues.startDate);
+          const endDate = moment.utc(value);
+          return value !== '' && endDate.isSameOrAfter(START_OF_TODAY_UTC) && endDate.isSameOrAfter(startDate);
+        },
+        errorMessage: 'End date should be after start date!',
       },
     ],
   },
 ];
-
 export const getStep3Fields = () => [
   {
     name: 'address',

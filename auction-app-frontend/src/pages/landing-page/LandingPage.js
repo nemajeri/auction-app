@@ -16,7 +16,8 @@ import { LANDING_PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import RecommendedProducts from '../../components/landing-page/recommended-products/RecommendedProducts.jsx';
 import { useGridView } from '../../hooks/useGridView';
-import { getTodayWithoutTime } from '../../utils/helperFunctions';
+import { getStartOfTodayUTC } from '../../utils/helperFunctions';
+import moment from 'moment';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
@@ -66,8 +67,8 @@ const LandingPage = () => {
 
     let allProducts = await getAllProductsToSeparateHighlighted();
     let highlightedProducts = allProducts?.data?.filter((product) => {
-      const endDate = new Date(product.endDate);
-      return product.highlighted && getTodayWithoutTime().getTime() <= endDate.getTime();
+      const endDate = moment(product.endDate);
+      return product.highlighted === true && getStartOfTodayUTC() <= endDate;
     })
     setHighlightedProducts(highlightedProducts);
     setProducts(sortedProducts.data.content);

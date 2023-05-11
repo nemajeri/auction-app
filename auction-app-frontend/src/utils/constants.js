@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { sellerPath, bidsPath } from './paths';
 import { AiOutlineDollarCircle, AiOutlineUnorderedList } from 'react-icons/ai';
-import { getTodayWithoutTime } from './helperFunctions';
+import { getStartOfTodayUTC } from './helperFunctions';
 
 export const API = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
@@ -52,7 +52,7 @@ export const ACTIVE = "Active";
 
 export const SOLD = "Sold";
 
-export const TODAY =  getTodayWithoutTime();
+export const START_OF_TODAY_UTC =  getStartOfTodayUTC();
 
 export const AUCTION_ENDED = "Auction ended";
 

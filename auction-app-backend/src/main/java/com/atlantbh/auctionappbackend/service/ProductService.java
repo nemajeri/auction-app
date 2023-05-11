@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletRequest;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -143,8 +144,8 @@ public class ProductService {
                 .productName(request.getProductName())
                 .description(request.getDescription())
                 .startPrice(Float.parseFloat(request.getStartPrice()))
-                .startDate(LocalDateTime.ofInstant(request.getStartDate().toInstant(), ZoneId.systemDefault()))
-                .endDate(LocalDateTime.ofInstant(request.getEndDate().toInstant(), ZoneId.systemDefault()))
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
                 .city(request.getCity())
                 .zipCode(request.getZipCode())
                 .country(request.getCountry())
