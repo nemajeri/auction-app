@@ -1,39 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Button from '../Button';
 import './form.css';
 import { useLocation } from 'react-router-dom';
 import { callOAuth2LoginSuccess } from '../api/authApi';
 import { AiFillFacebook } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
-import { validateFields } from '../helperFunctions';
 import { FcGoogle } from 'react-icons/fc';
 import useFacebookSDK from '../../hooks/useFacebookSDK';
 import useGoogleSDK from '../../hooks/useGoogleSDK';
+import SelectField from './SelectField';
+import TextAreaField from './TextAreaField';
+import PhoneNumberField from './PhoneNumberField';
+import InputField from './InputField';
+import StartPriceInput from './StartPriceInput';
 
 const Form = ({
   fields,
-  submitText,
-  onSubmit,
   includeSocial,
   includeRememberMe,
   onRememberMe,
   handleLoginSuccess,
-  rememberMe,
+  children,
+  onFormStateChange,
+  updateSubcategories,
+  errors,
+  setErrors,
+  initialValues,
 }) => {
-  const [formState, setFormState] = useState({
-    ...Object.fromEntries(fields.map((field) => [field.name, ''])),
-    isRememberMe: rememberMe,
+  const [formState, setFormState] = useState(() => {
+    const flattenedFields = fields.flatMap((field) =>
+      field.fields ? field.fields : field
+    );
+    const initialValuesFromProps = Object.fromEntries(
+      flattenedFields.map((field) => [field.name, initialValues[field.name]])
+    );
+    return initialValuesFromProps;
   });
-  const [errors, setErrors] = useState({});
 
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleChange = (event) => {
-    setFormState({
+    const { name, value } = event.target;
+    const newState = {
       ...formState,
-      [event.target.name]: event.target.value,
-    });
+      [name]: value,
+    };
+
+    const field = fields.find((field) => field.name === name);
+    if (field?.validation && !field.validation(value)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: field.errorMessage,
+      }));
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
+    }
+
+    if (name === 'categoryId' && updateSubcategories) {
+      updateSubcategories(value);
+    }
+
+    setFormState(newState);
+
+    if (onFormStateChange) {
+      onFormStateChange(newState);
+    }
   };
 
   const handleGsiEvent = (response) => {
@@ -89,53 +121,51 @@ const Form = ({
   useGoogleSDK(handleGoogleSDKLoad);
   useFacebookSDK();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const errors = validateFields(formState);
-    setErrors(errors);
-
-    if (Object.keys(errors).length === 0) {
-      onSubmit({ ...formState, rememberMe: rememberMe });
-    }
-
-    if (onRememberMe) {
-      const rememberMeCheckbox = document.querySelector('[name="rememberMe"]');
-      if (rememberMeCheckbox) {
-        onRememberMe(rememberMeCheckbox.checked);
+  const renderField = (field) => {
+    let FieldComponent;
+    if (field.name === 'startPrice') {
+      FieldComponent = StartPriceInput;
+    } else if (field.isPhoneNumber) {
+      FieldComponent = PhoneNumberField;
+    } else {
+      switch (field.type) {
+        case 'select':
+          FieldComponent = SelectField;
+          break;
+        case 'textarea':
+          FieldComponent = TextAreaField;
+          break;
+        default:
+          FieldComponent = InputField;
       }
     }
-  };
 
-  useEffect(() => {
-    setFormState((prevState) => ({
-      ...prevState,
-      isRememberMe: rememberMe,
-    }));
-  }, [rememberMe]);
+    return (
+      <FieldComponent
+        key={field.name}
+        field={field}
+        value={formState[field.name] || ''}
+        onChange={handleChange}
+        error={errors[field.name] || ''}
+      />
+    );
+  };
 
   return (
     <form>
-      {fields.map((field) => (
-        <React.Fragment key={field.name}>
-          <label htmlFor={field.name}>{field.label}</label>
-          <input
-            type={field.type}
-            id={field.name}
-            name={field.name}
-            value={formState[field.name]}
-            onChange={handleChange}
-            placeholder={field.placeholder}
-            autoComplete='off'
-            required
-          />
-          {errors[field.name] && (
-            <div className='error-message'>
-              <p>{errors[field.name]}</p>
-            </div>
-          )}
-        </React.Fragment>
-      ))}
+      {fields.map((group) =>
+        group.fields ? (
+          <div key={group.fields[0].name} className={group.className}>
+            {group.fields.map((field) => (
+              <React.Fragment key={field.name}>
+                {renderField(field)}
+              </React.Fragment>
+            ))}
+          </div>
+        ) : (
+          <React.Fragment key={group.name}>{renderField(group)}</React.Fragment>
+        )
+      )}
       {includeRememberMe && (
         <div className='form__checkbox'>
           <input
@@ -149,9 +179,7 @@ const Form = ({
           <label htmlFor='rememberMe'>Remember me</label>
         </div>
       )}
-      <Button onClick={handleSubmit} className={'form__main--call_to-action'}>
-        {submitText}
-      </Button>
+      {children}
       {includeSocial && (
         <div className='form__social-media--buttons'>
           <Button

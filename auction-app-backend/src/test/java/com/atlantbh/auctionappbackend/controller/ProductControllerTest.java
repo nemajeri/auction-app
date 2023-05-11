@@ -1,6 +1,7 @@
 package com.atlantbh.auctionappbackend.controller;
 
-import com.atlantbh.auctionappbackend.dto.ProductDTO;
+import com.atlantbh.auctionappbackend.model.Category;
+import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
@@ -110,11 +111,11 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.owner").value(product.isOwner()))
                 .andReturn();
     }
+
     @Test
     public void testGetProductsNewArrivals_ReturnsNewestProducts() throws Exception {
-
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Women",false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Women",false);
+        ProductsResponse product1 = new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L);
+        ProductsResponse product2 = new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L);
 
         int pageNumber = 0;
         int size = 8;
@@ -130,23 +131,21 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(product1.getId()))
                 .andExpect(jsonPath("$.content[0].productName").value(product1.getProductName()))
-                .andExpect(jsonPath("$.content[0].description").value(product1.getDescription()))
                 .andExpect(jsonPath("$.content[0].startPrice").value(product1.getStartPrice()))
-                .andExpect(jsonPath("$.content[0].images[0]").value(product1.getImages().get(0)))
-                .andExpect(jsonPath("$.content[0].highlighted").value(product1.isHighlighted()))
+                .andExpect(jsonPath("$.content[0].images").value(product1.getImages()))
+                .andExpect(jsonPath("$.content[0].categoryId").value(product1.getCategoryId()))
                 .andExpect(jsonPath("$.content[1].id").value(product2.getId()))
                 .andExpect(jsonPath("$.content[1].productName").value(product2.getProductName()))
-                .andExpect(jsonPath("$.content[1].description").value(product2.getDescription()))
                 .andExpect(jsonPath("$.content[1].startPrice").value(product2.getStartPrice()))
-                .andExpect(jsonPath("$.content[1].images[0]").value(product2.getImages().get(0)))
-                .andExpect(jsonPath("$.content[1].highlighted").value(product1.isHighlighted()));
+                .andExpect(jsonPath("$.content[1].images").value(product2.getImages()))
+                .andExpect(jsonPath("$.content[1].categoryId").value(product2.getCategoryId()));
     }
 
     @Test
     public void testGetProductsLastChance_ReturnsLastChanceProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Men",false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Women",false);
+        ProductsResponse product1 = new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L);
+        ProductsResponse product2 = new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L);
 
         int pageNumber = 0;
         int size = 8;
@@ -162,26 +161,51 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(product1.getId()))
                 .andExpect(jsonPath("$.content[0].productName").value(product1.getProductName()))
-                .andExpect(jsonPath("$.content[0].description").value(product1.getDescription()))
                 .andExpect(jsonPath("$.content[0].startPrice").value(product1.getStartPrice()))
-                .andExpect(jsonPath("$.content[0].images[0]").value(product1.getImages().get(0)))
-                .andExpect(jsonPath("$.content[0].highlighted").value(product1.isHighlighted()))
+                .andExpect(jsonPath("$.content[0].images").value(product1.getImages()))
+                .andExpect(jsonPath("$.content[0].categoryId").value(product1.getCategoryId()))
                 .andExpect(jsonPath("$.content[1].id").value(product2.getId()))
                 .andExpect(jsonPath("$.content[1].productName").value(product2.getProductName()))
-                .andExpect(jsonPath("$.content[1].description").value(product2.getDescription()))
                 .andExpect(jsonPath("$.content[1].startPrice").value(product2.getStartPrice()))
-                .andExpect(jsonPath("$.content[1].images[0]").value(product2.getImages().get(0)))
-                .andExpect(jsonPath("$.content[1].highlighted").value(product1.isHighlighted()));
+                .andExpect(jsonPath("$.content[1].images").value(product2.getImages()))
+                .andExpect(jsonPath("$.content[1].categoryId").value(product2.getCategoryId()));
     }
 
 
     @Test
     public void testGetAllProducts_ReturnsAllProducts() throws Exception {
 
-        ProductDTO product1 = new ProductDTO(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Fashion",false);
-        ProductDTO product2 = new ProductDTO(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, 1L,"Home",false);
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Fashion");
 
-        List<ProductDTO> productList = List.of(product1, product2);
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setProductName("Example Product 1");
+        product1.setDescription("An example product");
+        product1.setStartPrice(49.99f);
+        product1.setImages(Collections.singletonList("/images/shoe-1.jpg"));
+        product1.setStartDate(LocalDateTime.of(2023, 3, 1, 0, 0));
+        product1.setEndDate(LocalDateTime.of(2023, 3, 31, 0, 0));
+        product1.setNumberOfBids(2);
+        product1.setHighestBid(59.99f);
+        product1.setCategory(category);
+        product1.setHighlighted(true);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setProductName("Example Product 2");
+        product2.setDescription("Another example product");
+        product2.setStartPrice(99.99f);
+        product2.setImages(Collections.singletonList("/images/shoe-2.jpg"));
+        product2.setStartDate(LocalDateTime.of(2023, 4, 1, 0, 0));
+        product2.setEndDate(LocalDateTime.of(2023, 4, 30, 0, 0));
+        product2.setNumberOfBids(0);
+        product2.setHighestBid(null);
+        product2.setCategory(category);
+        product2.setHighlighted(false);
+
+        List<Product> productList = List.of(product1, product2);
 
         when(productService.getAllProducts()).thenReturn(productList);
 

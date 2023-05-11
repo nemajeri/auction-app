@@ -66,7 +66,7 @@ public class BidServiceTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
         String jwt = "jwt-token";
-        when(tokenService.getJwtFromHeader(request)).thenReturn(jwt);
+        when(tokenService.getJwtFromCookie(request)).thenReturn(jwt);
         when(tokenService.validateToken(jwt)).thenReturn(true);
         when(tokenService.getClaimFromToken(jwt, "sub")).thenReturn("user@example.com");
 
@@ -83,7 +83,7 @@ public class BidServiceTest {
         });
         when(bidRepository.findAll()).thenReturn(createdBids);
 
-        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount(), request);
+        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount());
 
         List<Bid> bidList = bidRepository.findAll();
         assertEquals(1, bidList.size());

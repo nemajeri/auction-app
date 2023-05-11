@@ -35,13 +35,13 @@ class BidControllerTest {
     public void createBid_ReturnCreatedResponse() throws Exception {
         BidRequest bidRequest = new BidRequest(2L, 50.00f);
 
-        doNothing().when(bidService).createBid(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()), any(HttpServletRequest.class));
+        doNothing().when(bidService).createBid(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()));
 
         mockMvc.perform(post("/api/v1/bid/create-bid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(bidRequest).getBytes()))
                 .andExpect(status().isCreated());
 
-        verify(bidService, times(1)).createBid(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()), any(HttpServletRequest.class));
+        verify(bidService, times(1)).createBid(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()));
     }
 }

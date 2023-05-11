@@ -1,9 +1,6 @@
 package com.atlantbh.auctionappbackend.handler;
 
-import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
-import com.atlantbh.auctionappbackend.exception.BidAmountException;
-import com.atlantbh.auctionappbackend.exception.DuplicateAppUserException;
-import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
+import com.atlantbh.auctionappbackend.exception.*;
 import com.atlantbh.auctionappbackend.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

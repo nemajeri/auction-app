@@ -1,16 +1,13 @@
 import { API, AuthAPI, LANDING_PAGE_SIZE } from '../constants';
 import { getJwtFromCookie } from '../helperFunctions';
 
+
 export const getProducts = () => {
   return API.get('/products');
 };
 
 export const getProduct = (id, token) => {
-  return API.get(`/products/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return AuthAPI.get(`/products/${id}`);
 };
 
 export const getAllProducts = (
@@ -62,4 +59,40 @@ export const getProductsForUser = (userId, type) => {
       type: type,
     },
   });
+};
+
+export const addNewItemForAuction = async (productDetails, images, setShowModal) => {
+  try {
+    const formData = new FormData();
+
+    const productDetailsBlob = new Blob([JSON.stringify(productDetails)], { type: 'application/json' });
+    formData.append('productDetails', productDetailsBlob);
+
+    images.forEach((image) => {
+      formData.append(`images`, image, image.name);
+    });
+
+    const response = await AuthAPI.post('/products/add-item', formData, {
+      headers: { 'Content-Type': undefined },
+    });
+
+    if (response.status === 201) {
+      console.log('Product created:', response.data);
+      setShowModal(true);
+    } else {
+      console.error('Error creating product:', response.data);
+    }
+  } catch (error) {
+    console.error('Error creating product:', error.message);
+  }
+};
+
+export const getRecommendedProducts = async (userId) => {
+  try {
+    const response = await API.get(`/products/recommended?userId=${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching recommended products:', error);
+    return [];
+  }
 };

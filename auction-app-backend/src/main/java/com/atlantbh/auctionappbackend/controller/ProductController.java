@@ -3,22 +3,27 @@ package com.atlantbh.auctionappbackend.controller;
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.model.Product;
+import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.atlantbh.auctionappbackend.dto.ProductDTO;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 
 @RestController
@@ -46,9 +51,16 @@ public class ProductController {
             productsList = productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId);
             return ResponseEntity.ok(productsList);
         } catch (CategoryNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(BAD_REQUEST).body(null);
         }
     }
+
+    @GetMapping("/recommended")
+    public ResponseEntity<List<ProductsResponse>> getRecommendedProducts(@RequestParam("userId") Long userId) {
+        List<ProductsResponse> recommendedProducts = productService.getRecommendedProducts(userId);
+        return new ResponseEntity<>(recommendedProducts, HttpStatus.OK);
+    }
+
 
     @GetMapping("/items/app-user")
     public ResponseEntity<List<Product>> retrieveProductsFromUser(@RequestParam Long userId,
@@ -59,21 +71,41 @@ public class ProductController {
         return new ResponseEntity<>(products, OK);
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("id") Long id, HttpServletRequest request) {
+    @PostMapping(path = "/add-item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
+                                        @RequestPart("images") List<MultipartFile> images,
+                                        BindingResult bindingResult,
+                                        HttpServletRequest httpServletRequest) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.status(BAD_REQUEST).body(errors);
+        }
+
         try {
-            return ResponseEntity.ok(productService.getProductById(id, request));
+            productService.createProduct(request, images, httpServletRequest);
+            return new ResponseEntity<>(CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error creating product: " + e.getMessage(),BAD_REQUEST);
+        }
+    }
+
+
+    @GetMapping(path = "/{productId}")
+    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(productService.getProductById(productId, request));
         } catch (ProductNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/filtered-products")
-    public ResponseEntity<Page<ProductDTO>> getFilteredProducts(
+    public ResponseEntity<Page<ProductsResponse>> getFilteredProducts(
             @RequestParam String filter,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "8") int size) {
-        Page<ProductDTO> productDTOs;
+        Page<ProductsResponse> productDTOs;
         switch (filter) {
             case "new-arrival" -> productDTOs = productService.getNewProducts(pageNumber, size);
             case "last-chance" -> productDTOs = productService.getLastProducts(pageNumber, size);
@@ -85,8 +117,8 @@ public class ProductController {
     }
 
     @GetMapping("/all-products")
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        List<ProductDTO> productDTOs = productService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> productDTOs = productService.getAllProducts();
         return ResponseEntity.ok(productDTOs);
     }
 }

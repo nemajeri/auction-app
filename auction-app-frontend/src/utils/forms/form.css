@@ -1,18 +1,7 @@
 .form__checkbox {
     display: flex;
     gap: 10px;
-    margin: 1rem 0 1.5rem 0;
-}
-
-.form__main--call_to-action {
-    width: 100%;
-    background-color: var(--purple);
-    border: none;
-    color: var(--white-100);
-    padding: 17px 0;
-    margin-top: 3rem;
-    cursor: pointer;
-    font-weight: bold;
+    margin: 2rem 0 1.5rem 0;
 }
 
 .form__social-media--buttons {
@@ -65,5 +54,116 @@
     top: -20px;
 }
 
+.card-input__flex-container div {
+    width: 100%;
+    height: 40px;
+}
   
+.card-input__wrapper {
+    width: 100%;
+    border: 1px solid var(--grey-100);
+    box-sizing: border-box;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;  
+}
+  
+.card-input__flex-container {
+    display: flex;
+    gap: 20px;
+    height: 130px;
+}
+
+.form-field__phone-number {
+    position: relative;
+}
+
+.form-field__phone-number--verfication_status {
+    position: absolute;
+    top: 21px;
+    right: 0;
+    background-color: var(--grey-100);
+    padding: 10px 30px;
+    color: var(--red-200);
+    font-weight: 600;
+}
+
+.modal {
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-content {
+    position: relative;
+    background-color: #ffffff;
+    width: 80%;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .modal-content h2 {
+    margin: 0 0 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .modal-content button {
+    display: inline-block;
+    background-color: var(--purple);
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .modal-content button:hover {
+    background-color: var(--purple-100);
+  }
+
+  .error-message {
+    position: relative;
+  }
+
+  .error-message > p {
+    color: var(--red);
+    margin-bottom: 5px;
+    position: absolute;
+  }
+
+  .input-with-icon {
+    position: relative;
+  }
+
+  .icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 46px;
+    position: absolute;
+    z-index: 1;
+  }
+  
+  .input-icon {
+    font-size: 1.2em;
+  }
+
+  .icon-box-focused {
+    border: 2px solid black !important;
+  }
   

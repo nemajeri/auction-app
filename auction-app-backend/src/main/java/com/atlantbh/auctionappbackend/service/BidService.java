@@ -18,7 +18,6 @@ import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -69,7 +68,7 @@ public class BidService {
 
 
     private void validateBidAmount(Product product, float amount, AppUser appUser) {
-        float currentMaxBid = product.getCurrentMaxBid();
+        float currentMaxBid = product.getHighestBid();
 
         if (amount <= 0) {
             throw new BidAmountException("Bid can't be 0 or under that value");

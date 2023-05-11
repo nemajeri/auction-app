@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.security.enums.TokenType;
@@ -12,7 +13,6 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -73,7 +72,7 @@ public class TokenService {
 
     public Cookie generateJwtCookieForOAuth2User(OAuth2UserInfo oAuth2UserInfo) {
         String email = oAuth2UserInfo.getEmail();
-        AppUser appUser = appUserRepository.findByEmail(email);
+        AppUser appUser = appUserRepository.getByEmail(email).orElseThrow(() -> new AppUserNotFoundException("User with" + email + "not found"));
         if (Objects.equals(appUser, null)) {
             appUser = new AppUser();
             appUser.setEmail(email);
@@ -159,14 +158,6 @@ public class TokenService {
 
     public void invalidateToken(String token) {
         blacklistedTokens.add(token);
-    }
-
-    public String getJwtFromHeader(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 
 }

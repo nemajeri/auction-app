@@ -1,6 +1,6 @@
 package com.atlantbh.auctionappbackend.controller;
 
-import com.atlantbh.auctionappbackend.dto.CategoryDTO;
+import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.service.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +32,12 @@ public class CategoryControllerTest {
     @Test
     public void testGetAllCategories() throws Exception {
 
-        CategoryDTO category1 = new CategoryDTO(1L, "Fashion");
-        CategoryDTO category2 = new CategoryDTO(2L, "Home");
+        Category category1 = new Category(1L, "Fashion");
+        Category category2 = new Category(2L, "Home");
 
-        List<CategoryDTO> products = Arrays.asList(category1, category2);
+        List<Category> categories = Arrays.asList(category1, category2);
 
-        when(categoryService.getAllCategories()).thenReturn(products);
+        when(categoryService.getAllCategories()).thenReturn(categories);
 
         mockMvc.perform(get("/api/v1/categories")
                 .contentType(MediaType.APPLICATION_JSON)

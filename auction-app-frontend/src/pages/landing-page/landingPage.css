@@ -7,3 +7,19 @@
     gap: 9rem;
 }
 
+.landing-page__recommended--products_tab {
+    font-weight: bold !important;
+    margin: 10px 0;
+}
+
+.landing-page__recommended-products_grid-view {
+    display: grid;
+    grid-template-columns: 380px 380px 380px;
+    gap: 30px;
+    margin: 0;
+}
+
+.landing-page__recommended-products_grid-view > .product {
+    height: 35rem;
+    margin: 25px 0;
+}

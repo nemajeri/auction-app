@@ -1,6 +1,5 @@
 package com.atlantbh.auctionappbackend.service;
 
-import com.atlantbh.auctionappbackend.dto.CategoryDTO;
 import com.atlantbh.auctionappbackend.model.Category;
 import com.atlantbh.auctionappbackend.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,12 +34,12 @@ class CategoryServiceTest {
         categories.add(new Category(2L, "Shoes"));
         Mockito.when(categoryRepository.findAll()).thenReturn(categories);
 
-        List<CategoryDTO> expectedCategoryDTOs = new ArrayList<>();
-        expectedCategoryDTOs.add(new CategoryDTO(1L, "Fashion"));
-        expectedCategoryDTOs.add(new CategoryDTO(2L, "Shoes"));
-        List<CategoryDTO> categoriesDTOList = underTest.getAllCategories();
+        List<Category> expectedCategories = new ArrayList<>();
+        expectedCategories.add(new Category(1L, "Fashion"));
+        expectedCategories.add(new Category(2L, "Shoes"));
+        List<Category> categoriesDTOList = underTest.getAllCategories();
 
-        assertEquals(expectedCategoryDTOs, categoriesDTOList);
+        assertEquals(expectedCategories, categoriesDTOList);
     }
 
 }
