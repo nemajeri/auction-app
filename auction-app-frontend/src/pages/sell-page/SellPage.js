@@ -19,7 +19,7 @@ import { getCategories } from '../../utils/api/categoryApi';
 import { getSubcategories } from '../../utils/api/subcategoryApi';
 import { AppContext } from '../../utils/AppContextProvider';
 import { useNavigate } from 'react-router-dom';
-import LoadingSpinner  from '../../components/loading-spinner/LoadingSpinner';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
@@ -28,11 +28,28 @@ const SellPage = () => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [modalMessage, setModalMessage] = useState('');
-  const { user, loading, setLoading } = useContext(AppContext);
+  const { user } = useContext(AppContext);
+  const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [productDetails, setProductDetails] = useState({
+    productName: '',
+    description: '',
+    categoryId: '',
+    subcategoryId: '',
+    startPrice: '',
+    startDate: '',
+    endDate: '',
+    address: user?.address || '',
+    city: user?.city || '',
+    zipCode: user?.zipCode || '',
+    country: user?.country || '',
+    phone: user?.phone || '',
+  });
+  
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    (async () => {
       try {
         const response = await getCategories();
         let i = response.data.length - 1;
@@ -40,10 +57,10 @@ const SellPage = () => {
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error.message);
+      } finally {
+        setLoading(false);
       }
-    };
-
-    fetchCategories();
+    })();
   }, []);
 
   const updateSubcategories = async (categoryId) => {
@@ -64,21 +81,6 @@ const SellPage = () => {
     label: subcategory.subCategoryName,
     value: subcategory.id,
   }));
-  const [images, setImages] = useState([]);
-  const [productDetails, setProductDetails] = useState({
-    productName: '',
-    description: '',
-    categoryId: '',
-    subcategoryId: '',
-    startPrice: '',
-    startDate: '',
-    endDate: '',
-    address: user?.address || '',
-    city: user?.city || '',
-    zipCode: user?.zipCode || '',
-    country: user?.country || '',
-    phone: user?.phone || '',
-  });
 
   const MultiStepForm = () => {
     const nextStep = () => {
@@ -122,16 +124,16 @@ const SellPage = () => {
         );
       case 3:
         return (
-            <ThirdStepToAddItem
-              prevStep={prevStep}
-              productDetails={productDetails}
-              handleFinalSubmit={handleFinalSubmit}
-              sellerPath={sellerPath}
-              errors={errors}
-              setErrors={setErrors}
-              setProductDetails={setProductDetails}
-              initialValues={productDetails}
-            />
+          <ThirdStepToAddItem
+            prevStep={prevStep}
+            productDetails={productDetails}
+            handleFinalSubmit={handleFinalSubmit}
+            sellerPath={sellerPath}
+            errors={errors}
+            setErrors={setErrors}
+            setProductDetails={setProductDetails}
+            initialValues={productDetails}
+          />
         );
       default:
         return null;

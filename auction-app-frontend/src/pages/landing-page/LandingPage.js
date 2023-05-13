@@ -42,7 +42,7 @@ const LandingPage = () => {
   }, [selectedTab]);
 
   useEffect(() => {
-    const fetchRecommendedProducts = async () => {
+    (async () => {
       if (user) {
         try {
           const response = await getRecommendedProducts(user.id);
@@ -51,12 +51,10 @@ const LandingPage = () => {
           console.error('Error fetching recommended products:', error);
         }
       }
-    };
-
-    fetchRecommendedProducts();
+    })();
   }, [user]);
 
-  async function fetchProductsAndCategories(filter, currentPageNumber) {
+  const fetchProductsAndCategories = async (filter, currentPageNumber) => {
     let categories = await getCategories();
     setCategories(categories.data);
 
@@ -69,11 +67,11 @@ const LandingPage = () => {
     let highlightedProducts = allProducts?.data?.filter((product) => {
       const endDate = moment(product.endDate);
       return product.highlighted === true && getStartOfTodayUTC() <= endDate;
-    })
+    });
     setHighlightedProducts(highlightedProducts);
     setProducts(sortedProducts.data.content);
     setLoading(false);
-  }
+  };
 
   const handleTabClick = async (id) => {
     setLoading(true);
@@ -91,13 +89,8 @@ const LandingPage = () => {
   };
 
   const fetchNextPage = async () => {
-    setLoading(true);
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
 
-    if (products.length < LANDING_PAGE_SIZE) {
-      setLoading(false);
-      return;
-    }
 
     currentPageNumber.current += 1;
 
@@ -106,7 +99,6 @@ const LandingPage = () => {
       currentPageNumber.current
     );
     setProducts((prevProducts) => [...prevProducts, ...response.data.content]);
-    setLoading(false);
   };
 
   return (

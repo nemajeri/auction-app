@@ -19,9 +19,10 @@ const tabs = [
 ];
 
 const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
-  const { user, loading, setLoading } = useContext(AppContext);
+  const { user } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(tabs[0].id);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleTabClick = (id) => {
@@ -29,24 +30,24 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
   };
 
   const onClick = () => {
-    navigate(sellerToAddItemPath)};
+    navigate(sellerToAddItemPath);
+  };
 
-
-    useEffect(() => {
-      (async () => {
-        try {
-          setLoading(true);
-          const tab = tabs.find((tab) => tab.id === selectedTab);
-          const response = await getProductsForUser(user.id, tab.label);
-          setProducts(response.data);
-        } catch (error) {
-          console.error(error);
-          setProducts([]);
-        } finally {
-          setLoading(false);
-        }
-      })();
-    }, [selectedTab]);
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const tab = tabs.find((tab) => tab.id === selectedTab);
+        const response = await getProductsForUser(user.id, tab.label);
+        setProducts(response.data);
+      } catch (error) {
+        console.error(error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [selectedTab, user.id]);
 
   return !loading ? (
     <>

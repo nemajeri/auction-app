@@ -38,39 +38,43 @@ const ProductOverviewPage = () => {
   const { user } = useContext(AppContext);
 
   useEffect(() => {
-    try {
-      getProduct(id)
-        .then((response) => {
-          setProduct(response.data);
-          setImages(response.data.images);
-          setTimeLeft(calculateTimeLeft(response.data));
-          setLoading(false);
-          setIsOwner(response.data.owner);
-        })
-        .catch((error) => {
-          console.error(error);
-          setLoading(false);
-        });
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  }, []);
+    (async () => {
+      try {
+        const response = await getProduct(id);
+        setProduct(response.data);
+        setImages(response.data.images);
+        setTimeLeft(calculateTimeLeft(response.data));
+        setIsOwner(response.data.owner);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
 
   useEffect(() => {
     if (!isOwner && timeLeft === AUCTION_ENDED) {
-      getHighestBidForUserAndProduct(user.id, product.id)
-        .then((response) => {
+      (async () => {
+        try {
+          const response = await getHighestBidForUserAndProduct(
+            user.id,
+            product.id
+          );
           setUserHighestBid(response.data);
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error(
             'Error fetching highest bid for user and product:',
             error
           );
-        });
+        } finally {
+          setLoading(false);
+        }
+      })();
     }
-  }, [user, product]);
+
+  }, [user, product, isOwner, timeLeft]);
 
   const handleTabClick = (id) => {
     setSelectedTab(id);

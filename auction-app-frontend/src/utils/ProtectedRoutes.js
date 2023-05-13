@@ -3,7 +3,11 @@ import { useContext } from 'react';
 import { AppContext } from '../utils/AppContextProvider';
 
 const ProtectedRoute = ({ children }) => {
-  const { user } = useContext(AppContext);
+  const { user, isUserLoading } = useContext(AppContext);
+
+  if(isUserLoading) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

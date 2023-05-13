@@ -11,8 +11,9 @@ import { shopPagePathToProduct } from '../../utils/paths';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 
 const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
-  const { user, loading, setLoading } = useContext(AppContext);
+  const { user } = useContext(AppContext);
   const [bids, setBids] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -25,7 +26,7 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
         console.error(error);
       }
     })();
-  }, []);
+  }, [user.id]);
 
   const getButtonLabel = (bid) => {
     switch (true) {

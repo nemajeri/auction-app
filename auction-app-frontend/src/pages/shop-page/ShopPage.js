@@ -40,8 +40,6 @@ const ShopPage = () => {
     searchedProducts,
     pageNumber,
     setPageNumber,
-    loading,
-    setLoading,
     activeCategory,
     setActiveCategory,
     products,
@@ -50,8 +48,6 @@ const ShopPage = () => {
     setProducts,
     isClearButtonPressed,
     setIsClearButtonPressed,
-    currentSortOption,
-    setCurrentSortOption,
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
@@ -60,6 +56,8 @@ const ShopPage = () => {
     content: [],
     totalElements: 0,
   });
+  const [currentSortOption, setCurrentSortOption] = useState('DEFAULT_SORTING');
+  const [loading, setLoading] = useState(false);
   const { categoryId } = useParams();
 
   useEffect(() => {
@@ -76,10 +74,12 @@ const ShopPage = () => {
   }, []);
 
   useEffect(() => {
-    getCategories().then((response) => {
+    (async () => {
+      setLoading(true);
+      const response = await getCategories();
       setCategories(response.data);
       setLoading(false);
-    });
+    })();
   }, []);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const ShopPage = () => {
   }, [loading, searchedProducts, isClearButtonPressed]);
 
   useEffect(() => {
-    if (categoryId) {
+    if (categoryId && categories) {
       const firstLoadedCategory = categories.find(
         (category) => category.id === parseInt(categoryId)
       );
@@ -121,12 +121,13 @@ const ShopPage = () => {
     }
 
     try {
+      setLoading(true);
       setPageNumber(0);
 
       const productsResponse = await getAllProducts(
         0,
         PAGE_SIZE,
-        activeCategory === ALL_CATEGORIES_ID ? '' : searchTerm,
+        searchTerm,
         categoryId === ALL_CATEGORIES_ID ? null : categoryId,
         currentSortOption
       );
@@ -140,7 +141,7 @@ const ShopPage = () => {
           setProducts([]);
         }
       } else {
-        if (searchedProducts && categoryId !== ALL_CATEGORIES_ID) { 
+        if (searchedProducts) {
           const filteredItems = searchedProducts.content.filter(
             (product) => product.categoryId === categoryId
           );
@@ -151,12 +152,11 @@ const ShopPage = () => {
       }
 
       setProductsByCategories({ content, totalElements });
-      setLoading(false);
     } catch (error) {
       console.error(error);
+    } finally {
       setLoading(false);
     }
-
 
     if (category) {
       setOpenedCategory((prevState) => {
@@ -186,18 +186,18 @@ const ShopPage = () => {
         : activeCategory;
 
     getAllProducts(
-      nextPageNumber,
-      PAGE_SIZE,
-      searchTerm,
-      categoryId,
-      currentSortOption
+        nextPageNumber,
+        PAGE_SIZE,
+        searchTerm,
+        categoryId,
+        currentSortOption
     )
       .then((response) => {
-        const { content } = response.data;
-        setProducts((prevProducts) => prevProducts.concat(content));
+      const { content } = response.data;
+      setProducts((prevProducts) => prevProducts.concat(content));
       })
       .catch((error) => {
-        console.error(error);
+      console.error(error);
       });
 
     setPageNumber(nextPageNumber);
@@ -212,34 +212,25 @@ const ShopPage = () => {
     PAGE_SIZE
   );
 
-  console.log('Active category: ', activeCategory);
   const handleSortOptionChoice = async (chosenSortOption) => {
+    setLoading(true);
     setCurrentSortOption(chosenSortOption);
     try {
       const response = await getAllProducts(
         pageNumber,
         PAGE_SIZE,
-        searchTerm,
+        undefined,
         activeCategory,
         chosenSortOption
       );
       const { content, totalElements } = response.data;
 
-      if (activeCategory === ALL_CATEGORIES_ID) {
-        setSearchProducts(null);
-        setProducts(content);
-        setProductsByCategories({ content, totalElements });
-      } else if (searchedProducts) {
-        let newSearchedProducts = { ...searchedProducts };
-        newSearchedProducts.content = content;
-        newSearchedProducts.pageData.totalElements = totalElements;
-        setSearchProducts(newSearchedProducts);
-      } else {
-        setProducts(content);
-        setProductsByCategories({ content, totalElements });
-      }
+      setProducts(content);
+      setProductsByCategories({ content, totalElements });
     } catch (error) {
       console.error('Error while sorting products');
+    } finally {
+      setLoading(false);
     }
   };
 
