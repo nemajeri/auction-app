@@ -8,16 +8,19 @@ import { hoursDiff } from '../../utils/helperFunctions';
 import { Link } from 'react-router-dom';
 import Button from '../../utils/Button';
 import { shopPagePathToProduct } from '../../utils/paths';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 
 const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
-  const { user } = useContext(AppContext);
+  const { user, loading, setLoading } = useContext(AppContext);
   const [bids, setBids] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
+        setLoading(true);
         const response = await getBidsForUser(user.id);
         setBids(response.data);
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
@@ -40,7 +43,7 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
     }
   }
 
-  return (
+  return !loading ? (
     <>
       <AuctionTable headings={bidHeadings} headerClassNames={headerClassNames}>
         {bids.length !== 0 ? (
@@ -97,6 +100,8 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
         )}
       </AuctionTable>
     </>
+  ) : (
+    <LoadingSpinner />
   );
 };
 

@@ -11,6 +11,7 @@ import Button from '../../utils/Button';
 import { shopPagePathToProduct, sellerToAddItemPath } from '../../utils/paths';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 
 const tabs = [
   { id: 'active', label: ACTIVE },
@@ -18,7 +19,7 @@ const tabs = [
 ];
 
 const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
-  const { user } = useContext(AppContext);
+  const { user, loading, setLoading } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(tabs[0].id);
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
@@ -31,20 +32,23 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
     navigate(sellerToAddItemPath)};
 
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const tab = tabs.find((tab) => tab.id === selectedTab);
-        const response = await getProductsForUser(user.id, tab.label);
-        setProducts(response.data);
-      } catch (error) {
-        console.error(error);
-        setProducts([]);
-      }
-    })();
-  }, [selectedTab]);
+    useEffect(() => {
+      (async () => {
+        try {
+          setLoading(true);
+          const tab = tabs.find((tab) => tab.id === selectedTab);
+          const response = await getProductsForUser(user.id, tab.label);
+          setProducts(response.data);
+        } catch (error) {
+          console.error(error);
+          setProducts([]);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }, [selectedTab]);
 
-  return (
+  return !loading ? (
     <>
       <Tabs
         tabs={tabs}
@@ -104,6 +108,8 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
         )}
       </AuctionTable>
     </>
+  ) : (
+    <LoadingSpinner />
   );
 };
 
