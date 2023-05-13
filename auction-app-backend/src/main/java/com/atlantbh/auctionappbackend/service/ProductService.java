@@ -20,10 +20,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 
-import java.time.LocalDateTime;
+import java.time.*;
 import javax.servlet.http.HttpServletRequest;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -74,7 +72,7 @@ public class ProductService {
     }
 
     public List<Product> retrieveUserProductsByType(Long userId, SortBy sortingType) {
-        LocalDateTime currentTime = LocalDateTime.now();
+        ZonedDateTime currentTime = ZonedDateTime.now(ZoneOffset.UTC);
         List<Product> userProducts;
 
         if (sortingType == SortBy.SOLD) {
