@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.controller;
 
+import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.model.Bid;
 import com.atlantbh.auctionappbackend.request.BidRequest;
 import com.atlantbh.auctionappbackend.service.BidService;
@@ -36,5 +37,11 @@ public class BidController {
     public ResponseEntity<?> createBid(@Valid @RequestBody BidRequest bidRequest) {
         bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount());
         return new ResponseEntity<>(CREATED);
+    }
+
+    @GetMapping("/app-user/highest-bidder")
+    public ResponseEntity<Float> getHighestBidder(@RequestParam Long userId,@RequestParam Long productId) {
+        Float highestBidForUser = bidService.getHighestBidder(userId,productId);
+        return new ResponseEntity<>(highestBidForUser, OK);
     }
 }

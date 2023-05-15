@@ -17,7 +17,7 @@ const Product = ({
           <Link to={`/product/${id}`}>{productName}</Link>
         )}
         <p>
-          Start From &nbsp;<span>${startPrice}</span>
+          Start From &nbsp;<span>${startPrice.toFixed(2)}</span>
         </p>
       </div>
     </div>

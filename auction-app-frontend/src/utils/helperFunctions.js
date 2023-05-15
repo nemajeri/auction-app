@@ -1,4 +1,5 @@
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
+import { AUCTION_ENDED, COOKIE_NAME } from './constants';
 
 export const getTotalPages = (products, size) => {
   return Math.ceil(products?.totalElements / size);
@@ -19,11 +20,11 @@ export const calculateTimeLeft = (product) => {
   if (differenceInWeeks >= 0 && differenceInDays >= 0) {
     return `${differenceInWeeks} weeks ${remainingDays} days`;
   }
-  return 'Auction ended';
+  return AUCTION_ENDED;
 };
 
 export const getJwtFromCookie = () => {
-  const jwtCookie = Cookies.get('auction_app_token');
+  const jwtCookie = Cookies.get(COOKIE_NAME);
   return jwtCookie || null;
 };
 

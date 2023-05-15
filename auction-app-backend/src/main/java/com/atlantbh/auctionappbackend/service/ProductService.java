@@ -77,10 +77,10 @@ public class ProductService {
         List<Product> userProducts;
 
         if (sortingType == SortBy.SOLD) {
-            userProducts = productRepository.findAllProductsByUserIdAndEndDateIsBefore(
+            userProducts = productRepository.findAllByUserIdAndEndDateBeforeAndSoldIsTrue(
                     userId, currentTime, Sort.by(Sort.Direction.DESC, SortBy.END_DATE.getSort()));
         } else {
-            userProducts = productRepository.findAllProductsByUserIdAndEndDateIsAfter(
+            userProducts = productRepository.findAllByUserIdAndEndDateAfterAndSoldIsFalse(
                     userId, currentTime, Sort.by(Sort.Direction.DESC, SortBy.START_DATE.getSort()));
         }
 
@@ -90,6 +90,11 @@ public class ProductService {
     public List<ProductsResponse> getRecommendedProducts(Long userId) {
         PageRequest pageRequest = PageRequest.of(0, 3);
         Page<Product> recommendedProducts = productRepository.findRecommendedProducts(userId, pageRequest);
+
+        if (recommendedProducts.isEmpty()) {
+            recommendedProducts = productRepository.findFirstActiveProducts(pageRequest);
+        }
+
         return recommendedProducts.stream()
                 .map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()))
                 .collect(Collectors.toList());
@@ -173,7 +178,8 @@ public class ProductService {
                 product.getEndDate(),
                 product.getNumberOfBids(),
                 product.getHighestBid(),
-                isOwner
+                isOwner,
+                product.isSold()
         );
 
         return response;

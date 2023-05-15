@@ -33,16 +33,21 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT p.productName FROM Product p WHERE LOWER(p.productName) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<String> findTopNamesByNameSimilarity(@Param("query") String query);
 
-    List<Product> findAllProductsByUserIdAndEndDateIsAfter(Long userId, LocalDateTime time, Sort sort);
+    List<Product> findAllByUserIdAndEndDateBeforeAndSoldIsTrue(Long userId, LocalDateTime endDate, Sort sort);
 
-    List<Product> findAllProductsByUserIdAndEndDateIsBefore(Long userId, LocalDateTime time, Sort sort);
+    List<Product> findAllByUserIdAndEndDateAfterAndSoldIsFalse(Long userId, LocalDateTime endDate, Sort sort);
 
     @Query("SELECT p FROM Product p " +
             "JOIN Bid b ON p.id = b.product.id " +
-            "WHERE b.user.id = :userId " +
+            "WHERE b.user.id = :userId AND p.sold = false " +
             "GROUP BY p.id " +
             "HAVING COUNT(b) > 0 " +
             "ORDER BY COUNT(b) DESC, MAX(b.bidDate) DESC")
     Page<Product> findRecommendedProducts(@Param("userId") Long userId, Pageable pageable);
+
+
+    @Query("SELECT p FROM Product p WHERE p.endDate > CURRENT_TIMESTAMP AND p.sold = false")
+    Page<Product> findFirstActiveProducts(Pageable pageable);
+
 }
 

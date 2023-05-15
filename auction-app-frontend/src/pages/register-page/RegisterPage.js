@@ -80,10 +80,6 @@ const RegisterPage = () => {
             'There was an error submitting the form. Please try again.'
           ),
         () =>
-          toast.error(
-            'There was an error submitting the form. Please try again.'
-          ),
-        () =>
           toast.success(
             'Account created succesfully! Please login with your new account.'
           )
@@ -110,7 +106,7 @@ const RegisterPage = () => {
             onClick={handleSubmit}
             className={'register-page__call_to-action'}
           >
-            LOGIN
+            REGISTER
           </Button>
         </Form>
         <div className='register-page__login--option'>

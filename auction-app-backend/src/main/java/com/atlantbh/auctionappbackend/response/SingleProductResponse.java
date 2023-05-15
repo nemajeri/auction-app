@@ -35,4 +35,6 @@ public class SingleProductResponse {
 
     private boolean isOwner;
 
+    private boolean sold;
+
 }

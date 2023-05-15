@@ -12,7 +12,7 @@ export const AppContextProvider = ({ children }) => {
   const [suggestion, setSuggestion] = useState('');
   const [searchedProducts, setSearchProducts] = useState(null);
   const [pageNumber, setPageNumber] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState(null);

@@ -62,20 +62,17 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    @Column(name = "address")
     private String address;
 
-    @Column(name = "city")
     private String city;
 
-    @Column(name = "zip_code")
     private String zipCode;
 
-    @Column(name = "country")
     private String country;
 
-    @Column(name = "phone")
     private String phone;
+
+    private boolean sold;
 
     public Float getHighestBid() {
         if (highestBid == null && numberOfBids == 0) {

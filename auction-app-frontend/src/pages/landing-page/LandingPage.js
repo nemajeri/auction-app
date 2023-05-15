@@ -16,6 +16,7 @@ import { LANDING_PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import RecommendedProducts from '../../components/landing-page/recommended-products/RecommendedProducts.jsx';
 import { useGridView } from '../../hooks/useGridView';
+import { getTodayWithoutTime } from '../../utils/helperFunctions';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
@@ -43,7 +44,7 @@ const LandingPage = () => {
     const fetchRecommendedProducts = async () => {
       if (user) {
         try {
-          const response = await getRecommendedProducts(user?.id);
+          const response = await getRecommendedProducts(user.id);
           setRecommendedProducts(response);
         } catch (error) {
           console.error('Error fetching recommended products:', error);
@@ -64,9 +65,11 @@ const LandingPage = () => {
     );
 
     let allProducts = await getAllProductsToSeparateHighlighted();
-    setHighlightedProducts(
-      allProducts?.data?.filter((product) => product.highlighted === true)
-    );
+    let highlightedProducts = allProducts?.data?.filter((product) => {
+      const endDate = new Date(product.endDate);
+      return product.highlighted && getTodayWithoutTime().getTime() <= endDate.getTime();
+    })
+    setHighlightedProducts(highlightedProducts);
     setProducts(sortedProducts.data.content);
     setLoading(false);
   }
@@ -114,24 +117,28 @@ const LandingPage = () => {
             <HighlightedProduct highlightedProduct={highlightedProducts[0]} />
           )}
         </section>
-        <Tabs
-          tabs={[
-            {
-              id: 'recommendedProducts',
-              label: 'Recommended Products',
-              filter: 'recommended-products',
-            },
-          ]}
-          disableClick
-          labelClassName='landing-page__recommended--products_tab'
-        />
-        <GridViewRecommendedProducts
-          products={recommendedProducts}
-          fetchNextPage={fetchNextPage}
-          hasMore={hasMore}
-          loading={loading}
-          className={'landing-page__recommended-products_grid-view'}
-        />
+        {user && (
+          <>
+            <Tabs
+              tabs={[
+                {
+                  id: 'recommendedProducts',
+                  label: 'Recommended Products',
+                  filter: 'recommended-products',
+                },
+              ]}
+              disableClick
+              labelClassName='landing-page__recommended--products_tab'
+            />
+            <GridViewRecommendedProducts
+              products={recommendedProducts}
+              fetchNextPage={fetchNextPage}
+              hasMore={hasMore}
+              loading={loading}
+              className={'landing-page__recommended-products_grid-view'}
+            />
+          </>
+        )}
         <Tabs
           selectedTab={selectedTab}
           handleTabClick={handleTabClick}

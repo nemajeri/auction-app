@@ -34,19 +34,14 @@ public class AppUser {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(name = "city")
     private String city;
 
-    @Column(name = "address")
     private String address;
 
-    @Column(name = "country")
     private String country;
 
-    @Column(name = "zip_code")
     private String zipCode;
 
-    @Column(name = "phone")
     private String phone;
 
 }

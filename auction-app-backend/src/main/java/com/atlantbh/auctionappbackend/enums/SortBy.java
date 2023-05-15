@@ -1,9 +1,5 @@
 package com.atlantbh.auctionappbackend.enums;
 
-import lombok.AllArgsConstructor;
-
-
-
 public enum SortBy {
     START_DATE("startDate"),
     END_DATE("endDate"),
@@ -20,6 +16,7 @@ public enum SortBy {
     SortBy(String value) {
         this.value = value;
     }
+
     public static SortBy fromValue(String value) {
         for (SortBy sortBy : SortBy.values()) {
             if (sortBy.value.equalsIgnoreCase(value)) {
