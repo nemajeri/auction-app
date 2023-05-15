@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.atlantbh.auctionappbackend.utils.Constants.BID_DATE;
+
 @Service
 @RequiredArgsConstructor
 public class BidService {
@@ -35,8 +37,7 @@ public class BidService {
     private final AppUserRepository appUserRepository;
 
     public List<Bid> getBidsForAppUser(Long userId) {
-        List<Bid> bids;
-        bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, "bidDate"));
+        List<Bid> bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, BID_DATE));
         if (bids.isEmpty()) {
             bids = new ArrayList<>();
         }
@@ -45,8 +46,7 @@ public class BidService {
 
     public Float getHighestBidder(Long userId, Long productId) {
         Optional<Float> highestBidOpt = bidRepository.getMaxBidFromUserForProduct(userId, productId);
-        Float highestBidForUser = highestBidOpt.orElse(0f);
-        return highestBidForUser;
+        return highestBidOpt.orElse(0f);
     }
 
 

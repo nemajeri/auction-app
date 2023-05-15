@@ -1,16 +1,17 @@
 package com.atlantbh.auctionappbackend.service;
 
-import com.atlantbh.auctionappbackend.model.Product;
+import com.atlantbh.auctionappbackend.enums.PaymentStatus;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
+import com.atlantbh.auctionappbackend.response.PaymentResponse;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import lombok.AllArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.PAYMENT_SUCCESS;
+import org.slf4j.Logger;
 
 @Service
 @AllArgsConstructor
@@ -18,7 +19,9 @@ public class PaymentService {
 
     private final ProductRepository productRepository;
 
-    public PaymentIntent payForProduct(double amount, String currency, String paymentMethodId, Long productId) throws StripeException {
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
+
+    public PaymentResponse payForProduct(double amount, String currency, String paymentMethodId, Long productId) {
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount((long) (amount * 100))
                 .setCurrency(currency)
@@ -26,17 +29,24 @@ public class PaymentService {
                 .setConfirm(true)
                 .build();
 
-        PaymentIntent paymentIntent = PaymentIntent.create(params);
+        try {
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-        if(paymentIntent.getStatus().equals(PAYMENT_SUCCESS)) {
-            Optional<Product> optProduct = productRepository.findById(productId);
-            if (optProduct.isPresent()) {
-                Product product = optProduct.get();
-                product.setSold(true);
-                productRepository.save(product);
+            if (paymentIntent.getStatus().equals(PaymentStatus.SUCCESS.toString())) {
+                productRepository.findById(productId).ifPresent(product -> {
+                    product.setSold(true);
+                    productRepository.save(product);
+                });
+
+                return new PaymentResponse(paymentIntent.getId(), PaymentStatus.SUCCESS, paymentIntent.getAmount(), paymentIntent.getCurrency());
             }
+
+        } catch (StripeException e) {
+            log.error("Stripe payment error", e);
+            return new PaymentResponse(null, PaymentStatus.ERROR, null, null);
         }
 
-        return paymentIntent;
+        return new PaymentResponse(null, PaymentStatus.FAILED, null, null);
     }
 }
+

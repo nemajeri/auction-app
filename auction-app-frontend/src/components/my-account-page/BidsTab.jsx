@@ -24,6 +24,22 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
     })();
   }, []);
 
+  const getButtonLabel = (bid) => {
+    switch (true) {
+      case bid.product.sold && bid.product.user.id === user.id:
+        return 'SOLD';
+      case bid.product.sold &&
+        bid.product.user.id !== user.id &&
+        bid.user.id === user.id:
+        return 'BOUGHT';
+      case hoursDiff(bid.product.endDate) === 0 &&
+        bid.product.highestBid === bid.price:
+        return 'BUY';
+      default:
+        return 'VIEW';
+    }
+  }
+
   return (
     <>
       <AuctionTable headings={bidHeadings} headerClassNames={headerClassNames}>
@@ -61,16 +77,7 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
               <td>
                 <Link to={shopPagePathToProduct.replace(':id', bid.product.id)}>
                   <Button className={'auction-table__button'}>
-                    {bid.product.sold && bid.product.user.id === user.id
-                      ? 'SOLD'
-                      : bid.product.sold &&
-                        bid.product.user.id !== user.id &&
-                        bid.user.id === user.id
-                      ? 'BOUGHT'
-                      : hoursDiff(bid.product.endDate) === 0 &&
-                        bid.product.highestBid === bid.price
-                      ? 'BUY'
-                      : 'VIEW'}
+                    {getButtonLabel(bid)}
                   </Button>
                 </Link>
               </td>

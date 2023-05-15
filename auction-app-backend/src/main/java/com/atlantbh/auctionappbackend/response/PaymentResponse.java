@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.response;
 
+import com.atlantbh.auctionappbackend.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import lombok.Data;
 @Data
 public class PaymentResponse {
     private String id;
-    private String status;
+    private PaymentStatus status;
     private Long amount;
     private String currency;
 }

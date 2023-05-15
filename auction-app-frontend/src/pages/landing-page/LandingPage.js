@@ -67,7 +67,7 @@ const LandingPage = () => {
     let allProducts = await getAllProductsToSeparateHighlighted();
     let highlightedProducts = allProducts?.data?.filter((product) => {
       const endDate = new Date(product.endDate);
-      return product.highlighted === true && getTodayWithoutTime().getTime() <= endDate.getTime();
+      return product.highlighted && getTodayWithoutTime().getTime() <= endDate.getTime();
     })
     setHighlightedProducts(highlightedProducts);
     setProducts(sortedProducts.data.content);

@@ -23,9 +23,9 @@ public final class Constants {
 
     public static final String S3_KEY_PREFIX = "product-images/";
 
-    public static final String PAYMENT_SUCCESS ="succeeded";
-
     public static final String PAYMENT_METHOD_ID = "paymentMethodId";
+
+    public static final String BID_DATE = "bidDate";
 
     public static final String AMOUNT = "amount";
 

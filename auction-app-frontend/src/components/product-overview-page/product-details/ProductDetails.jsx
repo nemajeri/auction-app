@@ -77,17 +77,21 @@ const ProductDetails = ({
                   PLACE BID
                 </Button>
               </>
-            ) : isAuctionEnded && isUserHighestBidder ? (
-              <Button
-                onClick={onPayButtonClick}
-                className={'details__button pay'}
-                isOwner={isOwner}
-              >
-                PAY
-              </Button>
-            ) : isProductSold && isUserHighestBidder ? null : null}
+            ) : (
+              isAuctionEnded &&
+              isUserHighestBidder && (
+                <Button
+                  onClick={onPayButtonClick}
+                  className={'details__button pay'}
+                  isOwner={isOwner}
+                >
+                  PAY
+                </Button>
+              )
+            )}
           </div>
         )}
+
         <Tabs
           tabs={tabs}
           handleTabClick={handleTabClick}
