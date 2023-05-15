@@ -7,7 +7,6 @@ import {
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import './sellpage.css';
 import { addNewItemForAuction } from '../../utils/api/productsApi';
-import Modal from '../../utils/forms/Modal.jsx';
 import { sellerPath } from '../../utils/paths';
 import { validateFormFields } from '../../utils/helperFunctions';
 import {
@@ -20,14 +19,13 @@ import { getSubcategories } from '../../utils/api/subcategoryApi';
 import { AppContext } from '../../utils/AppContextProvider';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import { toast } from 'react-toastify';
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
-  const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  const [modalMessage, setModalMessage] = useState('');
   const { user } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
@@ -163,30 +161,20 @@ const SellPage = () => {
     );
 
     if (images.length < 3) {
-      setModalMessage('You need to add at least 3 images.');
-      setShowModal(true);
-      return;
+      toast.error('You need to add at least 3 images.');
     }
 
     if (hasErrors) {
-      setModalMessage('Please fill in all required fields.');
-      setShowModal(true);
-      setErrors(errors);
+      toast.error('Please fill in all required fields.');
     } else {
       setLoading(true);
       addNewItemForAuction(
         productDetails,
         images,
-        setShowModal,
-        setModalMessage,
-        setLoading
+        setLoading,
+        navigate
       );
     }
-  };
-
-  const onClose = () => {
-    setShowModal(false);
-    navigate(sellerPath);
   };
 
   const renderProgressDots = () => {
@@ -218,9 +206,6 @@ const SellPage = () => {
       <BreadCrumbs title='SELLER' />
       {renderProgressDots()}
       <div className='shared-form_position'>{MultiStepForm()}</div>
-      <Modal showModal={showModal} onClose={onClose}>
-        {modalMessage}
-      </Modal>
       {loading && <LoadingSpinner />}
     </>
   );

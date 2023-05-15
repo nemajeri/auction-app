@@ -46,7 +46,7 @@ export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
   },
 ];
 
-export const getStep2Fields = (initialValues) => [
+export const getStep2Fields = () => [
   {
     name: 'startPrice',
     label: 'Your start Price',
@@ -61,23 +61,29 @@ export const getStep2Fields = (initialValues) => [
         name: 'startDate',
         label: 'Start date',
         type: 'date',
-        validation: (value) => value !== '' && moment.utc(value).isSameOrAfter(START_OF_TODAY_UTC),
+        validation: (value) => {
+          const date = moment.utc(value);
+          return value !== '' && date.isValid() && date.isSameOrAfter(START_OF_TODAY_UTC);
+        },
         errorMessage: 'Please pick a valid date!',
+        placeholder: '14/04/2021'
       },
       {
         name: 'endDate',
         label: 'End date',
         type: 'date',
-        validation: (value) => {
-          const startDate = moment.utc(initialValues.startDate);
+        validation: (value, startDate) => {
           const endDate = moment.utc(value);
-          return value !== '' && endDate.isSameOrAfter(START_OF_TODAY_UTC) && endDate.isSameOrAfter(startDate);
+          const startDateMoment = moment.utc(startDate);
+          return value !== '' && endDate.isValid() && endDate.isSameOrAfter(START_OF_TODAY_UTC) && endDate.isSameOrAfter(startDateMoment);
         },
         errorMessage: 'End date should be after start date!',
+        placeholder: '14/04/2021'
       },
     ],
   },
 ];
+
 export const getStep3Fields = () => [
   {
     name: 'address',

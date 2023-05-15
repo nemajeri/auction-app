@@ -13,7 +13,7 @@ const SecondStepToAddItem = ({
   setErrors,
   initialValues,
 }) => {
-  const fields = getStep2Fields(initialValues);
+  const fields = getStep2Fields();
 
   return (
     <div className='shared-form-style__container'>

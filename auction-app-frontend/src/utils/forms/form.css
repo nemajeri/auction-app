@@ -190,3 +190,7 @@
     font-weight: 700;
     cursor: pointer;
   }
+
+  .custom-datepicker {
+    width: 14rem !important;
+  }

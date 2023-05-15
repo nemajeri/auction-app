@@ -13,6 +13,8 @@ import TextAreaField from './TextAreaField';
 import PhoneNumberField from './PhoneNumberField';
 import InputField from './InputField';
 import StartPriceInput from './StartPriceInput';
+import moment from 'moment';
+import DateField from './DateField';
 
 const Form = ({
   fields,
@@ -42,7 +44,7 @@ const Form = ({
 
   const handleChange = (eventOrName, valueFromSelect) => {
     let name, value;
-    
+
     if (typeof eventOrName === 'object') {
       name = eventOrName.target.name;
       value = eventOrName.target.value;
@@ -50,14 +52,24 @@ const Form = ({
       name = eventOrName;
       value = valueFromSelect;
     }
-  
+
+    const flattenedFields = fields.flatMap((field) =>
+    field.fields ? field.fields : field
+  );
+  const field = flattenedFields.find((field) => field.name === name);
+
+    const isDateField = field?.type === 'date';
+    let fieldValue = isDateField ? moment.utc(value).startOf('day').toISOString() : value;
+
     const newState = {
       ...formState,
-      [name]: value,
+      [name]: fieldValue,
     };
-    
-    const field = fields.find((field) => field.name === name);
-    if (field?.validation && !field.validation(value)) {
+
+    if (
+      field?.validation &&
+      !field.validation(fieldValue, formState['startDate'])
+    ) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         [name]: field.errorMessage,
@@ -65,13 +77,13 @@ const Form = ({
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
     }
-    
+
     if (name === 'categoryId' && updateSubcategories) {
       updateSubcategories(value);
     }
-    
+
     setFormState(newState);
-    
+
     if (onFormStateChange) {
       onFormStateChange(newState);
     }
@@ -143,6 +155,9 @@ const Form = ({
           break;
         case 'textarea':
           FieldComponent = TextAreaField;
+          break;
+        case 'date':
+          FieldComponent = DateField;
           break;
         default:
           FieldComponent = InputField;
