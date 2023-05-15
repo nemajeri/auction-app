@@ -5,10 +5,11 @@ import { Link } from 'react-router-dom';
 const Product = ({
   product: { id, productName, startPrice, images },
   location = null,
+  landingPageProductClassName
 }) => {
   const coverImage = Array.isArray(images) ? images[0] : images;
   return (
-    <div className='product'>
+    <div className={landingPageProductClassName ? `product ${landingPageProductClassName}` : 'product'}>
       <img src={coverImage} alt='products' />
       <div className='product__details'>
         {location ? (

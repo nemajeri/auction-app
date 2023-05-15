@@ -12,7 +12,6 @@ import {
 } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
 import Tabs from '../../components/tabs/Tabs';
-import { LANDING_PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import RecommendedProducts from '../../components/landing-page/recommended-products/RecommendedProducts.jsx';
 import { useGridView } from '../../hooks/useGridView';
@@ -23,6 +22,8 @@ const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
   { id: 'lastChance', label: 'Last Chance', filter: 'last-chance' },
 ];
+
+const landingPageProductClassName = 'landing-page-product';
 
 const LandingPage = () => {
   const [selectedTab, setSelectedTab] = useState(tabs[0].id);
@@ -142,6 +143,7 @@ const LandingPage = () => {
           fetchNextPage={fetchNextPage}
           hasMore={hasMore}
           loading={loading}
+          landingPageProductClassName={landingPageProductClassName}
         />
       </div>
     </div>

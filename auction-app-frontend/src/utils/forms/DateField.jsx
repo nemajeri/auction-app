@@ -4,7 +4,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import CustomDatePickerInput from './CustomDatePickerInput';
 
 const DateField = ({ field: { name, placeholder }, value, onChange, ...props }) => {
-
   const handleChange = (date) => {
     onChange(name, date.toISOString());
   };
@@ -13,10 +12,11 @@ const DateField = ({ field: { name, placeholder }, value, onChange, ...props }) 
     <DatePicker
       selected={value ? new Date(value) : null}
       onChange={handleChange}
-      customInput={<CustomDatePickerInput placeholder={placeholder}/>}
+      customInput={<CustomDatePickerInput inputPlaceholder={placeholder} />}
       {...props}
     />
   );
 };
 
 export default DateField;
+

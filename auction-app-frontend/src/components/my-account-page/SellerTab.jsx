@@ -73,7 +73,7 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
               )}
               <td className={bodyClassNames[1]}>
                 <span>{product.productName}</span>
-                <br /> <span>#{product.id}</span>
+                <span>#{product.id}</span>
               </td>
               <td className={bodyClassNames[2]}>
                 {hoursDiff(product.endDate)} h
