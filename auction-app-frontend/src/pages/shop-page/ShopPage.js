@@ -10,7 +10,7 @@ import { getAllProducts } from '../../utils/api/productsApi';
 import { PAGE_SIZE, ALL_CATEGORIES_ID } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import SelectField from '../../utils/forms/SelectField';
 import {
   FIELD_NAME,
@@ -50,6 +50,8 @@ const ShopPage = () => {
     setProducts,
     isClearButtonPressed,
     setIsClearButtonPressed,
+    currentSortOption,
+    setCurrentSortOption,
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
@@ -58,7 +60,6 @@ const ShopPage = () => {
     content: [],
     totalElements: 0,
   });
-  const [currentSortOption, setCurrentSortOption] = useState('DEFAULT_SORTING');
   const { categoryId } = useParams();
 
   useEffect(() => {
@@ -125,7 +126,7 @@ const ShopPage = () => {
       const productsResponse = await getAllProducts(
         0,
         PAGE_SIZE,
-        searchTerm,
+        activeCategory === ALL_CATEGORIES_ID ? '' : searchTerm,
         categoryId === ALL_CATEGORIES_ID ? null : categoryId,
         currentSortOption
       );
@@ -139,7 +140,7 @@ const ShopPage = () => {
           setProducts([]);
         }
       } else {
-        if (searchedProducts) {
+        if (searchedProducts && categoryId !== ALL_CATEGORIES_ID) { 
           const filteredItems = searchedProducts.content.filter(
             (product) => product.categoryId === categoryId
           );
@@ -155,6 +156,7 @@ const ShopPage = () => {
       console.error(error);
       setLoading(false);
     }
+
 
     if (category) {
       setOpenedCategory((prevState) => {
@@ -210,20 +212,32 @@ const ShopPage = () => {
     PAGE_SIZE
   );
 
+  console.log('Active category: ', activeCategory);
   const handleSortOptionChoice = async (chosenSortOption) => {
     setCurrentSortOption(chosenSortOption);
     try {
       const response = await getAllProducts(
         pageNumber,
         PAGE_SIZE,
-        undefined,
+        searchTerm,
         activeCategory,
         chosenSortOption
       );
       const { content, totalElements } = response.data;
 
-      setProducts(content);
-      setProductsByCategories({ content, totalElements });
+      if (activeCategory === ALL_CATEGORIES_ID) {
+        setSearchProducts(null);
+        setProducts(content);
+        setProductsByCategories({ content, totalElements });
+      } else if (searchedProducts) {
+        let newSearchedProducts = { ...searchedProducts };
+        newSearchedProducts.content = content;
+        newSearchedProducts.pageData.totalElements = totalElements;
+        setSearchProducts(newSearchedProducts);
+      } else {
+        setProducts(content);
+        setProductsByCategories({ content, totalElements });
+      }
     } catch (error) {
       console.error('Error while sorting products');
     }
