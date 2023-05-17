@@ -11,42 +11,8 @@ import { AiOutlinePlus } from 'react-icons/ai';
 import { AppContext } from '../../utils/AppContextProvider';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { usePageLoading } from '../../hooks/usePageLoading';
-
-const bidHeadings = [
-  'Item',
-  'Name',
-  'Time left',
-  'Your bid',
-  'No. bids',
-  'Highest bid',
-];
-
-const sellerHeadings = [
-  'Item',
-  'Name',
-  'Time left',
-  'Your price',
-  'No. bids',
-  'Highest bid',
-];
-
-const headerClassNames = [
-  'auction-table__first-header space-left',
-  'auction-table__second-header space-right space-left-second__header',
-  'auction-table__third-header',
-  'auction-table__fourth-header',
-  'auction-table__fifth-header',
-  'auction-table__sixth-header space-right',
-];
-
-const bodyClassNames = [
-  'auction-table__first-body space-left',
-  'auction-table__second-body',
-  'auction-table__third-body',
-  'auction-table__fourth-body',
-  'auction-table__fifth-body',
-  'auction-table__sixth-body',
-];
+import { headerClassNames, bodyClassNames } from '../../utils/styles';
+import {sellerHeadings, bidHeadings} from '../../data/headings';
 
 const MyAccountPage = () => {
   const { pathname } = useLocation();

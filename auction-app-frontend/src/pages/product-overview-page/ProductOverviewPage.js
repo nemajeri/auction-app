@@ -17,11 +17,10 @@ import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../utils/AppContextProvider';
 import { AUCTION_ENDED } from '../../utils/constants';
-
-const tabs = [{ id: 'details', label: 'Details' }];
+import { productTabs } from '../../data/tabs';
 
 const ProductOverviewPage = () => {
-  const [selectedTab, setSelectedTab] = useState(tabs[0].id);
+  const [selectedTab, setSelectedTab] = useState(productTabs[0].id);
   const [product, setProduct] = useState(null);
   const [images, setImages] = useState([]);
   const [timeLeft, setTimeLeft] = useState('');
@@ -40,7 +39,6 @@ const ProductOverviewPage = () => {
         setImages(response.data.images);
         setTimeLeft(calculateTimeLeft(response.data));
         setIsOwner(response.data.owner);
-        setLoading(false);
       } catch (error) {
         console.error(error);
       } finally {
@@ -54,7 +52,7 @@ const ProductOverviewPage = () => {
       (async () => {
         try {
           const response = await getHighestBidForUserAndProduct(
-            user.id,
+            user?.id,
             product.id
           );
           setUserHighestBid(response.data);
@@ -69,7 +67,7 @@ const ProductOverviewPage = () => {
       })();
     }
     
-  }, [user, product, isOwner, timeLeft]);
+  }, [user?.id, product, isOwner, timeLeft]);
 
   const handleTabClick = (id) => {
     setSelectedTab(id);
@@ -122,7 +120,7 @@ const ProductOverviewPage = () => {
           <section className='product-overview-page__gallery--and_details'>
             <ProductGallery images={images} />
             <ProductDetails
-              tabs={tabs}
+              tabs={productTabs}
               handleTabClick={handleTabClick}
               selectedTab={selectedTab}
               product={product}
@@ -132,6 +130,7 @@ const ProductOverviewPage = () => {
               onBidButtonClick={onBidButtonClick}
               bidAmount={bidAmount}
               userHighestBid={userHighestBid}
+              user={user}
             />
           </section>
         </div>
