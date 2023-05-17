@@ -101,14 +101,34 @@ public class ProductService {
     }
 
 
-    public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId) {
+    public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId, SortBy sortBy) {
         Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));
 
         if (categoryId != null) {
             specification = specification.and(ProductSpecifications.hasCategoryId(categoryId));
         }
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Sort sort;
+        switch(sortBy) {
+            case PRICE_HIGH_TO_LOW:
+                sort = Sort.by(Sort.Direction.DESC, "startPrice");
+                break;
+            case PRICE_LOW_TO_HIGH:
+                sort = Sort.by(Sort.Direction.ASC, "startPrice");
+                break;
+            case END_DATE:
+                sort = Sort.by(Sort.Direction.ASC, "endDate");
+                break;
+            case START_DATE:
+                sort = Sort.by(Sort.Direction.DESC, "startDate");
+                break;
+            case DEFAULT_SORTING:
+            default:
+                sort = Sort.unsorted();
+                break;
+        }
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Product> products = productRepository.findAll(specification, pageable);
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
     }

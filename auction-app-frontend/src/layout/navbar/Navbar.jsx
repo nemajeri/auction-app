@@ -24,6 +24,7 @@ const Navbar = () => {
     user,
     setIsClearButtonPressed,
     setUser,
+    currentSortOption,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
@@ -84,6 +85,7 @@ const Navbar = () => {
                 pathname={pathname}
                 navigate={navigate}
                 setIsClearButtonPressed={setIsClearButtonPressed}
+                currentSortOption={currentSortOption}
               />
               <div className='navbar__navigation'>
                 {navlinks.map((link) => (

@@ -7,10 +7,14 @@ const SelectField = ({
   onChange,
   value,
   error,
+  handleSortOptionChoice = () => {}
 }) => {
   
   const handleChange = (option) => {
-    onChange(name, option.value);
+    if (onChange) {
+      onChange(name, option.value);
+    }
+      handleSortOptionChoice(option.value);
   };
 
   const selectedOption = options.find((option) => option.value === value);
@@ -25,6 +29,7 @@ const SelectField = ({
         placeholder={placeholder}
         onChange={handleChange}
         styles={customStyles}
+        isSearchable={false}
         components={{ IndicatorSeparator: () => null }}
       />
       {error && (

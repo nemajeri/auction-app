@@ -11,6 +11,28 @@ import { PAGE_SIZE, ALL_CATEGORIES_ID } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
 import { useParams } from 'react-router-dom';
+import SelectField from '../../utils/forms/SelectField';
+import {
+  FIELD_NAME,
+  FIELD_PLACEHOLDER,
+  OPTION_DEFAULT_SORTING,
+  OPTION_START_DATE,
+  OPTION_END_DATE,
+  OPTION_PRICE_LOW_TO_HIGH,
+  OPTION_PRICE_HIGH_TO_LOW,
+} from '../../utils/constants';
+
+const field = {
+  name: FIELD_NAME,
+  placeholder: FIELD_PLACEHOLDER,
+  options: [
+    { label: 'Default sorting', value: OPTION_DEFAULT_SORTING },
+    { label: 'Sort By Newness', value: OPTION_START_DATE },
+    { label: 'Sort By Time Left', value: OPTION_END_DATE },
+    { label: 'Sort By Price: Low to High', value: OPTION_PRICE_LOW_TO_HIGH },
+    { label: 'Sort By Price: High to Low', value: OPTION_PRICE_HIGH_TO_LOW },
+  ],
+};
 
 const ShopPage = () => {
   const {
@@ -28,6 +50,8 @@ const ShopPage = () => {
     setProducts,
     isClearButtonPressed,
     setIsClearButtonPressed,
+    currentSortOption,
+    setCurrentSortOption,
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
@@ -102,8 +126,9 @@ const ShopPage = () => {
       const productsResponse = await getAllProducts(
         0,
         PAGE_SIZE,
-        searchTerm,
-        categoryId === ALL_CATEGORIES_ID ? null : categoryId
+        activeCategory === ALL_CATEGORIES_ID ? '' : searchTerm,
+        categoryId === ALL_CATEGORIES_ID ? null : categoryId,
+        currentSortOption
       );
 
       const { content, totalElements } = productsResponse.data;
@@ -115,7 +140,7 @@ const ShopPage = () => {
           setProducts([]);
         }
       } else {
-        if (searchedProducts) {
+        if (searchedProducts && categoryId !== ALL_CATEGORIES_ID) { 
           const filteredItems = searchedProducts.content.filter(
             (product) => product.categoryId === categoryId
           );
@@ -131,6 +156,7 @@ const ShopPage = () => {
       console.error(error);
       setLoading(false);
     }
+
 
     if (category) {
       setOpenedCategory((prevState) => {
@@ -159,7 +185,13 @@ const ShopPage = () => {
         ? null
         : activeCategory;
 
-    getAllProducts(nextPageNumber, PAGE_SIZE, searchTerm, categoryId)
+    getAllProducts(
+      nextPageNumber,
+      PAGE_SIZE,
+      searchTerm,
+      categoryId,
+      currentSortOption
+    )
       .then((response) => {
         const { content } = response.data;
         setProducts((prevProducts) => prevProducts.concat(content));
@@ -180,6 +212,37 @@ const ShopPage = () => {
     PAGE_SIZE
   );
 
+  console.log('Active category: ', activeCategory);
+  const handleSortOptionChoice = async (chosenSortOption) => {
+    setCurrentSortOption(chosenSortOption);
+    try {
+      const response = await getAllProducts(
+        pageNumber,
+        PAGE_SIZE,
+        searchTerm,
+        activeCategory,
+        chosenSortOption
+      );
+      const { content, totalElements } = response.data;
+
+      if (activeCategory === ALL_CATEGORIES_ID) {
+        setSearchProducts(null);
+        setProducts(content);
+        setProductsByCategories({ content, totalElements });
+      } else if (searchedProducts) {
+        let newSearchedProducts = { ...searchedProducts };
+        newSearchedProducts.content = content;
+        newSearchedProducts.pageData.totalElements = totalElements;
+        setSearchProducts(newSearchedProducts);
+      } else {
+        setProducts(content);
+        setProductsByCategories({ content, totalElements });
+      }
+    } catch (error) {
+      console.error('Error while sorting products');
+    }
+  };
+
   return (
     <div className='wrapper shop-page__wrapper'>
       <div className='container'>
@@ -193,17 +256,23 @@ const ShopPage = () => {
             }
           />
           <div className='shop-page__products'>
+            <SelectField
+              field={field}
+              handleSortOptionChoice={handleSortOptionChoice}
+            />
             {searchedProducts && searchedProducts?.content?.length === 0 ? (
               <div className='shop-page__no-products'>
                 <h4>No products found.</h4>
                 <p>Please try a different search or filter by category.</p>
               </div>
             ) : (
-              <GridViewProducts
-                className={'shop-page__grid-view'}
-                products={products}
-                currentLocation={'shop'}
-              />
+              <>
+                <GridViewProducts
+                  className={'shop-page__grid-view'}
+                  products={products}
+                  currentLocation={'shop'}
+                />
+              </>
             )}
             {((searchedProducts
               ? pageNumber < searchedProducts.pageData.totalPages - 1

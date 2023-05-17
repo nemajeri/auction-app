@@ -1,7 +1,7 @@
 import React, { useState, createContext, useEffect } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { getUserByEmail } from '../utils/api/userApi';
-import { PAGE_SIZE } from './constants';
+import { PAGE_SIZE, OPTION_DEFAULT_SORTING } from './constants';
 import jwt_decode from 'jwt-decode';
 import { getJwtFromCookie } from './helperFunctions';
 
@@ -17,6 +17,7 @@ export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState(null);
   const [isClearButtonPressed, setIsClearButtonPressed] = useState(false);
+  const [currentSortOption, setCurrentSortOption] = useState(OPTION_DEFAULT_SORTING);
 
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
@@ -41,7 +42,8 @@ export const AppContextProvider = ({ children }) => {
     categoryId,
     suggestedSearchTerm = null,
     navigate,
-    pathname
+    pathname,
+    currentSortOption
   ) => {
     event.preventDefault();
     const currentSearchTerm = suggestedSearchTerm || searchTerm;
@@ -49,7 +51,7 @@ export const AppContextProvider = ({ children }) => {
     if (!pathname.includes('/shop')) {
       navigate('/shop');
     }
-    getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId).then(
+    getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId, currentSortOption).then(
       (response) => {
         setLoading(true);
         setSearchProducts({
@@ -107,6 +109,8 @@ export const AppContextProvider = ({ children }) => {
         user,
         isClearButtonPressed,
         setIsClearButtonPressed,
+        currentSortOption,
+        setCurrentSortOption
       }}
     >
       {children}

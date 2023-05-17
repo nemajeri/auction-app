@@ -14,7 +14,8 @@ export const getAllProducts = (
   pageNumber,
   pageSize,
   searchTerm = '',
-  categoryId = null
+  categoryId = null,
+  sortOption ='DEFAULT_SORTING'
 ) => {
   let url = `/products/items?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
@@ -24,6 +25,10 @@ export const getAllProducts = (
 
   if (categoryId !== null) {
     url += `&categoryId=${categoryId}`;
+  }
+
+  if(sortOption !== null) {
+    url += `&sort=${sortOption}`;
   }
 
   return API.get(url);
@@ -61,7 +66,7 @@ export const getProductsForUser = (userId, type) => {
   });
 };
 
-export const addNewItemForAuction = async (productDetails, images, setShowModal, setModalMessage) => {
+export const addNewItemForAuction = async (productDetails, images, setShowModal, setModalMessage, setLoading) => {
   try {
     const formData = new FormData();
 
@@ -88,6 +93,8 @@ export const addNewItemForAuction = async (productDetails, images, setShowModal,
   } catch (error) {
     setModalMessage('Error creating product.');
     setShowModal(true);
+  } finally {
+    setLoading(false);
   }
 };
 

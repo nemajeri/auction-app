@@ -61,3 +61,17 @@ export const COOKIE_NAME ="auction_app_token";
 export const PAYMENT_CURRENCY ="usd";
 
 export const PAYMENT_TYPE = "card";
+
+export const FIELD_NAME = 'sort';
+
+export const FIELD_PLACEHOLDER = 'Sort Products';
+
+export const OPTION_DEFAULT_SORTING = 'DEFAULT_SORTING';
+
+export const OPTION_START_DATE = 'START_DATE';
+
+export const OPTION_END_DATE = 'END_DATE';
+
+export const OPTION_PRICE_LOW_TO_HIGH = 'PRICE_LOW_TO_HIGH';
+
+export const OPTION_PRICE_HIGH_TO_LOW = 'PRICE_HIGH_TO_LOW';
