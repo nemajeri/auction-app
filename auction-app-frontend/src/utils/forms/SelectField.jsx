@@ -7,16 +7,14 @@ const SelectField = ({
   onChange,
   value,
   error,
-  handleSortOptionChoice
+  handleSortOptionChoice = () => {}
 }) => {
   
   const handleChange = (option) => {
     if (onChange) {
       onChange(name, option.value);
     }
-    if (handleSortOptionChoice) {
       handleSortOptionChoice(option.value);
-    }
   };
 
   const selectedOption = options.find((option) => option.value === value);
