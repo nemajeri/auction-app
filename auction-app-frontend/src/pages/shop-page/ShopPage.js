@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import './shopPage.css';
 import CategoriesAccordion from '../../components/shop-page/categories-accordion/CategoriesAccordion';
 import ShopPageProducts from '../../components/shop-page/shop-page-products/ShopPageProducts';
@@ -19,9 +19,11 @@ import {
   OPTION_END_DATE,
   OPTION_PRICE_LOW_TO_HIGH,
   OPTION_PRICE_HIGH_TO_LOW,
+  EMPTY_STRING,
 } from '../../utils/constants';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { usePageLoading } from '../../hooks/usePageLoading';
+import { ACTIONS } from '../../utils/appReducer';
 
 const field = {
   name: FIELD_NAME,
@@ -37,18 +39,13 @@ const field = {
 
 const ShopPage = () => {
   const {
+    dispatch,
     searchTerm,
     searchedProducts,
     pageNumber,
-    setPageNumber,
     activeCategory,
-    setActiveCategory,
     products,
-    setSearchTerm,
-    setSearchProducts,
-    setProducts,
     isClearButtonPressed,
-    setIsClearButtonPressed,
     initialLoading
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
@@ -58,7 +55,9 @@ const ShopPage = () => {
     content: [],
     totalElements: 0,
   });
-  const [currentSortOption, setCurrentSortOption] = useState(OPTION_DEFAULT_SORTING);
+  const [currentSortOption, setCurrentSortOption] = useState(
+    OPTION_DEFAULT_SORTING
+  );
   const [loading, setLoading] = useState(false);
   const { categoryId } = useParams();
 
@@ -66,16 +65,16 @@ const ShopPage = () => {
 
   useEffect(() => {
     const resetStatesOnUnmount = () => {
-      setSearchTerm('');
+      dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: EMPTY_STRING });
       setProductsByCategories({ content: [], totalElements: 0 });
-      setSearchProducts(null);
-      setProducts([]);
+      dispatch({ type: ACTIONS.SET_SEARCHED_PRODUCTS, payload: null });
+      dispatch({ type: ACTIONS.SET_PRODUCTS, payload: [] });
     };
 
     return () => {
       resetStatesOnUnmount();
     };
-  }, []);
+  }, [dispatch, setProductsByCategories]);
 
   useEffect(() => {
     (async () => {
@@ -86,32 +85,7 @@ const ShopPage = () => {
     })();
   }, []);
 
-  useEffect(() => {
-    if (!loading && searchedProducts) {
-      setProducts(searchedProducts.content);
-    }
-
-    if (isClearButtonPressed) {
-      handleOpeningAndFetchingCategories(activeCategory)();
-      setIsClearButtonPressed(false);
-    }
-  }, [loading, searchedProducts, isClearButtonPressed]);
-
-  useEffect(() => {
-    if (categoryId && categories) {
-      const firstLoadedCategory = categories.find(
-        (category) => category.id === parseInt(categoryId)
-      );
-
-      if (firstLoadedCategory) {
-        setOpenedCategory({ [firstLoadedCategory.categoryName]: true });
-        setActiveCategory(firstLoadedCategory.id);
-      }
-      handleOpeningAndFetchingCategories(parseInt(categoryId))();
-    }
-  }, [categoryId, categories]);
-
-  const handleOpeningAndFetchingCategories = (categoryId) => async (event) => {
+  const handleOpeningAndFetchingCategories = useCallback((categoryId) => async (event) => {
     const category = event?.currentTarget.dataset.category;
     const isOpening = category ? !openedCategory[category] : true;
 
@@ -120,13 +94,13 @@ const ShopPage = () => {
         ...prevState,
         [category]: false,
       }));
-      setActiveCategory(null);
+      dispatch({ type: ACTIONS.SET_ACTIVE_CATEGORY, payload: null });
       return;
     }
 
     try {
       setLoading(true);
-      setPageNumber(0);
+      dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: 0 });
 
       const productsResponse = await getAllProducts(
         0,
@@ -140,18 +114,21 @@ const ShopPage = () => {
 
       if (!isOpening && category) {
         if (searchedProducts) {
-          setProducts(searchedProducts.content);
+          dispatch({
+            type: ACTIONS.SET_PRODUCTS,
+            payload: searchedProducts.content,
+          });
         } else {
-          setProducts([]);
+          dispatch({ type: ACTIONS.SET_PRODUCTS, payload: [] });
         }
       } else {
         if (searchedProducts) {
           const filteredItems = searchedProducts.content.filter(
             (product) => product.categoryId === categoryId
           );
-          setProducts(filteredItems);
+          dispatch({ type: ACTIONS.SET_PRODUCTS, payload: filteredItems });
         } else {
-          setProducts(content);
+          dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
         }
       }
 
@@ -177,11 +154,47 @@ const ShopPage = () => {
           [category]: isOpening,
         };
       });
-
-      setActiveCategory(isOpening ? categoryId : null);
+      dispatch({
+        type: ACTIONS.SET_ACTIVE_CATEGORY,
+        payload: isOpening ? categoryId : null,
+      });
     }
-  };
+  }, [ searchTerm, currentSortOption, openedCategory, searchedProducts, dispatch]);
 
+
+
+  useEffect(() => {
+    if (!loading && searchedProducts) {
+      dispatch({
+        type: ACTIONS.SET_PRODUCTS,
+        payload: searchedProducts.content,
+      });
+    }
+
+    if (isClearButtonPressed) {
+      handleOpeningAndFetchingCategories(activeCategory)();
+      dispatch({ type: ACTIONS.SET_CLEAR_BUTTON_PRESSED, payload: false });
+    }
+  }, [loading, searchedProducts, isClearButtonPressed, dispatch, activeCategory, handleOpeningAndFetchingCategories]);
+
+  useEffect(() => {
+    if (categoryId && categories) {
+      const firstLoadedCategory = categories.find(
+        (category) => category.id === parseInt(categoryId)
+      );
+
+      if (firstLoadedCategory) {
+        setOpenedCategory({ [firstLoadedCategory.categoryName]: true });
+        dispatch({
+          type: ACTIONS.SET_ACTIVE_CATEGORY,
+          payload: firstLoadedCategory.id,
+        });
+      }
+      handleOpeningAndFetchingCategories(parseInt(categoryId))();
+    }
+  }, [categoryId, categories , dispatch, handleOpeningAndFetchingCategories]);
+
+  
   const onExploreMoreBtnClick = () => {
     const nextPageNumber = pageNumber + 1;
     const categoryId =
@@ -190,21 +203,25 @@ const ShopPage = () => {
         : activeCategory;
 
     getAllProducts(
-        nextPageNumber,
-        PAGE_SIZE,
-        searchTerm,
-        categoryId,
-        currentSortOption
+      nextPageNumber,
+      PAGE_SIZE,
+      searchTerm,
+      categoryId,
+      currentSortOption
     )
       .then((response) => {
-      const { content } = response.data;
-      setProducts((prevProducts) => prevProducts.concat(content));
+        const { content } = response.data;
+        dispatch({
+          type: ACTIONS.SET_PRODUCTS,
+          payload: products.concat(content),
+        });
+        
       })
       .catch((error) => {
-      console.error(error);
+        console.error(error);
       });
 
-    setPageNumber(nextPageNumber);
+    dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: nextPageNumber });
   };
 
   const totalPages = getTotalPages(
@@ -224,8 +241,7 @@ const ShopPage = () => {
         chosenSortOption
       );
       const { content, totalElements } = response.data;
-
-      setProducts(content);
+      dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
       setProductsByCategories({ content, totalElements });
     } catch (error) {
       console.error('Error while sorting products');
@@ -255,7 +271,8 @@ const ShopPage = () => {
               field={field}
               handleSortOptionChoice={handleSortOptionChoice}
             />
-            {searchedProducts && searchedProducts?.content?.length === 0 ? (
+            {searchedProducts &&
+            searchedProducts?.content?.length === 0 ? (
               <div className='shop-page__no-products'>
                 <h4>No products found.</h4>
                 <p>Please try a different search or filter by category.</p>
@@ -270,7 +287,8 @@ const ShopPage = () => {
               </>
             )}
             {((searchedProducts
-              ? pageNumber < searchedProducts.pageData.totalPages - 1
+              ? pageNumber <
+                searchedProducts.pageData.totalPages - 1
               : pageNumber < totalPages - 1) ||
               (productsByCategories.totalElements > PAGE_SIZE &&
                 products.length < productsByCategories.totalElements)) &&

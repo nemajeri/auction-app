@@ -9,22 +9,18 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../utils/AppContextProvider';
 import { loginPath, registrationPath } from '../../utils/paths';
 import { logoutUser } from '../../utils/api/authApi.js';
+import { EMPTY_STRING } from '../../utils/constants';
+import { ACTIONS } from '../../utils/appReducer';
 
 const Navbar = () => {
   const {
+    dispatch,
     searchTerm,
     onSearchIconClick,
     onSearchTermChange,
-    setSearchTerm,
     suggestion,
-    setSuggestion,
     activeCategory,
-    setSearchProducts,
-    setProducts,
     user,
-    setIsClearButtonPressed,
-    setUser,
-    currentSortOption,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
@@ -37,7 +33,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logoutUser();
-      setUser(null);
+      dispatch({ type: ACTIONS.SET_USER, payload: null });
       navigate('/login');
     } catch (error) {
       console.error(error);
@@ -79,13 +75,8 @@ const Navbar = () => {
                 onSearchTermChange={onSearchTermChange}
                 categoryId={activeCategory}
                 onSearchIconClick={onSearchIconClick}
-                setSearchTerm={setSearchTerm}
-                setSearchProducts={setSearchProducts}
-                setProducts={setProducts}
                 pathname={pathname}
                 navigate={navigate}
-                setIsClearButtonPressed={setIsClearButtonPressed}
-                currentSortOption={currentSortOption}
               />
               <div className='navbar__navigation'>
                 {navlinks.map((link) => (
@@ -110,10 +101,10 @@ const Navbar = () => {
               onClick={(e) => {
                 if (suggestion) {
                   onSearchIconClick(e, null, suggestion, navigate, pathname);
-                  setSearchTerm('');
-                  setSuggestion('');
+                  dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: EMPTY_STRING });
+                  dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
                 } else {
-                  setSuggestion('');
+                  dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
                 }
               }}
             >
