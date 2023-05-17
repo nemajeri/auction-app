@@ -31,7 +31,8 @@ import { Route, Routes } from 'react-router-dom';
 import { AppContextProvider } from './utils/AppContextProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ProtectedRoute from './utils/ProtectedRoutes';
+import  NotLoggedInRoute from './utils/routes/NotLoggedInRoute';
+import  LoggedInRoute from './utils/routes/LoggedInRoute';
 
 function App() {
   return (
@@ -44,34 +45,36 @@ function App() {
             path={shopPagePathToProduct}
             element={<ProductOverviewPage />}
           />
-          <Route
-            path={`${myAccountPath}/*`}
-            element={
-              <ProtectedRoute>
-                <MyAccountPage />
-              </ProtectedRoute>
-            }
-          ></Route>
+          <Route path={`${myAccountPath}/*`} element={
+            <LoggedInRoute>
+              <MyAccountPage />
+            </LoggedInRoute>
+          } />
           <Route path={shopPagePath} element={<ShopPage />} />
           <Route path={shopPagePathToCategory} element={<ShopPage />} />
           <Route
             path={productOverviewPagePath}
             element={<ProductOverviewPage />}
           />
-          <Route path={loginPath} element={<LoginPage />} />
-          <Route path={registrationPath} element={<RegisterPage />} />
+          <Route path={loginPath} element={
+            <NotLoggedInRoute>
+              <LoginPage />
+            </NotLoggedInRoute>
+          } />
+          <Route path={registrationPath} element={
+            <NotLoggedInRoute>
+              <RegisterPage />
+            </NotLoggedInRoute>
+          } />
           <Route path={landingPagePath} element={<LandingPage />} />
           <Route path={aboutUsPath} element={<AboutPage />} />
           <Route path={privacyPolicyPath} element={<TermsAndCondPage />} />
           <Route path={termsAndCondPath} element={<PrivacyPolicyPage />} />
-          <Route
-            path={sellerToAddItemPath}
-            element={
-              <ProtectedRoute>
-                <SellPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path={sellerToAddItemPath} element={
+            <LoggedInRoute>
+              <SellPage />
+            </LoggedInRoute>
+          } />
         </Routes>
         <Footer />
       </AppContextProvider>
