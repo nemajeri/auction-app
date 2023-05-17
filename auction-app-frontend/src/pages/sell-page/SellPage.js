@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {
-  FirstStepToAddItem,
-  SecondStepToAddItem,
-  ThirdStepToAddItem,
-} from '../../components/sell-page/adding-item-steps';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import './sellpage.css';
 import { addNewItemForAuction } from '../../utils/api/productsApi';
-import { sellerPath } from '../../utils/paths';
 import { validateFormFields } from '../../utils/helperFunctions';
 import {
   getStep1Fields,
@@ -20,6 +14,9 @@ import { AppContext } from '../../utils/AppContextProvider';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { toast } from 'react-toastify';
+import RenderProgressDots from '../../components/sell-page/adding-item-steps/RenderProgressDots';
+import MultiStepForm from '../../components/sell-page/adding-item-steps/Multiform';
+import { sellerPath } from '../../utils/paths';
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
@@ -43,7 +40,7 @@ const SellPage = () => {
     country: user?.country || '',
     phone: user?.phone || '',
   });
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,7 +77,6 @@ const SellPage = () => {
     value: subcategory.id,
   }));
 
-  const MultiStepForm = () => {
     const nextStep = () => {
       setStep(step + 1);
     };
@@ -88,55 +84,6 @@ const SellPage = () => {
     const prevStep = () => {
       setStep(step - 1);
     };
-
-    switch (step) {
-      case 1:
-        return (
-          <FirstStepToAddItem
-            nextStep={nextStep}
-            productDetails={productDetails}
-            sellerPath={sellerPath}
-            errors={errors}
-            setErrors={setErrors}
-            setProductDetails={setProductDetails}
-            categoryOptions={categoryOptions}
-            subcategoryOptions={subcategoryOptions}
-            updateSubcategories={updateSubcategories}
-            initialValues={productDetails}
-            setImages={setImages}
-            images={images}
-          />
-        );
-      case 2:
-        return (
-          <SecondStepToAddItem
-            nextStep={nextStep}
-            prevStep={prevStep}
-            productDetails={productDetails}
-            sellerPath={sellerPath}
-            errors={errors}
-            setErrors={setErrors}
-            setProductDetails={setProductDetails}
-            initialValues={productDetails}
-          />
-        );
-      case 3:
-        return (
-          <ThirdStepToAddItem
-            prevStep={prevStep}
-            productDetails={productDetails}
-            handleFinalSubmit={handleFinalSubmit}
-            sellerPath={sellerPath}
-            errors={errors}
-            setErrors={setErrors}
-            setProductDetails={setProductDetails}
-            initialValues={productDetails}
-          />
-        );
-      default:
-        return null;
-    }
-  };
 
   const firstStepToAddItemFields = getStep1Fields(
     categoryOptions,
@@ -168,44 +115,32 @@ const SellPage = () => {
       toast.error('Please fill in all required fields.');
     } else {
       setLoading(true);
-      addNewItemForAuction(
-        productDetails,
-        images,
-        setLoading,
-        navigate
-      );
+      addNewItemForAuction(productDetails, images, setLoading, navigate);
     }
-  };
-
-  const renderProgressDots = () => {
-    const totalSteps = 3;
-    const dots = [];
-
-    for (let i = 1; i <= totalSteps; i++) {
-      dots.push(
-        <div className='sell-page__progress-dot_circle' key={i}>
-          <div
-            className={`sell-page__progress-dot ${
-              i <= step ? 'sell-page__progress-active_dot' : ''
-            }`}
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div className='sell-page__progress-container'>
-        <div className='sell-page__progress-line' />
-        {dots}
-      </div>
-    );
   };
 
   return (
     <>
       <BreadCrumbs title='SELLER' />
-      {renderProgressDots()}
-      <div className='shared-form_position'>{MultiStepForm()}</div>
+      <RenderProgressDots step={step} />
+      <div className='shared-form_position'>
+        <MultiStepForm
+          step={step}
+          nextStep={nextStep}
+          prevStep={prevStep}
+          handleFinalSubmit={handleFinalSubmit}
+          productDetails={productDetails}
+          setProductDetails={setProductDetails}
+          errors={errors}
+          setErrors={setErrors}
+          categoryOptions={categoryOptions}
+          subcategoryOptions={subcategoryOptions}
+          updateSubcategories={updateSubcategories}
+          images={images}
+          setImages={setImages}
+          sellerPath={sellerPath}
+        />
+      </div>
       {loading && <LoadingSpinner />}
     </>
   );
