@@ -27,3 +27,11 @@
     color: var(--purple);
     font-weight: 700;
 }
+
+.product-image-loading {
+    display: none;
+  }
+  
+  .product-image-loaded {
+    display: block;
+  }

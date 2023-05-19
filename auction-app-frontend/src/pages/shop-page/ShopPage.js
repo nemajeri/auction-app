@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import './shopPage.css';
 import CategoriesAccordion from '../../components/shop-page/categories-accordion/CategoriesAccordion';
 import ShopPageProducts from '../../components/shop-page/shop-page-products/ShopPageProducts';
-import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner.jsx';
 import { useGridView } from '../../hooks/useGridView';
 import Button from '../../utils/Button';
 import { getCategories } from '../../utils/api/categoryApi';
@@ -21,6 +20,8 @@ import {
   OPTION_PRICE_LOW_TO_HIGH,
   OPTION_PRICE_HIGH_TO_LOW,
 } from '../../utils/constants';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const field = {
   name: FIELD_NAME,
@@ -48,6 +49,7 @@ const ShopPage = () => {
     setProducts,
     isClearButtonPressed,
     setIsClearButtonPressed,
+    initialLoading
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
@@ -56,9 +58,11 @@ const ShopPage = () => {
     content: [],
     totalElements: 0,
   });
-  const [currentSortOption, setCurrentSortOption] = useState('DEFAULT_SORTING');
+  const [currentSortOption, setCurrentSortOption] = useState(OPTION_DEFAULT_SORTING);
   const [loading, setLoading] = useState(false);
   const { categoryId } = useParams();
+
+  usePageLoading();
 
   useEffect(() => {
     const resetStatesOnUnmount = () => {
@@ -203,10 +207,6 @@ const ShopPage = () => {
     setPageNumber(nextPageNumber);
   };
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
   const totalPages = getTotalPages(
     searchedProducts?.pageData || productsByCategories?.totalElements,
     PAGE_SIZE
@@ -233,6 +233,10 @@ const ShopPage = () => {
       setLoading(false);
     }
   };
+
+    if (initialLoading) {
+    return <LoadingSpinner pageSpinner={true} />;
+  }
 
   return (
     <div className='wrapper shop-page__wrapper'>

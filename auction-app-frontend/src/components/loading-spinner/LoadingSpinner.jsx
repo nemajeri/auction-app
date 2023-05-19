@@ -1,9 +1,9 @@
 import React from 'react';
 import './loadingSpinner.css';
 
-const LoadingSpinner = () => {
+const LoadingSpinner = ({ pageSpinner }) => {
   return (
-    <div className="loading-spinner__container">
+    <div className={`loading-spinner__container ${pageSpinner ? 'page-spinner' : ''}`}>
       <div className="loading-spinner"></div>
     </div>
   );

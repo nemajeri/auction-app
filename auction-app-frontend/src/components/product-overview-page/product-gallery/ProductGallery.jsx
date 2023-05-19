@@ -4,11 +4,6 @@ import NoImagePlaceholder from '../../../utils/NoImagePlaceholder';
 
 const ProductGallery = ({ images }) => {
   const [mainImage, setMainImage] = useState(images[0]);
-
-  const handleImageClick = (event) => {
-    setMainImage(event.target.src);
-  };
-
   const expectedImageCount = 5;
 
   return (
@@ -22,7 +17,7 @@ const ProductGallery = ({ images }) => {
                 <img
                   src={images[index]}
                   alt='individual-product'
-                  onClick={handleImageClick}
+                  onClick={(e) => setMainImage(e.target.src)}
                 />
               ) : (
                 <div className='no-image__placeholder-container'>

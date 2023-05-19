@@ -18,6 +18,7 @@ export const AppContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isClearButtonPressed, setIsClearButtonPressed] = useState(false);
   const [isUserLoading, setIsUserLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
@@ -50,17 +51,22 @@ export const AppContextProvider = ({ children }) => {
     if (!pathname.includes('/shop')) {
       navigate('/shop');
     }
-    getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId).then(
-      (response) => {
-        setLoading(true);
-        setSearchProducts({
-          content: response.data.content,
-          pageData: response.data,
-        });
-        setLoading(false);
-        setSuggestion('');
-      }
-    );
+    try {
+      getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId).then(
+        (response) => {
+          setLoading(true);
+          setSearchProducts({
+            content: response.data.content,
+            pageData: response.data,
+          });
+          setSuggestion('');
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loadUserFromCookie = async () => {
@@ -111,6 +117,8 @@ export const AppContextProvider = ({ children }) => {
         isClearButtonPressed,
         setIsClearButtonPressed,
         isUserLoading,
+        initialLoading,
+        setInitialLoading,
       }}
     >
       {children}

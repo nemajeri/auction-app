@@ -2,13 +2,11 @@ import React from 'react';
 import Product from '../../../components/product/Product';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import './landingPageProducts.css';
-import LoadingSpinner from '../../loading-spinner/LoadingSpinner';
 
 const LandingPageProducts = ({
   products,
   fetchNextPage,
   hasMore,
-  loading,
   landingPageProductClassName,
 }) => {
   return (
@@ -21,7 +19,6 @@ const LandingPageProducts = ({
           scrollableTarget='products'
           scrollThreshold={0.8}
         >
-          {loading && <LoadingSpinner />}
           <div className='grid-view'>
             {products.map((product, index) => (
               <Product

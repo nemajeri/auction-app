@@ -35,7 +35,6 @@ const ProductDetails = ({
 
   const isAuctionActive = !product.sold && timeLeft !== 'Auction ended';
   const isAuctionEnded = !product.sold && timeLeft === 'Auction ended';
-  const isProductSold = product.sold && timeLeft === 'Auction ended';
   const isUserHighestBidder = userHighestBid === product.highestBid;
 
   return (

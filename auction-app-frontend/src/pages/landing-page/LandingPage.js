@@ -17,6 +17,8 @@ import RecommendedProducts from '../../components/landing-page/recommended-produ
 import { useGridView } from '../../hooks/useGridView';
 import { getStartOfTodayUTC } from '../../utils/helperFunctions';
 import moment from 'moment';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
@@ -34,13 +36,15 @@ const LandingPage = () => {
   const [highlightedProducts, setHighlightedProducts] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const currentPageNumber = useRef(0);
-  const { user } = useContext(AppContext);
+  const { user, initialLoading } = useContext(AppContext);
   const GridViewRecommendedProducts = useGridView(RecommendedProducts);
 
   useEffect(() => {
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
     fetchProductsAndCategories(selectedFilter, currentPageNumber.current);
   }, [selectedTab]);
+
+  usePageLoading();
 
   useEffect(() => {
     (async () => {
@@ -102,6 +106,10 @@ const LandingPage = () => {
     setProducts((prevProducts) => [...prevProducts, ...response.data.content]);
   };
 
+  if (initialLoading) {
+    return <LoadingSpinner pageSpinner={true} />;
+  }
+
   return (
     <div className='wrapper landing-page__wrapper'>
       <div className='content'>
@@ -142,7 +150,6 @@ const LandingPage = () => {
           products={products}
           fetchNextPage={fetchNextPage}
           hasMore={hasMore}
-          loading={loading}
           landingPageProductClassName={landingPageProductClassName}
         />
       </div>

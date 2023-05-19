@@ -9,7 +9,8 @@ import { Link } from 'react-router-dom';
 import Button from '../../utils/Button';
 import { shopPagePathToProduct } from '../../utils/paths';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
-import { shopPagePathToCategory } from '../../utils/paths'; 
+import { shopPagePathToCategory } from '../../utils/paths';
+import Image from './Image'; 
 
 const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
   const { user } = useContext(AppContext);
@@ -53,7 +54,7 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
             <tr key={bid.id}>
               {bid.product.images.length > 0 && (
                 <td className={bodyClassNames[0]}>
-                  <img
+                  <Image
                     src={bid.product.images[0]}
                     alt={bid.product.productName}
                   />

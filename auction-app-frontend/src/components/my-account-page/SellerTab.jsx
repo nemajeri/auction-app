@@ -12,6 +12,7 @@ import { shopPagePathToProduct, sellerToAddItemPath } from '../../utils/paths';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import Image from './Image';
 
 const tabs = [
   { id: 'active', label: ACTIVE },
@@ -66,10 +67,12 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
         {products.length !== 0 ? (
           products.map((product) => (
             <tr key={product.id}>
-              {product.images.length > 0 && (
+              {product.images.length > 0 && !loading ? (
                 <td className={bodyClassNames[0]}>
-                  <img src={product.images[0]} alt={product.productName} />
+                  <Image src={product.images[0]} alt={product.productName} />
                 </td>
+              ) : (
+                <LoadingSpinner />
               )}
               <td className={bodyClassNames[1]}>
                 <span>{product.productName}</span>
