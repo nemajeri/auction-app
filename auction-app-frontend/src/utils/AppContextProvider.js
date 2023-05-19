@@ -43,7 +43,8 @@ export const AppContextProvider = ({ children }) => {
     categoryId,
     suggestedSearchTerm = null,
     navigate,
-    pathname
+    pathname,
+    currentSortOption
   ) => {
     event.preventDefault();
     const currentSearchTerm = suggestedSearchTerm || searchTerm;
@@ -52,7 +53,7 @@ export const AppContextProvider = ({ children }) => {
       navigate('/shop');
     }
     try {
-      getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId).then(
+      getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId, currentSortOption).then(
         (response) => {
           setLoading(true);
           setSearchProducts({
