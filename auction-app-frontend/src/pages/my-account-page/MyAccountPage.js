@@ -8,6 +8,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SellerTab from '../../components/my-account-page/SellerTab';
 import BidsTab from '../../components/my-account-page/BidsTab';
 import { AiOutlinePlus } from 'react-icons/ai';
+import { AppContext } from '../../utils/AppContextProvider';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const bidHeadings = [
   'Item',
@@ -50,13 +53,20 @@ const MyAccountPage = () => {
   const [selectedTab, setSelectedTab] = useState(
     pathname === bidsPath ? bidsPath : sellerPath
   );
+  const { initialLoading } = AppContext || {};
 
   const navigate = useNavigate();
+
+  usePageLoading();
 
   const handleTabClick = (path) => {
     setSelectedTab(path);
     navigate(`/my-account${path}`);
   };
+
+  if (initialLoading) {
+    return <LoadingSpinner pageSpinner={true} />;
+  }
 
   return (
     <>

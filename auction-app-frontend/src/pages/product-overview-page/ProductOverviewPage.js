@@ -14,7 +14,7 @@ import { calculateTimeLeft } from '../../utils/helperFunctions';
 import './productOverviewPage.css';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
-import PopOut from '../../components/pop-out/PopOut';
+import { toast } from 'react-toastify';
 import { AppContext } from '../../utils/AppContextProvider';
 import { AUCTION_ENDED } from '../../utils/constants';
 
@@ -29,48 +29,47 @@ const ProductOverviewPage = () => {
   const [isOwner, setIsOwner] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [userHighestBid, setUserHighestBid] = useState(null);
-  const [popOut, setPopOut] = useState({
-    visible: false,
-    message: '',
-    type: '',
-  });
   const { id } = useParams();
   const { user } = useContext(AppContext);
 
   useEffect(() => {
-    try {
-      getProduct(id)
-        .then((response) => {
-          setProduct(response.data);
-          setImages(response.data.images);
-          setTimeLeft(calculateTimeLeft(response.data));
-          setLoading(false);
-          setIsOwner(response.data.owner);
-        })
-        .catch((error) => {
-          console.error(error);
-          setLoading(false);
-        });
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  }, []);
+    (async () => {
+      try {
+        const response = await getProduct(id);
+        setProduct(response.data);
+        setImages(response.data.images);
+        setTimeLeft(calculateTimeLeft(response.data));
+        setIsOwner(response.data.owner);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
 
   useEffect(() => {
     if (!isOwner && timeLeft === AUCTION_ENDED) {
-      getHighestBidForUserAndProduct(user.id, product.id)
-        .then((response) => {
+      (async () => {
+        try {
+          const response = await getHighestBidForUserAndProduct(
+            user.id,
+            product.id
+          );
           setUserHighestBid(response.data);
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error(
             'Error fetching highest bid for user and product:',
             error
           );
-        });
+        } finally {
+          setLoading(false);
+        }
+      })();
     }
-  }, [user, product]);
+    
+  }, [user, product, isOwner, timeLeft]);
 
   const handleTabClick = (id) => {
     setSelectedTab(id);
@@ -87,14 +86,9 @@ const ProductOverviewPage = () => {
       const updatedProduct = await getProduct(id);
       setProduct(updatedProduct.data);
 
-      setPopOut({
-        visible: true,
-        message: 'Congrats! You are the highest bidder!',
-        type: 'success',
-      });
+      toast.success('Congrats! You are the highest bidder!');
     } catch (error) {
       let message = 'An error occurred while placing your bid.';
-      let type = 'error';
 
       if (
         error.response &&
@@ -106,22 +100,16 @@ const ProductOverviewPage = () => {
           case 'Place bid that is higher than the current one':
             message =
               'There are higher bids than yours. You could give a second try!';
-            type = 'warning';
+            toast.warning(message);
             break;
           default:
+            toast.error(message);
             break;
         }
+      } else {
+        toast.error(message);
       }
-
-      setPopOut({
-        visible: true,
-        message,
-        type,
-      });
     } finally {
-      setTimeout(() => {
-        setPopOut({ visible: false, message: '', type: '' });
-      }, 2000);
       setBidAmount('');
     }
   };
@@ -129,7 +117,6 @@ const ProductOverviewPage = () => {
   return (
     <>
       <BreadCrumbs title={product?.productName} />
-      <PopOut popOut={popOut} />
       <div className='wrapper product-overview-page__wrapper'>
         <div className='content'>
           <section className='product-overview-page__gallery--and_details'>

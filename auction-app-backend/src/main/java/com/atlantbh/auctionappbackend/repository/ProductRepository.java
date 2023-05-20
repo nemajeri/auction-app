@@ -10,7 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -33,9 +35,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT p.productName FROM Product p WHERE LOWER(p.productName) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<String> findTopNamesByNameSimilarity(@Param("query") String query);
 
-    List<Product> findAllByUserIdAndEndDateBeforeAndSoldIsTrue(Long userId, LocalDateTime endDate, Sort sort);
+    List<Product> findAllByUserIdAndEndDateBeforeAndSoldIsTrue(Long userId, ZonedDateTime endDate, Sort sort);
 
-    List<Product> findAllByUserIdAndEndDateAfterAndSoldIsFalse(Long userId, LocalDateTime endDate, Sort sort);
+    List<Product> findAllByUserIdAndEndDateAfterAndSoldIsFalse(Long userId, ZonedDateTime endDate, Sort sort);
 
     @Query("SELECT p FROM Product p " +
             "JOIN Bid b ON p.id = b.product.id " +

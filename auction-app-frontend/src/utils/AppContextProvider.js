@@ -1,7 +1,7 @@
 import React, { useState, createContext, useEffect } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { getUserByEmail } from '../utils/api/userApi';
-import { PAGE_SIZE, OPTION_DEFAULT_SORTING } from './constants';
+import { PAGE_SIZE } from './constants';
 import jwt_decode from 'jwt-decode';
 import { getJwtFromCookie } from './helperFunctions';
 
@@ -17,7 +17,8 @@ export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState(null);
   const [isClearButtonPressed, setIsClearButtonPressed] = useState(false);
-  const [currentSortOption, setCurrentSortOption] = useState(OPTION_DEFAULT_SORTING);
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
@@ -51,20 +52,26 @@ export const AppContextProvider = ({ children }) => {
     if (!pathname.includes('/shop')) {
       navigate('/shop');
     }
-    getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId, currentSortOption).then(
-      (response) => {
-        setLoading(true);
-        setSearchProducts({
-          content: response.data.content,
-          pageData: response.data,
-        });
-        setLoading(false);
-        setSuggestion('');
-      }
-    );
+    try {
+      getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId, currentSortOption).then(
+        (response) => {
+          setLoading(true);
+          setSearchProducts({
+            content: response.data.content,
+            pageData: response.data,
+          });
+          setSuggestion('');
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loadUserFromCookie = async () => {
+    setIsUserLoading(true);
     const jwtToken = getJwtFromCookie();
     if (jwtToken) {
       const decoded = jwt_decode(jwtToken);
@@ -72,6 +79,7 @@ export const AppContextProvider = ({ children }) => {
       const appUser = await getUserByEmail(email);
       setUser(appUser);
     }
+    setIsUserLoading(false);
   };
 
   useEffect(() => {
@@ -109,8 +117,9 @@ export const AppContextProvider = ({ children }) => {
         user,
         isClearButtonPressed,
         setIsClearButtonPressed,
-        currentSortOption,
-        setCurrentSortOption
+        isUserLoading,
+        initialLoading,
+        setInitialLoading,
       }}
     >
       {children}

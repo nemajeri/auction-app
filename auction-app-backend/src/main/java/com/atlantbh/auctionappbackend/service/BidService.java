@@ -18,8 +18,7 @@ import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,11 +83,11 @@ public class BidService {
             throw new BidAmountException("Place bid that is higher than the current one");
         }
 
-        if (product.getStartDate().isAfter(LocalDateTime.now(ZoneOffset.UTC).plusHours(2))) {
+        if (product.getStartDate().isAfter(ZonedDateTime.now())) {
             throw new BadRequestException("Auction is yet to start for this product");
         }
 
-        if (product.getEndDate().isBefore(LocalDateTime.now(ZoneOffset.UTC).plusHours(2))) {
+        if (product.getEndDate().isBefore(ZonedDateTime.now())) {
             throw new BadRequestException("Auction ended for this product");
         }
 

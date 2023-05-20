@@ -90,9 +90,11 @@ td {
 
 .auction-table__second-body span:first-child {
   font-weight: bold;
+  width: 150px;
+  display: flex;
 }
 
-.auction-table__second-body span:nth-child(3) {
+.auction-table__second-body span:nth-child(2) {
   color: var(--purple);
 }
 

@@ -1,5 +1,7 @@
 import { API, AuthAPI, LANDING_PAGE_SIZE, COOKIE_NAME } from '../constants';
 import { getJwtFromCookie } from '../helperFunctions';
+import { toast } from 'react-toastify';
+import { sellerPath } from '../paths';
 
 
 export const getProducts = () => {
@@ -66,7 +68,7 @@ export const getProductsForUser = (userId, type) => {
   });
 };
 
-export const addNewItemForAuction = async (productDetails, images, setShowModal, setModalMessage, setLoading) => {
+export const addNewItemForAuction = async (productDetails, images, setLoading, navigate) => {
   try {
     const formData = new FormData();
 
@@ -82,17 +84,13 @@ export const addNewItemForAuction = async (productDetails, images, setShowModal,
     });
 
     if (response.status === 201) {
-      console.log('Product created:', response.data);
-      setModalMessage('Product created.'); 
-      setShowModal(true);
+      toast.success('Product created:', response.data);
+      navigate(sellerPath);
     } else {
-      console.error('Error creating product:', response.data);
-      setModalMessage('Error creating product.'); 
-      setShowModal(true);
+      toast.error('Error creating product.'); 
     }
   } catch (error) {
-    setModalMessage('Error creating product.');
-    setShowModal(true);
+    toast.error('Error creating product.');
   } finally {
     setLoading(false);
   }

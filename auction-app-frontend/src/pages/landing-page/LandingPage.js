@@ -12,16 +12,20 @@ import {
 } from '../../utils/api/productsApi';
 import { getCategories } from '../../utils/api/categoryApi';
 import Tabs from '../../components/tabs/Tabs';
-import { LANDING_PAGE_SIZE } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import RecommendedProducts from '../../components/landing-page/recommended-products/RecommendedProducts.jsx';
 import { useGridView } from '../../hooks/useGridView';
-import { getTodayWithoutTime } from '../../utils/helperFunctions';
+import { getStartOfTodayUTC } from '../../utils/helperFunctions';
+import moment from 'moment';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const tabs = [
   { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
   { id: 'lastChance', label: 'Last Chance', filter: 'last-chance' },
 ];
+
+const landingPageProductClassName = 'landing-page-product';
 
 const LandingPage = () => {
   const [selectedTab, setSelectedTab] = useState(tabs[0].id);
@@ -32,7 +36,7 @@ const LandingPage = () => {
   const [highlightedProducts, setHighlightedProducts] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const currentPageNumber = useRef(0);
-  const { user } = useContext(AppContext);
+  const { user, initialLoading } = useContext(AppContext);
   const GridViewRecommendedProducts = useGridView(RecommendedProducts);
 
   useEffect(() => {
@@ -40,8 +44,10 @@ const LandingPage = () => {
     fetchProductsAndCategories(selectedFilter, currentPageNumber.current);
   }, [selectedTab]);
 
+  usePageLoading();
+
   useEffect(() => {
-    const fetchRecommendedProducts = async () => {
+    (async () => {
       if (user) {
         try {
           const response = await getRecommendedProducts(user.id);
@@ -50,12 +56,10 @@ const LandingPage = () => {
           console.error('Error fetching recommended products:', error);
         }
       }
-    };
-
-    fetchRecommendedProducts();
+    })();
   }, [user]);
 
-  async function fetchProductsAndCategories(filter, currentPageNumber) {
+  const fetchProductsAndCategories = async (filter, currentPageNumber) => {
     let categories = await getCategories();
     setCategories(categories.data);
 
@@ -66,13 +70,13 @@ const LandingPage = () => {
 
     let allProducts = await getAllProductsToSeparateHighlighted();
     let highlightedProducts = allProducts?.data?.filter((product) => {
-      const endDate = new Date(product.endDate);
-      return product.highlighted && getTodayWithoutTime().getTime() <= endDate.getTime();
-    })
+      const endDate = moment(product.endDate);
+      return product.highlighted === true && getStartOfTodayUTC() <= endDate;
+    });
     setHighlightedProducts(highlightedProducts);
     setProducts(sortedProducts.data.content);
     setLoading(false);
-  }
+  };
 
   const handleTabClick = async (id) => {
     setLoading(true);
@@ -90,13 +94,8 @@ const LandingPage = () => {
   };
 
   const fetchNextPage = async () => {
-    setLoading(true);
     const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
 
-    if (products.length < LANDING_PAGE_SIZE) {
-      setLoading(false);
-      return;
-    }
 
     currentPageNumber.current += 1;
 
@@ -105,8 +104,11 @@ const LandingPage = () => {
       currentPageNumber.current
     );
     setProducts((prevProducts) => [...prevProducts, ...response.data.content]);
-    setLoading(false);
   };
+
+  if (initialLoading) {
+    return <LoadingSpinner pageSpinner={true} />;
+  }
 
   return (
     <div className='wrapper landing-page__wrapper'>
@@ -148,7 +150,7 @@ const LandingPage = () => {
           products={products}
           fetchNextPage={fetchNextPage}
           hasMore={hasMore}
-          loading={loading}
+          landingPageProductClassName={landingPageProductClassName}
         />
       </div>
     </div>

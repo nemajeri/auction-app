@@ -190,3 +190,19 @@
     font-weight: 700;
     cursor: pointer;
   }
+
+  .custom-datepicker {
+    width: 14rem !important;
+  }
+
+  .custom-datepicker-input {
+    cursor: pointer;
+    background-color: transparent;
+}
+
+  .custom-datepicker-icon {
+    position: absolute;
+    top: 35px;
+    right: 35px;
+    z-index: -1;
+  }

@@ -8,21 +8,27 @@ import { hoursDiff } from '../../utils/helperFunctions';
 import { Link } from 'react-router-dom';
 import Button from '../../utils/Button';
 import { shopPagePathToProduct } from '../../utils/paths';
+import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
+import { shopPagePathToCategory } from '../../utils/paths';
+import Image from './Image'; 
 
 const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
   const { user } = useContext(AppContext);
   const [bids, setBids] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
+        setLoading(true);
         const response = await getBidsForUser(user.id);
         setBids(response.data);
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
     })();
-  }, []);
+  }, [user.id]);
 
   const getButtonLabel = (bid) => {
     switch (true) {
@@ -40,7 +46,7 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
     }
   }
 
-  return (
+  return !loading ? (
     <>
       <AuctionTable headings={bidHeadings} headerClassNames={headerClassNames}>
         {bids.length !== 0 ? (
@@ -48,15 +54,15 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
             <tr key={bid.id}>
               {bid.product.images.length > 0 && (
                 <td className={bodyClassNames[0]}>
-                  <img
+                  <Image
                     src={bid.product.images[0]}
                     alt={bid.product.productName}
                   />
                 </td>
               )}
               <td className={bodyClassNames[1]}>
-                <span>{bid.product.productName}</span>
-                <br /> <span>#{bid.product.id}</span>
+                <span>{bid.product.productName}</span>{' '}
+                <span>#{bid.product.id}</span>
               </td>
               <td className={bodyClassNames[2]}>
                 {hoursDiff(bid.product.endDate)} h
@@ -86,17 +92,24 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
         ) : (
           <tr className='shared-style__call-to-action_position'>
             <td>
-              <CallToAction
-                icon={<RiAuctionFill className='shared-style--icon' />}
-                text='You don’t have any bids and there are so many cool products available for sale.'
-                buttonLabel='START BIDDING'
-                buttonClassName='shared-style__btn'
-              />
+              <Link
+                to={shopPagePathToCategory.replace(':id', '1')}
+                className='py-4 px-16 border-4 border-purple font-bold'
+              >
+                <CallToAction
+                  icon={<RiAuctionFill className='shared-style--icon' />}
+                  text='You don’t have any bids and there are so many cool products available for sale.'
+                  buttonLabel='START BIDDING'
+                  buttonClassName='shared-style__btn'
+                />
+              </Link>
             </td>
           </tr>
         )}
       </AuctionTable>
     </>
+  ) : (
+    <LoadingSpinner />
   );
 };
 

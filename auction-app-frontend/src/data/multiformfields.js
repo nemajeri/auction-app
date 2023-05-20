@@ -2,9 +2,10 @@ import {
   PHONE_NUMBER_VALIDATOR,
   ZIP_CODE_VALIDATOR,
   START_PRICE_VALIDATOR,
-  TODAY
+  START_OF_TODAY_UTC
 } from '../utils/constants';
 import { countries } from './countries';
+import moment from 'moment';
 
 export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
   {
@@ -60,15 +61,24 @@ export const getStep2Fields = () => [
         name: 'startDate',
         label: 'Start date',
         type: 'date',
-        validation: (value) => value !== '' && new Date(value) >= TODAY,
+        validation: (value) => {
+          const date = moment.utc(value);
+          return value !== '' && date.isValid() && date.isSameOrAfter(START_OF_TODAY_UTC);
+        },
         errorMessage: 'Please pick a valid date!',
+        placeholder: '14/04/2021'
       },
       {
         name: 'endDate',
         label: 'End date',
         type: 'date',
-        validation: (value) => value !== '' && new Date(value) >= TODAY,
-        errorMessage: 'Please pick a valid date!',
+        validation: (value, startDate) => {
+          const endDate = moment.utc(value);
+          const startDateMoment = moment.utc(startDate);
+          return value !== '' && endDate.isValid() && endDate.isSameOrAfter(START_OF_TODAY_UTC) && endDate.isSameOrAfter(startDateMoment);
+        },
+        errorMessage: 'End date should be after start date!',
+        placeholder: '14/04/2021'
       },
     ],
   },
