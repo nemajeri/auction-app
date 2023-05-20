@@ -75,3 +75,5 @@ export const OPTION_END_DATE = 'END_DATE';
 export const OPTION_PRICE_LOW_TO_HIGH = 'PRICE_LOW_TO_HIGH';
 
 export const OPTION_PRICE_HIGH_TO_LOW = 'PRICE_HIGH_TO_LOW';
+
+export const EMPTY_STRING = '';

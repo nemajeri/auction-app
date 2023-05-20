@@ -7,6 +7,7 @@ import Modal from '../../../utils/forms/Modal';
 import StripeCheckout from '../../stripe-checkout/StripeCheckout';
 import { useNavigate } from 'react-router-dom';
 import { landingPagePath } from '../../../utils/paths';
+import { AUCTION_ENDED } from '../../../utils/constants';
 
 const ProductDetails = ({
   tabs,
@@ -33,8 +34,8 @@ const ProductDetails = ({
     setShowPaymentModal(true);
   };
 
-  const isAuctionActive = !product.sold && timeLeft !== 'Auction ended';
-  const isAuctionEnded = !product.sold && timeLeft === 'Auction ended';
+  const isAuctionActive = !product.sold && timeLeft !== AUCTION_ENDED;
+  const isAuctionEnded = !product.sold && timeLeft === AUCTION_ENDED;
   const isUserHighestBidder = userHighestBid === product.highestBid;
 
   return (

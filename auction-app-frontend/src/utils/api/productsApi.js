@@ -1,4 +1,4 @@
-import { API, AuthAPI, LANDING_PAGE_SIZE, COOKIE_NAME } from '../constants';
+import { API, AuthAPI, LANDING_PAGE_SIZE, COOKIE_NAME, OPTION_DEFAULT_SORTING, EMPTY_STRING } from '../constants';
 import { getJwtFromCookie } from '../helperFunctions';
 import { toast } from 'react-toastify';
 import { sellerPath } from '../paths';
@@ -15,9 +15,9 @@ export const getProduct = (id) => {
 export const getAllProducts = (
   pageNumber,
   pageSize,
-  searchTerm = '',
+  searchTerm = EMPTY_STRING,
   categoryId = null,
-  sortOption ='DEFAULT_SORTING'
+  sortOption = OPTION_DEFAULT_SORTING
 ) => {
   let url = `/products/items?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
