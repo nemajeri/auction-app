@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import Button from '../Button';
 import './form.css';
 import { useLocation } from 'react-router-dom';
 import { callOAuth2LoginSuccess } from '../api/authApi';
-import { AiFillFacebook } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
-import { FcGoogle } from 'react-icons/fc';
 import useFacebookSDK from '../../hooks/useFacebookSDK';
 import useGoogleSDK from '../../hooks/useGoogleSDK';
 import SelectField from './SelectField';
@@ -15,6 +12,8 @@ import InputField from './InputField';
 import StartPriceInput from './StartPriceInput';
 import moment from 'moment';
 import DateField from './DateField';
+import SocialMediaButtons from './SocialMediaButtons';
+import { flattenFields } from '../helperFunctions';
 
 const Form = ({
   fields,
@@ -30,17 +29,30 @@ const Form = ({
   initialValues,
 }) => {
   const [formState, setFormState] = useState(() => {
-    const flattenedFields = fields.flatMap((field) =>
-      field.fields ? field.fields : field
-    );
     const initialValuesFromProps = Object.fromEntries(
-      flattenedFields.map((field) => [field.name, initialValues[field.name]])
+      flattenFields(fields).map((field) => [field.name, initialValues[field.name]])
     );
     return initialValuesFromProps;
   });
 
   const location = useLocation();
   const navigate = useNavigate();
+
+  
+  const handleValidation = (field, formState, fieldValue) => {
+    if (
+      field?.validation &&
+      !field.validation(fieldValue, formState['startDate'])
+    ) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field.name]: field.errorMessage,
+      }));
+      return;
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, [field.name]: undefined }));
+    }
+  }
 
   const handleChange = (eventOrName, valueFromSelect) => {
     let name, value;
@@ -53,40 +65,29 @@ const Form = ({
       value = valueFromSelect;
     }
 
-    const flattenedFields = fields.flatMap((field) =>
-    field.fields ? field.fields : field
-  );
-  const field = flattenedFields.find((field) => field.name === name);
+    const field = flattenFields(fields).find((field) => field.name === name);
 
     const isDateField = field?.type === 'date';
-    let fieldValue = isDateField ? moment.utc(value).startOf('day').toISOString() : value;
+    let fieldValue = isDateField
+      ? moment.utc(value).startOf('day').toISOString()
+      : value;
 
-    const newState = {
-      ...formState,
-      [name]: fieldValue,
-    };
-
-    if (
-      field?.validation &&
-      !field.validation(fieldValue, formState['startDate'])
-    ) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: field.errorMessage,
-      }));
-    } else {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: undefined }));
-    }
-
-    if (name === 'categoryId' && updateSubcategories) {
-      updateSubcategories(value);
-    }
-
-    setFormState(newState);
-
-    if (onFormStateChange) {
-      onFormStateChange(newState);
-    }
+      let newState = {
+        ...formState,
+        [name]: fieldValue,
+      };
+      
+      handleValidation(field, newState, fieldValue);
+      
+      if (name === 'categoryId' && updateSubcategories) {
+        updateSubcategories(value);
+      }
+      
+      setFormState(newState);
+      
+      if (onFormStateChange) {
+        onFormStateChange(newState);
+      }
   };
 
   const handleGsiEvent = (response) => {
@@ -205,36 +206,11 @@ const Form = ({
       )}
       {children}
       {includeSocial && (
-        <div className='form__social-media--buttons'>
-          <Button
-            onClick={(e) => {
-              e.preventDefault();
-              handleFacebookLogin();
-            }}
-            className={'form__social-media--button'}
-            SocialMediaIcon={AiFillFacebook}
-            socialMediaClassName={
-              'form__social-media--icon facebook-button__color'
-            }
-          >
-            {location.pathname.includes('register')
-              ? 'Signup with Facebook'
-              : 'Log in with Facebook'}
-          </Button>
-          <Button
-            onClick={(e) => {
-              e.preventDefault();
-              handleGoogleLogin();
-            }}
-            className={'form__social-media--button'}
-            SocialMediaIcon={FcGoogle}
-            socialMediaClassName={'form__social-media--icon'}
-          >
-            {location.pathname.includes('register')
-              ? 'Signup with Gmail'
-              : 'Log in with Gmail'}
-          </Button>
-        </div>
+        <SocialMediaButtons
+          handleFacebookLogin={handleFacebookLogin}
+          handleGoogleLogin={handleGoogleLogin}
+          isRegister={location.pathname.includes('register')}
+        />
       )}
     </form>
   );

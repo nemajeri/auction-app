@@ -42,18 +42,11 @@ export const validateFormFields = (formData, fieldsArray) => {
   const errors = {};
 
   const validateField = (field, value) => {
-    if (!field.validation(value)) {
+    if (field.validation && !field.validation(value)) {
       errors[field.name] = field.errorMessage;
     }
   };
-
-  const flattenedFields = fieldsArray.flatMap((field) =>
-    field.fields ? field.fields : field
-  );
-
-  flattenedFields.forEach((field) => {
-    validateField(field, formData[field.name]);
-  });
+  flattenFields(fieldsArray).forEach(field => validateField(field, formData[field.name]))
 
   return errors;
 };
@@ -61,3 +54,7 @@ export const validateFormFields = (formData, fieldsArray) => {
 export const getStartOfTodayUTC = () => {
   return moment.utc().startOf('day');
 };
+
+export const flattenFields = (fields) => (
+  fields.flatMap(field => field.fields ? field.fields : field)
+);
