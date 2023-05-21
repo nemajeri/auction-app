@@ -28,4 +28,6 @@ public class LevenshteinDistanceCalculation {
         return cost[len0 - 1];
     }
 
+    private LevenshteinDistanceCalculation() {
+    }
 }

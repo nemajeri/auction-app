@@ -21,4 +21,8 @@ public class ProductSpecifications {
             return criteriaBuilder.equal(root.get("category").get("id"), categoryId);
         };
     }
+
+    private ProductSpecifications() {
+
+    }
 }
