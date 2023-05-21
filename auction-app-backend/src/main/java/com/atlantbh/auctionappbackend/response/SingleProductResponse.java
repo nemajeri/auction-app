@@ -38,4 +38,6 @@ public class SingleProductResponse {
 
     private boolean sold;
 
+    private Float userHighestBid;
+
 }

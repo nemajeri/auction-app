@@ -21,7 +21,6 @@ import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.atlantbh.auctionappbackend.utils.Constants.BID_DATE;
 
@@ -42,13 +41,6 @@ public class BidService {
         }
         return bids;
     }
-
-    public Float getHighestBidder(Long userId, Long productId) {
-        Optional<Float> highestBidOpt = bidRepository.getMaxBidFromUserForProduct(userId, productId);
-        return highestBidOpt.orElse(0f);
-    }
-
-
 
     @Transactional
     public void createBid(Long productId, float amount) throws ProductNotFoundException {
