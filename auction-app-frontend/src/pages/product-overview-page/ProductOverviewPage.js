@@ -6,27 +6,25 @@ import {
   ProductGallery,
 } from '../../components/product-overview-page/index';
 import { getProduct } from '../../utils/api/productsApi';
-import {
-  updateBid,
-  getHighestBidForUserAndProduct,
-} from '../../utils/api/bidApi';
+import { updateBid } from '../../utils/api/bidApi';
 import { calculateTimeLeft } from '../../utils/helperFunctions';
 import './productOverviewPage.css';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../utils/AppContextProvider';
-import { AUCTION_ENDED } from '../../utils/constants';
+import { EMPTY_STRING } from '../../utils/constants';
 import { productTabs } from '../../data/tabs';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const ProductOverviewPage = () => {
   const [selectedTab, setSelectedTab] = useState(productTabs[0].id);
   const [product, setProduct] = useState(null);
   const [images, setImages] = useState([]);
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timeLeft, setTimeLeft] = useState(EMPTY_STRING);
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(null);
-  const [bidAmount, setBidAmount] = useState('');
+  const [bidAmount, setBidAmount] = useState(EMPTY_STRING);
   const [userHighestBid, setUserHighestBid] = useState(null);
   const { id } = useParams();
   const { user } = useContext(AppContext);
@@ -39,6 +37,7 @@ const ProductOverviewPage = () => {
         setImages(response.data.images);
         setTimeLeft(calculateTimeLeft(response.data));
         setIsOwner(response.data.owner);
+        setUserHighestBid(response.data.userHighestBid);
       } catch (error) {
         console.error(error);
       } finally {
@@ -47,34 +46,14 @@ const ProductOverviewPage = () => {
     })();
   }, [id]);
 
-  useEffect(() => {
-    if (!isOwner && timeLeft === AUCTION_ENDED) {
-      (async () => {
-        try {
-          const response = await getHighestBidForUserAndProduct(
-            user?.id,
-            product.id
-          );
-          setUserHighestBid(response.data);
-        } catch (error) {
-          console.error(
-            'Error fetching highest bid for user and product:',
-            error
-          );
-        } finally {
-          setLoading(false);
-        }
-      })();
-    }
-    
-  }, [user?.id, product, isOwner, timeLeft]);
+  usePageLoading();
 
   const handleTabClick = (id) => {
     setSelectedTab(id);
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner pageSpinner={true} />;
   }
 
   const onBidButtonClick = async (e) => {
@@ -94,21 +73,17 @@ const ProductOverviewPage = () => {
         error.response.data.message
       ) {
         const errorMessage = error.response.data.message;
-        switch (errorMessage) {
-          case 'Place bid that is higher than the current one':
-            message =
-              'There are higher bids than yours. You could give a second try!';
-            toast.warning(message);
-            break;
-          default:
-            toast.error(message);
-            break;
+        if (errorMessage === 'Place bid that is higher than the current one') {
+          message = 'There are higher bids than yours. You could give a second try!';
+          toast.warning(message);
+        } else {
+          toast.error(message);
         }
       } else {
         toast.error(message);
       }
     } finally {
-      setBidAmount('');
+      setBidAmount(EMPTY_STRING);
     }
   };
 
