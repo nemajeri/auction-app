@@ -17,6 +17,8 @@ import { toast } from 'react-toastify';
 import RenderProgressDots from '../../components/sell-page/adding-item-steps/RenderProgressDots';
 import MultiStepForm from '../../components/sell-page/adding-item-steps/Multiform';
 import { sellerPath } from '../../utils/paths';
+import { EMPTY_STRING } from '../../utils/constants';
+import axios from 'axios';
 
 const SellPage = () => {
   const [step, setStep] = useState(1);
@@ -27,35 +29,45 @@ const SellPage = () => {
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
   const [productDetails, setProductDetails] = useState({
-    productName: '',
-    description: '',
-    categoryId: '',
-    subcategoryId: '',
-    startPrice: '',
-    startDate: '',
-    endDate: '',
-    address: user?.address || '',
-    city: user?.city || '',
-    zipCode: user?.zipCode || '',
-    country: user?.country || '',
-    phone: user?.phone || '',
+    productName: EMPTY_STRING,
+    description: EMPTY_STRING,
+    categoryId: EMPTY_STRING,
+    subcategoryId: EMPTY_STRING,
+    startPrice: EMPTY_STRING,
+    startDate: EMPTY_STRING,
+    endDate: EMPTY_STRING,
+    address: user?.address || EMPTY_STRING,
+    city: user?.city || EMPTY_STRING,
+    zipCode: user?.zipCode || EMPTY_STRING,
+    country: user?.country || EMPTY_STRING,
+    phone: user?.phone || EMPTY_STRING,
   });
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
+
     (async () => {
+      setLoading(true);
       try {
-        const response = await getCategories();
-        let i = response.data.length - 1;
-        response.data.splice(i, 1);
+        const response = await getCategories(source.token);
         setCategories(response.data);
       } catch (error) {
-        console.error('Error fetching categories:', error.message);
+        if (axios.isCancel(error)) {
+          console.error('Request cancelled:', error.message);
+        } else {
+          console.error("Error fetching categories: " + error);
+        }
       } finally {
         setLoading(false);
       }
     })();
+
+    return () => {
+      source.cancel('Operation cancelled by the user.');
+    };
   }, []);
 
   const updateSubcategories = async (categoryId) => {
