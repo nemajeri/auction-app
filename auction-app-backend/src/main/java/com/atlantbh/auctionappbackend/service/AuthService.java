@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.exception.DuplicateAppUserException;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
@@ -13,6 +14,8 @@ import com.atlantbh.auctionappbackend.security.oauth2.GoogleOAuth2UserInfo;
 import com.atlantbh.auctionappbackend.security.oauth2.OAuth2UserInfo;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.AllArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,8 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_NAME;
-import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_MAX_AGE;
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
 
 
 @Service
@@ -54,31 +56,19 @@ public class AuthService {
 
         String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
-        AppUser userToCreate = AppUser.builder()
-                .firstName(registerRequest.getFirstName())
-                .lastName(registerRequest.getLastName())
-                .email(registerRequest.getEmail())
-                .password(encodedPassword)
-                .build();
+        AppUser userToCreate = AppUser.builder().firstName(registerRequest.getFirstName()).lastName(registerRequest.getLastName()).email(registerRequest.getEmail()).password(encodedPassword).build();
 
         appUserRepository.save(userToCreate);
     }
 
     public void login(HttpServletRequest request, LoginRequest loginRequest, HttpServletResponse response) {
-        AppUser loggedAppUser = appUserRepository.getByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+        AppUser loggedAppUser = appUserRepository.getByEmail(loginRequest.getEmail()).orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), loggedAppUser.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        CustomUserDetails userDetails = new CustomUserDetails(
-                loggedAppUser.getEmail(),
-                loggedAppUser.getPassword(),
-                loggedAppUser.getFirstName(),
-                loggedAppUser.getLastName(),
-                Collections.emptyList()
-        );
+        CustomUserDetails userDetails = new CustomUserDetails(loggedAppUser.getEmail(), loggedAppUser.getPassword(), loggedAppUser.getFirstName(), loggedAppUser.getLastName(), Collections.emptyList());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         TokenType tokenType = loginRequest.isRememberMe() ? TokenType.REMEMBER_ME : TokenType.STANDARD;
@@ -97,7 +87,7 @@ public class AuthService {
     public Cookie processOAuth2Login(OAuth2LoginRequest oauth2LoginRequest) {
         OAuth2UserInfo oAuth2UserInfo;
 
-        if ("google".equalsIgnoreCase(oauth2LoginRequest.getProvider())) {
+        if (PROVIDER_GOOGLE.equalsIgnoreCase(oauth2LoginRequest.getProvider())) {
             GoogleIdToken googleIdToken = tokenService.verifyGSIToken(oauth2LoginRequest.getToken());
             GoogleIdToken.Payload payload = googleIdToken.getPayload();
             String firstName = (String) payload.get("given_name");
@@ -108,14 +98,19 @@ public class AuthService {
             attributes.put("sub", payload.getSubject());
             attributes.put("email", payload.getEmail());
             oAuth2UserInfo = new GoogleOAuth2UserInfo(attributes);
-        } else if ("facebook".equalsIgnoreCase(oauth2LoginRequest.getProvider())) {
-            String facebookGraphApiUrl = "https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token=" + oauth2LoginRequest.getToken();
-            ResponseEntity<Map> facebookResponse = restTemplate.getForEntity(facebookGraphApiUrl, Map.class);
+        } else if (PROVIDER_FACEBOOK.equalsIgnoreCase(oauth2LoginRequest.getProvider())) {
+            String facebookGraphApiUrl = FACEBOOK_GRAPH_API_URL + oauth2LoginRequest.getToken();
+            ResponseEntity<Map<String, Object>> facebookResponse = restTemplate.exchange(facebookGraphApiUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+            });
             Map<String, Object> attributes = new HashMap<>();
-            attributes.put("firstName", facebookResponse.getBody().get("first_name"));
-            attributes.put("lastName", facebookResponse.getBody().get("last_name"));
-            attributes.put("sub", facebookResponse.getBody().get("id"));
-            attributes.put("email", facebookResponse.getBody().get("email"));
+            Map<String, Object> body = facebookResponse.getBody();
+            if (body == null) {
+                throw new AppUserNotFoundException("Facebook user not found");
+            }
+            attributes.put("firstName", body.get(FIRST_NAME_VALUE));
+            attributes.put("lastName", body.get(LAST_NAME_VALUE));
+            attributes.put("sub", body.get(SUB_VALUE));
+            attributes.put("email", body.get(EMAIL_VALUE));
             oAuth2UserInfo = new FacebookOAuth2UserInfo(attributes);
         } else {
             throw new OAuth2AuthenticationException(new OAuth2Error("invalid_provider"), "Invalid OAuth2 provider");
