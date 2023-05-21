@@ -22,8 +22,6 @@ public class SubcategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException("Wrong category id"));
 
-        Set<Subcategory> subcategories = subcategoryRepository.findAllByCategory(category);
-
-        return subcategories;
+        return subcategoryRepository.findAllByCategory(category);
     }
 }
