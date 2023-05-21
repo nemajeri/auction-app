@@ -33,4 +33,19 @@ public final class Constants {
 
     public static final String PRODUCT_ID = "productId";
 
+    public static final String PROVIDER_GOOGLE = "google";
+
+    public static final String PROVIDER_FACEBOOK = "facebook";
+
+    public static final String EMAIL_VALUE = "email";
+
+    public static final String FIRST_NAME_VALUE = "first_name";
+
+    public static final String LAST_NAME_VALUE = "last_name";
+
+    public static final String SUB_VALUE = "id";
+
+    public static final String FACEBOOK_GRAPH_API_URL = "https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token=";
+
+
 }
