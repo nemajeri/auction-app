@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useReducer } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { getUserByEmail } from '../utils/api/userApi';
-import { PAGE_SIZE, EMPTY_STRING } from './constants';
+import { PAGE_SIZE, EMPTY_STRING, OPTION_DEFAULT_SORTING } from './constants';
 import jwt_decode from 'jwt-decode';
 import { getJwtFromCookie } from './helperFunctions';
 import { appReducer, ACTIONS } from './appReducer';
@@ -10,8 +10,8 @@ import { shopPagePath } from './paths';
 export const AppContext = createContext();
 
 const initialState = {
-  searchTerm: '',
-  suggestion: '',
+  searchTerm: EMPTY_STRING,
+  suggestion: EMPTY_STRING,
   searchedProducts: null,
   pageNumber: 0,
   loading: false,
@@ -20,7 +20,8 @@ const initialState = {
   user: null,
   isClearButtonPressed: false,
   isUserLoading: true,
-  initialLoading: true
+  initialLoading: true,
+  currentSortOption: OPTION_DEFAULT_SORTING,
 };
 
 export const AppContextProvider = ({ children }) => {
@@ -44,7 +45,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const onSearchIconClick = (
+  const onSearchIconClick = async (
     event,
     categoryId,
     suggestedSearchTerm = null,
@@ -58,22 +59,28 @@ export const AppContextProvider = ({ children }) => {
     if (!pathname.includes(shopPagePath)) {
       navigate(shopPagePath);
     }
-    getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId, currentSortOption).then(
-      (response) => {
-        dispatch({ type: ACTIONS.SET_LOADING, payload: true });
-        dispatch({
-          type: ACTIONS.SET_SEARCHED_PRODUCTS,
-          payload: {
-            content: response.data.content,
-            pageData: response.data,
-          },
-        });
-        dispatch({ type: ACTIONS.SET_LOADING, payload: false });
-        dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
-      }
-    );
+    try {
+      const response = await getAllProducts(
+        0,
+        PAGE_SIZE,
+        currentSearchTerm,
+        categoryId,
+        currentSortOption
+      );
+      dispatch({ type: ACTIONS.SET_LOADING, payload: true });
+      dispatch({
+        type: ACTIONS.SET_SEARCHED_PRODUCTS,
+        payload: {
+          content: response.data.content,
+          pageData: response.data,
+        },
+      });
+      dispatch({ type: ACTIONS.SET_LOADING, payload: false });
+      dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
+    } catch (error) {
+      console.error(error);
+    }
   };
-  
 
   const loadUserFromCookie = async () => {
     dispatch({ type: ACTIONS.SET_IS_USER_LOADING, payload: true });

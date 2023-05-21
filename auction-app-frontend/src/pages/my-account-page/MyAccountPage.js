@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import './myAccountPage.css';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { myAccountTabs } from '../../utils/constants';
@@ -19,11 +19,11 @@ const MyAccountPage = () => {
   const [selectedTab, setSelectedTab] = useState(
     pathname === bidsPath ? bidsPath : sellerPath
   );
-  const { initialLoading } = AppContext || {};
+  const { initialLoading } =  useContext(AppContext);
 
   const navigate = useNavigate();
 
-  usePageLoading();
+  usePageLoading(800);
 
   const handleTabClick = (path) => {
     setSelectedTab(path);

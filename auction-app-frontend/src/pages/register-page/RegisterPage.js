@@ -8,13 +8,14 @@ import { toast } from 'react-toastify';
 import Button from '../../utils/Button';
 import { validateFormFields } from '../../utils/helperFunctions';
 import { fields } from '../../data/registerformfields';
+import { EMPTY_STRING } from '../../utils/constants';
 
 const RegisterPage = () => {
   const [registerUserDetails, setRegisterUserDetails] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
+    firstName: EMPTY_STRING,
+    lastName: EMPTY_STRING,
+    email: EMPTY_STRING,
+    password: EMPTY_STRING,
   });
 
   const [errors, setErrors] = useState({});
