@@ -47,5 +47,6 @@ public final class Constants {
 
     public static final String FACEBOOK_GRAPH_API_URL = "https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token=";
 
+    public static final String SEARCH_TERM_VALIDATOR = "[^a-zA-Z0-9 ]";
 
 }

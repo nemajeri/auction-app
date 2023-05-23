@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
 
@@ -54,10 +54,14 @@ public class ProductService {
 
 
     public String getSuggestion(String query) {
+        if (query.matches(SEARCH_TERM_VALIDATOR) || query.trim().isEmpty()) {
+            return "No suggestion found";
+        }
+
         List<String> suggestions = productRepository.findTopNamesByNameSimilarity(query);
 
         if (suggestions.isEmpty()) {
-            return null;
+            return "No suggestion found";
         } else {
             String bestSuggestion = null;
             int bestWeight = Integer.MAX_VALUE;
@@ -70,7 +74,7 @@ public class ProductService {
                 }
             }
 
-            return bestSuggestion;
+            return bestSuggestion != null ? bestSuggestion : "No suggestion found";
         }
     }
 
