@@ -1,10 +1,9 @@
 package com.atlantbh.auctionappbackend.utils;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public final class Constants {
-
-    private Constants() {
-
-    }
 
     public static final String COOKIE_NAME = "auction_app_token";
 

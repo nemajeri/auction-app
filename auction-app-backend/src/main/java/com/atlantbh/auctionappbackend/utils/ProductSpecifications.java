@@ -1,8 +1,10 @@
 package com.atlantbh.auctionappbackend.utils;
 
 import com.atlantbh.auctionappbackend.model.Product;
+import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
+@UtilityClass
 public class ProductSpecifications {
     public static Specification<Product> hasNameLike(String searchTerm) {
         return (root, query, criteriaBuilder) -> {
@@ -20,9 +22,5 @@ public class ProductSpecifications {
             }
             return criteriaBuilder.equal(root.get("category").get("id"), categoryId);
         };
-    }
-
-    private ProductSpecifications() {
-
     }
 }
