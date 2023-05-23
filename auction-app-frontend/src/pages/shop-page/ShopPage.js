@@ -6,7 +6,6 @@ import { useGridView } from '../../hooks/useGridView';
 import Button from '../../utils/Button';
 import { getCategories } from '../../utils/api/categoryApi';
 import { getAllProducts } from '../../utils/api/productsApi';
-import { PAGE_SIZE, ALL_CATEGORIES_ID } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
 import { useParams } from 'react-router-dom';
@@ -14,11 +13,9 @@ import SelectField from '../../utils/forms/SelectField';
 import {
   FIELD_NAME,
   FIELD_PLACEHOLDER,
-  OPTION_DEFAULT_SORTING,
-  OPTION_START_DATE,
-  OPTION_END_DATE,
-  OPTION_PRICE_LOW_TO_HIGH,
-  OPTION_PRICE_HIGH_TO_LOW,
+  SORT_OPTIONS,
+  PAGE_SIZE,
+  ALL_CATEGORIES_ID,
   EMPTY_STRING,
 } from '../../utils/constants';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
@@ -30,11 +27,17 @@ const field = {
   name: FIELD_NAME,
   placeholder: FIELD_PLACEHOLDER,
   options: [
-    { label: 'Default sorting', value: OPTION_DEFAULT_SORTING },
-    { label: 'Sort By Newness', value: OPTION_START_DATE },
-    { label: 'Sort By Time Left', value: OPTION_END_DATE },
-    { label: 'Sort By Price: Low to High', value: OPTION_PRICE_LOW_TO_HIGH },
-    { label: 'Sort By Price: High to Low', value: OPTION_PRICE_HIGH_TO_LOW },
+    { label: 'Default sorting', value: SORT_OPTIONS.DEFAULT_SORTING },
+    { label: 'Sort By Newness', value: SORT_OPTIONS.START_DATE },
+    { label: 'Sort By Time Left', value: SORT_OPTIONS.END_DATE },
+    {
+      label: 'Sort By Price: Low to High',
+      value: SORT_OPTIONS.PRICE_LOW_TO_HIGH,
+    },
+    {
+      label: 'Sort By Price: High to Low',
+      value: SORT_OPTIONS.PRICE_HIGH_TO_LOW,
+    },
   ],
 };
 
@@ -87,8 +90,9 @@ const ShopPage = () => {
       } catch (error) {
         if (axios.isCancel(error)) {
           console.error('Request cancelled:', error.message);
+          return;
         } else {
-          console.error("Error fetching categories: " + error);
+          console.error('Error fetching categories: ' + error);
         }
       } finally {
         setLoading(false);
@@ -215,7 +219,8 @@ const ShopPage = () => {
       }
       handleOpeningAndFetchingCategories(parseInt(categoryId))();
     }
-  }, [categoryId, categories, dispatch, handleOpeningAndFetchingCategories]);
+    // eslint-disable-next-line 
+  }, [categoryId, categories, dispatch]);
 
   const onExploreMoreBtnClick = () => {
     const nextPageNumber = pageNumber + 1;
