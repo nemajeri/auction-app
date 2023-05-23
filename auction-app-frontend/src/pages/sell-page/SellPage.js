@@ -53,10 +53,13 @@ const SellPage = () => {
       setLoading(true);
       try {
         const response = await getCategories(source.token);
+        let i = response.data.length - 1;
+        response.data.splice(i, 1);
         setCategories(response.data);
       } catch (error) {
         if (axios.isCancel(error)) {
           console.error('Request cancelled:', error.message);
+          return;
         } else {
           console.error("Error fetching categories: " + error);
         }
@@ -153,7 +156,7 @@ const SellPage = () => {
           sellerPath={sellerPath}
         />
       </div>
-      {loading && <LoadingSpinner />}
+      {loading && <LoadingSpinner pageSpinner={true}/>}
     </>
   );
 };
