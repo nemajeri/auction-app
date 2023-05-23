@@ -30,8 +30,8 @@
 
 .product-image-loading {
     display: none;
-  }
+}
   
-  .product-image-loaded {
+.product-image-loaded {
     display: block;
-  }
+}
