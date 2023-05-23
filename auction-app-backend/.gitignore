@@ -34,3 +34,6 @@ build/
 
 ### Properties file ###
 src/main/resources/application-dev.properties
+
+### Persistence Buddy ###
+.jpb/jpb-settings.xml

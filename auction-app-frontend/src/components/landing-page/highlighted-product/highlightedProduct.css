@@ -50,10 +50,10 @@
 }
 
 .highlighted-product__image {
-    position: relative;
     min-width: 300px; 
-    min-height: 200px; 
-    display: flex;
-    justify-content: center;
-    align-items: center
+    min-height: 200px;
+}
+
+.highlighted-product__image .loading-spinner__container {
+    margin-top: 25%; 
 }

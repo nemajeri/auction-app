@@ -20,15 +20,11 @@ import moment from 'moment';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { usePageLoading } from '../../hooks/usePageLoading';
 
-const tabs = [
-  { id: 'newArrivals', label: 'New Arrivals', filter: 'new-arrival' },
-  { id: 'lastChance', label: 'Last Chance', filter: 'last-chance' },
-];
-
-const landingPageProductClassName = 'landing-page-product';
+import { landingPageProductClassName } from '../../utils/styles';
+import { homeTabs } from '../../data/tabs';
 
 const LandingPage = () => {
-  const [selectedTab, setSelectedTab] = useState(tabs[0].id);
+  const [selectedTab, setSelectedTab] = useState(homeTabs[0].id);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
@@ -38,9 +34,10 @@ const LandingPage = () => {
   const currentPageNumber = useRef(0);
   const { user, initialLoading } = useContext(AppContext);
   const GridViewRecommendedProducts = useGridView(RecommendedProducts);
-
   useEffect(() => {
-    const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
+    const selectedFilter = homeTabs.find(
+      (tab) => tab.id === selectedTab
+    ).filter;
     fetchProductsAndCategories(selectedFilter, currentPageNumber.current);
   }, [selectedTab]);
 
@@ -86,7 +83,7 @@ const LandingPage = () => {
 
     setProducts([]);
 
-    const selectedFilter = tabs.find((tab) => tab.id === id).filter;
+    const selectedFilter = homeTabs.find((tab) => tab.id === id).filter;
     const response = await getSortedProductsAccordingToDate(selectedFilter, 0);
 
     setProducts(response.data.content);
@@ -94,8 +91,9 @@ const LandingPage = () => {
   };
 
   const fetchNextPage = async () => {
-    const selectedFilter = tabs.find((tab) => tab.id === selectedTab).filter;
-
+    const selectedFilter = homeTabs.find(
+      (tab) => tab.id === selectedTab
+    ).filter;
 
     currentPageNumber.current += 1;
 
@@ -144,7 +142,7 @@ const LandingPage = () => {
         <Tabs
           selectedTab={selectedTab}
           handleTabClick={handleTabClick}
-          tabs={tabs}
+          tabs={homeTabs}
         />
         <LandingPageProducts
           products={products}

@@ -9,22 +9,19 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../utils/AppContextProvider';
 import { loginPath, registrationPath } from '../../utils/paths';
 import { logoutUser } from '../../utils/api/authApi.js';
+import { EMPTY_STRING } from '../../utils/constants';
+import { ACTIONS } from '../../utils/appReducer';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
   const {
+    dispatch,
     searchTerm,
     onSearchIconClick,
     onSearchTermChange,
-    setSearchTerm,
     suggestion,
-    setSuggestion,
     activeCategory,
-    setSearchProducts,
-    setProducts,
     user,
-    setIsClearButtonPressed,
-    setUser,
-    currentSortOption,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
   const { pathname } = useLocation();
@@ -37,10 +34,54 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logoutUser();
-      setUser(null);
+      dispatch({ type: ACTIONS.SET_USER, payload: null });
       navigate('/login');
     } catch (error) {
-      console.error(error);
+      toast.error(error);
+    }
+  };
+
+  const showSuggestion = () => {
+    if (suggestion === 'No suggestion found' && searchTerm !== EMPTY_STRING) {
+      return (
+        <div className='navbar__suggestion--pop-up'>
+          <div className='navbar__suggestion--pop-up_container not-found'>
+            <p>{suggestion}</p>
+          </div>
+        </div>
+      );
+    } else if (suggestion !== EMPTY_STRING && searchTerm !== EMPTY_STRING) {
+      return (
+        <div className='navbar__suggestion--pop-up'>
+          <div className='navbar__suggestion--pop-up_container'>
+            <span>Did you mean?</span>
+            <p
+              onClick={(e) => {
+                if (suggestion) {
+                  onSearchIconClick(e, null, suggestion, navigate, pathname);
+                  dispatch({
+                    type: ACTIONS.SET_SEARCH_TERM,
+                    payload: EMPTY_STRING,
+                  });
+                  dispatch({
+                    type: ACTIONS.SET_SUGGESTION,
+                    payload: EMPTY_STRING,
+                  });
+                } else {
+                  dispatch({
+                    type: ACTIONS.SET_SUGGESTION,
+                    payload: EMPTY_STRING,
+                  });
+                }
+              }}
+            >
+              {suggestion}
+            </p>
+          </div>
+        </div>
+      );
+    } else {
+      return null;
     }
   };
 
@@ -79,13 +120,8 @@ const Navbar = () => {
                 onSearchTermChange={onSearchTermChange}
                 categoryId={activeCategory}
                 onSearchIconClick={onSearchIconClick}
-                setSearchTerm={setSearchTerm}
-                setSearchProducts={setSearchProducts}
-                setProducts={setProducts}
                 pathname={pathname}
                 navigate={navigate}
-                setIsClearButtonPressed={setIsClearButtonPressed}
-                currentSortOption={currentSortOption}
               />
               <div className='navbar__navigation'>
                 {navlinks.map((link) => (
@@ -102,26 +138,7 @@ const Navbar = () => {
           )}
         </div>
       </div>
-      {suggestion !== '' && searchTerm !== '' ? (
-        <div className='navbar__suggestion--pop-up'>
-          <div className='navbar__suggestion--pop-up_container'>
-            <span>Did you mean?</span>
-            <p
-              onClick={(e) => {
-                if (suggestion) {
-                  onSearchIconClick(e, null, suggestion, navigate, pathname);
-                  setSearchTerm('');
-                  setSuggestion('');
-                } else {
-                  setSuggestion('');
-                }
-              }}
-            >
-              {suggestion}
-            </p>
-          </div>
-        </div>
-      ) : null}
+      {showSuggestion()}
     </>
   );
 };

@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +23,22 @@ import static com.atlantbh.auctionappbackend.utils.Constants.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
-@RequiredArgsConstructor
+
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-    @Autowired
-    private AuthService authService;
-    @Autowired
-    private TokenService tokenService;
+
+    private final AuthService authService;
+
+    private final TokenService tokenService;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
+
+    @Autowired
+    public AuthController(AuthService authService, TokenService tokenService) {
+        this.authService = authService;
+        this.tokenService = tokenService;
+    }
 
     @ApiOperation(value = "Register a new user")
     @ApiResponses(value = {

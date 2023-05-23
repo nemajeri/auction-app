@@ -35,3 +35,23 @@ export const customStyles = {
     borderRadius: "0",
   }),
 };
+
+export const headerClassNames = [
+  'auction-table__first-header space-left',
+  'auction-table__second-header space-right space-left-second__header',
+  'auction-table__third-header',
+  'auction-table__fourth-header',
+  'auction-table__fifth-header',
+  'auction-table__sixth-header space-right',
+];
+
+export const bodyClassNames = [
+  'auction-table__first-body space-left',
+  'auction-table__second-body',
+  'auction-table__third-body',
+  'auction-table__fourth-body',
+  'auction-table__fifth-body',
+  'auction-table__sixth-body',
+];
+
+export const landingPageProductClassName = 'landing-page-product';

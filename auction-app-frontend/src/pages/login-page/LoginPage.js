@@ -8,36 +8,12 @@ import { AppContext } from '../../utils/AppContextProvider';
 import jwt_decode from 'jwt-decode';
 import { toast } from 'react-toastify';
 import Button from '../../utils/Button';
-import {
-  PASSWORD_VALIDATOR,
-  EMAIL_VALIDATOR,
-  PASSWORD_LENGTH,
-} from '../../utils/constants';
 import { validateFormFields } from '../../utils/helperFunctions';
-
-const fields = [
-  {
-    name: 'email',
-    label: 'Email',
-    type: 'email',
-    placeholder: 'user@domain.com',
-    validation: (value) => EMAIL_VALIDATOR.test(value),
-    errorMessage: 'Please enter a valid email address',
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    type: 'password',
-    placeholder: '••••••••',
-    validation: (value) =>
-      value.length > PASSWORD_LENGTH && PASSWORD_VALIDATOR.test(value),
-    errorMessage:
-      'Password contain 8 characters, one special sign and one number',
-  },
-];
+import { ACTIONS } from '../../utils/appReducer';
+import { fields } from '../../data/loginformfields';
 
 const LoginPage = () => {
-  const { setUser } = useContext(AppContext);
+  const { dispatch } = useContext(AppContext);
   const [loginUserDetails, setLoginUserDetails] = useState({
     email: '',
     password: '',
@@ -50,7 +26,7 @@ const LoginPage = () => {
     const decoded = jwt_decode(jwtToken);
     const email = decoded.sub;
     const appUser = await getUserByEmail(email);
-    setUser(appUser);
+    dispatch({ type: ACTIONS.SET_USER, payload: appUser });
   };
 
   const navigate = useNavigate();

@@ -1,6 +1,7 @@
 package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
+import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.*;
@@ -15,8 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -24,10 +26,9 @@ import java.time.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
-import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
 
@@ -49,12 +50,18 @@ public class ProductService {
 
     private final S3Service s3Service;
 
+    private final BidRepository bidRepository;
+
 
     public String getSuggestion(String query) {
+        if (query.matches(SEARCH_TERM_VALIDATOR) || query.trim().isEmpty()) {
+            return "No suggestion found";
+        }
+
         List<String> suggestions = productRepository.findTopNamesByNameSimilarity(query);
 
         if (suggestions.isEmpty()) {
-            return null;
+            return "No suggestion found";
         } else {
             String bestSuggestion = null;
             int bestWeight = Integer.MAX_VALUE;
@@ -67,7 +74,7 @@ public class ProductService {
                 }
             }
 
-            return bestSuggestion;
+            return bestSuggestion != null ? bestSuggestion : "No suggestion found";
         }
     }
 
@@ -96,7 +103,7 @@ public class ProductService {
 
         return recommendedProducts.stream()
                 .map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -107,25 +114,13 @@ public class ProductService {
             specification = specification.and(ProductSpecifications.hasCategoryId(categoryId));
         }
 
-        Sort sort;
-        switch(sortBy) {
-            case PRICE_HIGH_TO_LOW:
-                sort = Sort.by(Sort.Direction.DESC, "startPrice");
-                break;
-            case PRICE_LOW_TO_HIGH:
-                sort = Sort.by(Sort.Direction.ASC, "startPrice");
-                break;
-            case END_DATE:
-                sort = Sort.by(Sort.Direction.ASC, "endDate");
-                break;
-            case START_DATE:
-                sort = Sort.by(Sort.Direction.DESC, "startDate");
-                break;
-            case DEFAULT_SORTING:
-            default:
-                sort = Sort.unsorted();
-                break;
-        }
+        Sort sort = switch (sortBy) {
+            case PRICE_HIGH_TO_LOW -> Sort.by(Sort.Direction.DESC, "startPrice");
+            case PRICE_LOW_TO_HIGH -> Sort.by(Sort.Direction.ASC, "startPrice");
+            case END_DATE -> Sort.by(Sort.Direction.ASC, "endDate");
+            case START_DATE -> Sort.by(Sort.Direction.DESC, "startDate");
+            case DEFAULT_SORTING, default -> Sort.unsorted();
+        };
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Product> products = productRepository.findAll(specification, pageable);
@@ -136,8 +131,11 @@ public class ProductService {
         String token = tokenService.getJwtFromCookie(httpServletRequest);
         String email = tokenService.getClaimFromToken(token, "sub");
 
-        Optional<AppUser> user = appUserRepository.getByEmail(email);
-        AppUser appUser = user.get();
+        Optional<AppUser> userOpt = appUserRepository.getByEmail(email);
+        if(userOpt.isEmpty()) {
+            throw new AppUserNotFoundException("User not found!");
+        }
+        AppUser appUser = userOpt.get();
         Product product = Product.builder()
                 .productName(request.getProductName())
                 .description(request.getDescription())
@@ -175,19 +173,27 @@ public class ProductService {
     }
 
 
-    public SingleProductResponse getProductById(Long id, HttpServletRequest request) throws ProductNotFoundException {
+    public SingleProductResponse getProductById(Long id) throws ProductNotFoundException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
         boolean isOwner = false;
-        String jwt = tokenService.getJwtFromCookie(request);
+        float userHighestBid = 0f;
 
-        if (StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
-            String email = tokenService.getClaimFromToken(jwt, "sub");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String email = authentication.getName();
             isOwner = product.isOwner(email);
+
+            Optional<AppUser> userOpt = appUserRepository.getByEmail(email);
+            if (userOpt.isPresent()) {
+                Optional<Float> highestBidOpt = bidRepository.getMaxBidFromUserForProduct(userOpt.get().getId(), id);
+                userHighestBid = highestBidOpt.orElse(0f);
+            }
         }
 
-        SingleProductResponse response = new SingleProductResponse(
+        return new SingleProductResponse(
                 product.getId(),
                 product.getProductName(),
                 product.getDescription(),
@@ -198,10 +204,9 @@ public class ProductService {
                 product.getNumberOfBids(),
                 product.getHighestBid(),
                 isOwner,
-                product.isSold()
+                product.isSold(),
+                userHighestBid
         );
-
-        return response;
     }
 
     public Page<ProductsResponse> getLastProducts(int pageNumber, int size) {
@@ -211,7 +216,6 @@ public class ProductService {
     }
 
     public List<Product> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        return products;
+        return productRepository.findAll();
     }
 }

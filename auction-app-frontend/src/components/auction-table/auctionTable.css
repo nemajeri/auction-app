@@ -105,3 +105,7 @@ td {
 .text-blue {
   color: var(--blue-200);
 }
+
+.auction-table__first-body .loading-spinner__container {
+  margin-left: -25%;
+}

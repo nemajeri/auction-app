@@ -73,10 +73,11 @@ public class ProductController {
     }
 
     @PostMapping(path = "/add-item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
+    public ResponseEntity<Map<String, String>> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
                                         @RequestPart("images") List<MultipartFile> images,
                                         BindingResult bindingResult,
                                         HttpServletRequest httpServletRequest) {
+        Map<String, String> response = new HashMap<>();
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -85,17 +86,20 @@ public class ProductController {
 
         try {
             productService.createProduct(request, images, httpServletRequest);
+            response.put("status", "created");
             return new ResponseEntity<>(CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error creating product: " + e.getMessage(),BAD_REQUEST);
+            response.clear();
+            response.put("error: ", "Error creating product: " + e.getMessage());
+            return new ResponseEntity<>(BAD_REQUEST);
         }
     }
 
 
     @GetMapping(path = "/{productId}")
-    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId, HttpServletRequest request) {
+    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId) {
         try {
-            return ResponseEntity.ok(productService.getProductById(productId, request));
+            return ResponseEntity.ok(productService.getProductById(productId));
         } catch (ProductNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

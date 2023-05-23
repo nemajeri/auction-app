@@ -1,5 +1,8 @@
 package com.atlantbh.auctionappbackend.utils;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class LevenshteinDistanceCalculation {
 
     public static int calculate(CharSequence lhs, CharSequence rhs) {
@@ -27,5 +30,4 @@ public class LevenshteinDistanceCalculation {
         }
         return cost[len0 - 1];
     }
-
 }

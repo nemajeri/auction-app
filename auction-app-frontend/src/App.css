@@ -106,9 +106,9 @@ input::placeholder {
   justify-content: center;
   align-items: center;
   position: absolute;
-  top: 0;
+  top: 100px;
   left: 0;
-  right: 0;
+  right: 30px;
   bottom: 0;
   z-index: 1;
 }
@@ -124,7 +124,7 @@ input::placeholder {
 
 .grid-view {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 270px 270px 270px 270px;
   gap: 25px;
   margin: 2.5rem 0;
 }

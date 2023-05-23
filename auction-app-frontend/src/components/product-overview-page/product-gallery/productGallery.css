@@ -1,5 +1,6 @@
 .gallery {
     width: 35rem;
+    height: 35rem;
 }
 
 .gallery img{
@@ -33,6 +34,6 @@
     width: 6.5rem;
     height: 6.5rem;
     object-fit: cover;
-    margin-bottom: 12px;
+    margin: 12px 0 12px 0 ;
 }
   

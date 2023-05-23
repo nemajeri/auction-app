@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './highlightedProduct.css';
 import Button from '../../../utils/Button';
 import { Link } from 'react-router-dom';
 import { shopPagePathToProduct } from '../../../utils/paths';
-import Image from '../../my-account-page/Image';
+import LoadingSpinner from '../../loading-spinner/LoadingSpinner';
 
 const HighlightedProduct = ({ highlightedProduct }) => {
+  const [isLoading, setIsLoading] = useState(true);
   return (
     <div className='highlighted-product'>
       <div className='highlighted-product__text'>
@@ -20,7 +21,13 @@ const HighlightedProduct = ({ highlightedProduct }) => {
         </Link>
       </div>
       <div className='highlighted-product__image'>
-        <Image src={highlightedProduct?.images[0]} alt='highlighted-product' />
+      {isLoading && <LoadingSpinner pageSpinner={false}/>}
+        <img
+          src={highlightedProduct?.images[0]}
+          alt='highlighted-product'
+          className={isLoading ? 'product-image-loading' : 'product-image-loaded'}
+          onLoad={() => setIsLoading(false)}
+        />
       </div>
     </div>
   );

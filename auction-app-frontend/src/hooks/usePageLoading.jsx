@@ -1,15 +1,16 @@
 import { useEffect, useContext } from 'react';
 import { AppContext } from '../utils/AppContextProvider';
+import { ACTIONS } from '../utils/appReducer';
 
 export function usePageLoading(delay = 500) {
-  const { setInitialLoading } = useContext(AppContext);
+  const { dispatch } = useContext(AppContext);
 
   useEffect(() => {
-    setInitialLoading(true);
+    dispatch({type: ACTIONS.SET_INITIAL_LOADING, payload: true});
     const timer = setTimeout(() => {
-      setInitialLoading(false);
+      dispatch({type: ACTIONS.SET_INITIAL_LOADING, payload: false});
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [setInitialLoading, delay]);
+  }, [dispatch, delay]);
 }

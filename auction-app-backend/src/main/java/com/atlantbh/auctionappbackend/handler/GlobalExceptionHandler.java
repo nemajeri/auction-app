@@ -40,5 +40,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("PRODUCT_NOT_FOUND", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+
+    @ExceptionHandler(FileDeletionException .class)
+    public ResponseEntity<ErrorResponse> handleFileDeletionException(FileDeletionException  ex) {
+        ErrorResponse errorResponse = new ErrorResponse("FILE_DELETION_FAILED", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
 }
 

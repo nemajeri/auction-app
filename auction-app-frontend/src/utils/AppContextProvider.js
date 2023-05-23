@@ -1,44 +1,51 @@
-import React, { useState, createContext, useEffect } from 'react';
+import React, { createContext, useEffect, useReducer } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { getUserByEmail } from '../utils/api/userApi';
-import { PAGE_SIZE } from './constants';
+import { PAGE_SIZE, EMPTY_STRING, SORT_OPTIONS, SEARCH_TERM_VALIDATOR } from './constants';
 import jwt_decode from 'jwt-decode';
 import { getJwtFromCookie } from './helperFunctions';
+import { appReducer, ACTIONS } from './appReducer';
+import { shopPagePath } from './paths';
 
 export const AppContext = createContext();
 
+const initialState = {
+  searchTerm: EMPTY_STRING,
+  suggestion: EMPTY_STRING,
+  searchedProducts: null,
+  pageNumber: 0,
+  loading: false,
+  activeCategory: null,
+  products: [],
+  user: null,
+  isClearButtonPressed: false,
+  isUserLoading: true,
+  initialLoading: true,
+  currentSortOption: SORT_OPTIONS.DEFAULT_SORTING,
+};
+
 export const AppContextProvider = ({ children }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [suggestion, setSuggestion] = useState('');
-  const [searchedProducts, setSearchProducts] = useState(null);
-  const [pageNumber, setPageNumber] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [user, setUser] = useState(null);
-  const [isClearButtonPressed, setIsClearButtonPressed] = useState(false);
-  const [isUserLoading, setIsUserLoading] = useState(true);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [state, dispatch] = useReducer(appReducer, initialState);
 
   const onSearchTermChange = (event) => {
     const searchTerm = event.target.value;
-    setSearchTerm(searchTerm);
+    dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: searchTerm });
   };
 
   const suggestAlternativePhrases = async (query) => {
-    if (query.length > 2) {
-      try {
-        const response = await getSearchSuggestion(query);
-        setSuggestion(response.data);
-      } catch (error) {
-        console.error(error);
-      }
+    if (query.trim().length > 2 && !query.match(SEARCH_TERM_VALIDATOR)) {
+        try {
+            const response = await getSearchSuggestion(query);
+            dispatch({ type: ACTIONS.SET_SUGGESTION, payload: response.data });
+        } catch (error) {
+            console.error(error);
+        }
     } else {
-      setSuggestion('');
+        dispatch({ type: ACTIONS.SET_SUGGESTION, payload: "No suggestion found" });
     }
-  };
+};
 
-  const onSearchIconClick = (
+  const onSearchIconClick = async (
     event,
     categoryId,
     suggestedSearchTerm = null,
@@ -47,39 +54,44 @@ export const AppContextProvider = ({ children }) => {
     currentSortOption
   ) => {
     event.preventDefault();
-    const currentSearchTerm = suggestedSearchTerm || searchTerm;
-    setPageNumber(0);
-    if (!pathname.includes('/shop')) {
-      navigate('/shop');
+    const currentSearchTerm = suggestedSearchTerm || state.searchTerm;
+    dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: 0 });
+    if (!pathname.includes(shopPagePath)) {
+      navigate(shopPagePath);
     }
     try {
-      getAllProducts(0, PAGE_SIZE, currentSearchTerm, categoryId, currentSortOption).then(
-        (response) => {
-          setLoading(true);
-          setSearchProducts({
-            content: response.data.content,
-            pageData: response.data,
-          });
-          setSuggestion('');
-        }
+      const response = await getAllProducts(
+        0,
+        PAGE_SIZE,
+        currentSearchTerm,
+        categoryId,
+        currentSortOption
       );
+      dispatch({ type: ACTIONS.SET_LOADING, payload: true });
+      dispatch({
+        type: ACTIONS.SET_SEARCHED_PRODUCTS,
+        payload: {
+          content: response.data.content,
+          pageData: response.data,
+        },
+      });
+      dispatch({ type: ACTIONS.SET_LOADING, payload: false });
+      dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const loadUserFromCookie = async () => {
-    setIsUserLoading(true);
+    dispatch({ type: ACTIONS.SET_IS_USER_LOADING, payload: true });
     const jwtToken = getJwtFromCookie();
     if (jwtToken) {
       const decoded = jwt_decode(jwtToken);
       const email = decoded.sub;
       const appUser = await getUserByEmail(email);
-      setUser(appUser);
+      dispatch({ type: ACTIONS.SET_USER, payload: appUser });
     }
-    setIsUserLoading(false);
+    dispatch({ type: ACTIONS.SET_IS_USER_LOADING, payload: false });
   };
 
   useEffect(() => {
@@ -87,40 +99,20 @@ export const AppContextProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (searchTerm.length <= 2) {
-      setSuggestion('');
+    if (state.searchTerm.length <= 2) {
+      dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
     } else {
-      suggestAlternativePhrases(searchTerm);
+      try {
+      suggestAlternativePhrases(state.searchTerm);
+      } catch(error) {
+        console.error(error)
+      }
     }
-  }, [searchTerm]);
+  }, [state.searchTerm]);
 
   return (
     <AppContext.Provider
-      value={{
-        searchTerm,
-        onSearchTermChange,
-        onSearchIconClick,
-        searchedProducts,
-        pageNumber,
-        setPageNumber,
-        setSearchProducts,
-        loading,
-        setLoading,
-        setSearchTerm,
-        suggestion,
-        setSuggestion,
-        activeCategory,
-        setActiveCategory,
-        products,
-        setProducts,
-        setUser,
-        user,
-        isClearButtonPressed,
-        setIsClearButtonPressed,
-        isUserLoading,
-        initialLoading,
-        setInitialLoading,
-      }}
+      value={{ dispatch, ...state, onSearchTermChange, onSearchIconClick }}
     >
       {children}
     </AppContext.Provider>

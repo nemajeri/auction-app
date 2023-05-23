@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 import static com.atlantbh.auctionappbackend.utils.Constants.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @RequestMapping("/api/v1/payments")

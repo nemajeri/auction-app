@@ -13,7 +13,7 @@ const Product = ({
 
   return (
     <div className={landingPageProductClassName ? `product ${landingPageProductClassName}` : 'product'}>
-      {isLoading && <LoadingSpinner />}
+      {isLoading && <LoadingSpinner pageSpinner={false}/>}
       <img src={coverImage} alt='products' onLoad={() => setIsLoading(false)}  className={isLoading ? 'product-image-loading' : 'product-image-loaded'} />
       <div className='product__details'>
         {location ? (

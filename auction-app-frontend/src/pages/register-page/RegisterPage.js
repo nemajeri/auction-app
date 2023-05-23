@@ -5,58 +5,17 @@ import { loginPath } from '../../utils/paths';
 import { registerUser } from '../../utils/api/authApi';
 import './registerPage.css';
 import { toast } from 'react-toastify';
-import {
-  PASSWORD_VALIDATOR,
-  EMAIL_VALIDATOR,
-  PASSWORD_LENGTH,
-  NAME_VALIDATOR,
-} from '../../utils/constants';
 import Button from '../../utils/Button';
 import { validateFormFields } from '../../utils/helperFunctions';
-
-const fields = [
-  {
-    name: 'firstName',
-    label: 'First Name',
-    type: 'text',
-    placeholder: 'John',
-    validation: (value) => NAME_VALIDATOR.test(value),
-    errorMessage: 'Please enter a valid name',
-  },
-  {
-    name: 'lastName',
-    label: 'Last Name',
-    type: 'text',
-    placeholder: 'Doe',
-    validation: (value) => NAME_VALIDATOR.test(value),
-    errorMessage: 'Please enter a valid last name',
-  },
-  {
-    name: 'email',
-    label: 'Email',
-    type: 'email',
-    placeholder: 'user@domain.com',
-    validation: (value) => EMAIL_VALIDATOR.test(value),
-    errorMessage: 'Please enter a valid email address',
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    type: 'password',
-    placeholder: '••••••••',
-    validation: (value) =>
-      value.length > PASSWORD_LENGTH && PASSWORD_VALIDATOR.test(value),
-    errorMessage:
-      'Password must be at least 8 characters and contain at least one special sign and one number',
-  },
-];
+import { fields } from '../../data/registerformfields';
+import { EMPTY_STRING } from '../../utils/constants';
 
 const RegisterPage = () => {
   const [registerUserDetails, setRegisterUserDetails] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
+    firstName: EMPTY_STRING,
+    lastName: EMPTY_STRING,
+    email: EMPTY_STRING,
+    password: EMPTY_STRING,
   });
 
   const [errors, setErrors] = useState({});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import './shopPage.css';
 import CategoriesAccordion from '../../components/shop-page/categories-accordion/CategoriesAccordion';
 import ShopPageProducts from '../../components/shop-page/shop-page-products/ShopPageProducts';
@@ -6,7 +6,6 @@ import { useGridView } from '../../hooks/useGridView';
 import Button from '../../utils/Button';
 import { getCategories } from '../../utils/api/categoryApi';
 import { getAllProducts } from '../../utils/api/productsApi';
-import { PAGE_SIZE, ALL_CATEGORIES_ID } from '../../utils/constants';
 import { AppContext } from '../../utils/AppContextProvider';
 import { getTotalPages } from '../../utils/helperFunctions';
 import { useParams } from 'react-router-dom';
@@ -14,42 +13,45 @@ import SelectField from '../../utils/forms/SelectField';
 import {
   FIELD_NAME,
   FIELD_PLACEHOLDER,
-  OPTION_DEFAULT_SORTING,
-  OPTION_START_DATE,
-  OPTION_END_DATE,
-  OPTION_PRICE_LOW_TO_HIGH,
-  OPTION_PRICE_HIGH_TO_LOW,
+  SORT_OPTIONS,
+  PAGE_SIZE,
+  ALL_CATEGORIES_ID,
+  EMPTY_STRING,
 } from '../../utils/constants';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { usePageLoading } from '../../hooks/usePageLoading';
+import { ACTIONS } from '../../utils/appReducer';
+import axios from 'axios';
 
 const field = {
   name: FIELD_NAME,
   placeholder: FIELD_PLACEHOLDER,
   options: [
-    { label: 'Default sorting', value: OPTION_DEFAULT_SORTING },
-    { label: 'Sort By Newness', value: OPTION_START_DATE },
-    { label: 'Sort By Time Left', value: OPTION_END_DATE },
-    { label: 'Sort By Price: Low to High', value: OPTION_PRICE_LOW_TO_HIGH },
-    { label: 'Sort By Price: High to Low', value: OPTION_PRICE_HIGH_TO_LOW },
+    { label: 'Default sorting', value: SORT_OPTIONS.DEFAULT_SORTING },
+    { label: 'Sort By Newness', value: SORT_OPTIONS.START_DATE },
+    { label: 'Sort By Time Left', value: SORT_OPTIONS.END_DATE },
+    {
+      label: 'Sort By Price: Low to High',
+      value: SORT_OPTIONS.PRICE_LOW_TO_HIGH,
+    },
+    {
+      label: 'Sort By Price: High to Low',
+      value: SORT_OPTIONS.PRICE_HIGH_TO_LOW,
+    },
   ],
 };
 
 const ShopPage = () => {
   const {
+    dispatch,
     searchTerm,
     searchedProducts,
     pageNumber,
-    setPageNumber,
     activeCategory,
-    setActiveCategory,
     products,
-    setSearchTerm,
-    setSearchProducts,
-    setProducts,
     isClearButtonPressed,
-    setIsClearButtonPressed,
-    initialLoading
+    initialLoading,
+    currentSortOption,
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
   const [openedCategory, setOpenedCategory] = useState({});
@@ -58,7 +60,6 @@ const ShopPage = () => {
     content: [],
     totalElements: 0,
   });
-  const [currentSortOption, setCurrentSortOption] = useState(OPTION_DEFAULT_SORTING);
   const [loading, setLoading] = useState(false);
   const { categoryId } = useParams();
 
@@ -66,36 +67,142 @@ const ShopPage = () => {
 
   useEffect(() => {
     const resetStatesOnUnmount = () => {
-      setSearchTerm('');
+      dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: EMPTY_STRING });
       setProductsByCategories({ content: [], totalElements: 0 });
-      setSearchProducts(null);
-      setProducts([]);
+      dispatch({ type: ACTIONS.SET_SEARCHED_PRODUCTS, payload: null });
+      dispatch({ type: ACTIONS.SET_PRODUCTS, payload: [] });
     };
 
     return () => {
       resetStatesOnUnmount();
     };
-  }, []);
+  }, [dispatch, setProductsByCategories]);
 
   useEffect(() => {
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
+
     (async () => {
       setLoading(true);
-      const response = await getCategories();
-      setCategories(response.data);
-      setLoading(false);
+      try {
+        const response = await getCategories(source.token);
+        setCategories(response.data);
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          console.error('Request cancelled:', error.message);
+          return;
+        } else {
+          console.error('Error fetching categories: ' + error);
+        }
+      } finally {
+        setLoading(false);
+      }
     })();
+
+    return () => {
+      source.cancel('Operation cancelled by the user.');
+    };
   }, []);
+
+  const handleOpeningAndFetchingCategories = useCallback(
+    (categoryId) => async (event) => {
+      const category = event?.currentTarget.dataset.category;
+      const isOpening = category ? !openedCategory[category] : true;
+
+      if (!event && isOpening && category) {
+        setOpenedCategory((prevState) => ({
+          ...prevState,
+          [category]: false,
+        }));
+        dispatch({ type: ACTIONS.SET_ACTIVE_CATEGORY, payload: null });
+        return;
+      }
+
+      try {
+        setLoading(true);
+        dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: 0 });
+
+        const productsResponse = await getAllProducts(
+          0,
+          PAGE_SIZE,
+          searchTerm,
+          categoryId === ALL_CATEGORIES_ID ? null : categoryId,
+          currentSortOption
+        );
+
+        const { content, totalElements } = productsResponse.data;
+
+        if (!isOpening && category) {
+          if (searchedProducts) {
+            dispatch({
+              type: ACTIONS.SET_PRODUCTS,
+              payload: searchedProducts.content,
+            });
+          } else {
+            dispatch({ type: ACTIONS.SET_PRODUCTS, payload: [] });
+          }
+        } else {
+          if (searchedProducts) {
+            const filteredItems = searchedProducts.content.filter(
+              (product) => product.categoryId === categoryId
+            );
+            dispatch({ type: ACTIONS.SET_PRODUCTS, payload: filteredItems });
+          } else {
+            dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
+          }
+        }
+
+        setProductsByCategories({ content, totalElements });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+
+      if (category) {
+        setOpenedCategory((prevState) => {
+          const updatedState = Object.keys(prevState).reduce(
+            (acc, categoryName) => {
+              acc[categoryName] = false;
+              return acc;
+            },
+            {}
+          );
+
+          return {
+            ...updatedState,
+            [category]: isOpening,
+          };
+        });
+        dispatch({
+          type: ACTIONS.SET_ACTIVE_CATEGORY,
+          payload: isOpening ? categoryId : null,
+        });
+      }
+    },
+    [searchTerm, currentSortOption, openedCategory, searchedProducts, dispatch]
+  );
 
   useEffect(() => {
     if (!loading && searchedProducts) {
-      setProducts(searchedProducts.content);
+      dispatch({
+        type: ACTIONS.SET_PRODUCTS,
+        payload: searchedProducts.content,
+      });
     }
 
     if (isClearButtonPressed) {
       handleOpeningAndFetchingCategories(activeCategory)();
-      setIsClearButtonPressed(false);
+      dispatch({ type: ACTIONS.SET_CLEAR_BUTTON_PRESSED, payload: false });
     }
-  }, [loading, searchedProducts, isClearButtonPressed]);
+  }, [
+    loading,
+    searchedProducts,
+    isClearButtonPressed,
+    dispatch,
+    activeCategory,
+    handleOpeningAndFetchingCategories,
+  ]);
 
   useEffect(() => {
     if (categoryId && categories) {
@@ -105,82 +212,15 @@ const ShopPage = () => {
 
       if (firstLoadedCategory) {
         setOpenedCategory({ [firstLoadedCategory.categoryName]: true });
-        setActiveCategory(firstLoadedCategory.id);
+        dispatch({
+          type: ACTIONS.SET_ACTIVE_CATEGORY,
+          payload: firstLoadedCategory.id,
+        });
       }
       handleOpeningAndFetchingCategories(parseInt(categoryId))();
     }
-  }, [categoryId, categories]);
-
-  const handleOpeningAndFetchingCategories = (categoryId) => async (event) => {
-    const category = event?.currentTarget.dataset.category;
-    const isOpening = category ? !openedCategory[category] : true;
-
-    if (!event && isOpening && category) {
-      setOpenedCategory((prevState) => ({
-        ...prevState,
-        [category]: false,
-      }));
-      setActiveCategory(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setPageNumber(0);
-
-      const productsResponse = await getAllProducts(
-        0,
-        PAGE_SIZE,
-        searchTerm,
-        categoryId === ALL_CATEGORIES_ID ? null : categoryId,
-        currentSortOption
-      );
-
-      const { content, totalElements } = productsResponse.data;
-
-      if (!isOpening && category) {
-        if (searchedProducts) {
-          setProducts(searchedProducts.content);
-        } else {
-          setProducts([]);
-        }
-      } else {
-        if (searchedProducts) {
-          const filteredItems = searchedProducts.content.filter(
-            (product) => product.categoryId === categoryId
-          );
-          setProducts(filteredItems);
-        } else {
-          setProducts(content);
-        }
-      }
-
-      setProductsByCategories({ content, totalElements });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-
-    if (category) {
-      setOpenedCategory((prevState) => {
-        const updatedState = Object.keys(prevState).reduce(
-          (acc, categoryName) => {
-            acc[categoryName] = false;
-            return acc;
-          },
-          {}
-        );
-
-        return {
-          ...updatedState,
-          [category]: isOpening,
-        };
-      });
-
-      setActiveCategory(isOpening ? categoryId : null);
-    }
-  };
+    // eslint-disable-next-line 
+  }, [categoryId, categories, dispatch]);
 
   const onExploreMoreBtnClick = () => {
     const nextPageNumber = pageNumber + 1;
@@ -190,21 +230,24 @@ const ShopPage = () => {
         : activeCategory;
 
     getAllProducts(
-        nextPageNumber,
-        PAGE_SIZE,
-        searchTerm,
-        categoryId,
-        currentSortOption
+      nextPageNumber,
+      PAGE_SIZE,
+      searchTerm,
+      categoryId,
+      currentSortOption
     )
       .then((response) => {
-      const { content } = response.data;
-      setProducts((prevProducts) => prevProducts.concat(content));
+        const { content } = response.data;
+        dispatch({
+          type: ACTIONS.SET_PRODUCTS,
+          payload: products.concat(content),
+        });
       })
       .catch((error) => {
-      console.error(error);
+        console.error(error);
       });
 
-    setPageNumber(nextPageNumber);
+    dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: nextPageNumber });
   };
 
   const totalPages = getTotalPages(
@@ -214,7 +257,7 @@ const ShopPage = () => {
 
   const handleSortOptionChoice = async (chosenSortOption) => {
     setLoading(true);
-    setCurrentSortOption(chosenSortOption);
+    dispatch({ type: ACTIONS.SET_SORT_OPTION, payload: chosenSortOption });
     try {
       const response = await getAllProducts(
         pageNumber,
@@ -224,8 +267,7 @@ const ShopPage = () => {
         chosenSortOption
       );
       const { content, totalElements } = response.data;
-
-      setProducts(content);
+      dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
       setProductsByCategories({ content, totalElements });
     } catch (error) {
       console.error('Error while sorting products');
@@ -234,7 +276,7 @@ const ShopPage = () => {
     }
   };
 
-    if (initialLoading) {
+  if (initialLoading) {
     return <LoadingSpinner pageSpinner={true} />;
   }
 
