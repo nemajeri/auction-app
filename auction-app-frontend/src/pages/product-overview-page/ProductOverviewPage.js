@@ -8,7 +8,6 @@ import {
 import { getProduct } from '../../utils/api/productsApi';
 import { updateBid } from '../../utils/api/bidApi';
 import { calculateTimeLeft } from '../../utils/helperFunctions';
-import './productOverviewPage.css';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { toast } from 'react-toastify';
