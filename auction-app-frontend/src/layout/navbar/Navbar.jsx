@@ -11,6 +11,7 @@ import { loginPath, registrationPath } from '../../utils/paths';
 import { logoutUser } from '../../utils/api/authApi.js';
 import { EMPTY_STRING } from '../../utils/constants';
 import { ACTIONS } from '../../utils/appReducer';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
   const {
@@ -36,7 +37,51 @@ const Navbar = () => {
       dispatch({ type: ACTIONS.SET_USER, payload: null });
       navigate('/login');
     } catch (error) {
-      console.error(error);
+      toast.error(error);
+    }
+  };
+
+  const showSuggestion = () => {
+    if (suggestion === 'No suggestion found' && searchTerm !== EMPTY_STRING) {
+      return (
+        <div className='navbar__suggestion--pop-up'>
+          <div className='navbar__suggestion--pop-up_container not-found'>
+            <p>{suggestion}</p>
+          </div>
+        </div>
+      );
+    } else if (suggestion !== EMPTY_STRING && searchTerm !== EMPTY_STRING) {
+      return (
+        <div className='navbar__suggestion--pop-up'>
+          <div className='navbar__suggestion--pop-up_container'>
+            <span>Did you mean?</span>
+            <p
+              onClick={(e) => {
+                if (suggestion) {
+                  onSearchIconClick(e, null, suggestion, navigate, pathname);
+                  dispatch({
+                    type: ACTIONS.SET_SEARCH_TERM,
+                    payload: EMPTY_STRING,
+                  });
+                  dispatch({
+                    type: ACTIONS.SET_SUGGESTION,
+                    payload: EMPTY_STRING,
+                  });
+                } else {
+                  dispatch({
+                    type: ACTIONS.SET_SUGGESTION,
+                    payload: EMPTY_STRING,
+                  });
+                }
+              }}
+            >
+              {suggestion}
+            </p>
+          </div>
+        </div>
+      );
+    } else {
+      return null;
     }
   };
 
@@ -93,26 +138,7 @@ const Navbar = () => {
           )}
         </div>
       </div>
-      {suggestion !== '' && searchTerm !== '' ? (
-        <div className='navbar__suggestion--pop-up'>
-          <div className='navbar__suggestion--pop-up_container'>
-            <span>Did you mean?</span>
-            <p
-              onClick={(e) => {
-                if (suggestion) {
-                  onSearchIconClick(e, null, suggestion, navigate, pathname);
-                  dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: EMPTY_STRING });
-                  dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
-                } else {
-                  dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
-                }
-              }}
-            >
-              {suggestion}
-            </p>
-          </div>
-        </div>
-      ) : null}
+      {showSuggestion()}
     </>
   );
 };
