@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useReducer } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { getUserByEmail } from '../utils/api/userApi';
-import { PAGE_SIZE, EMPTY_STRING, OPTION_DEFAULT_SORTING } from './constants';
+import { PAGE_SIZE, EMPTY_STRING, SORT_OPTIONS, SEARCH_TERM_VALIDATOR } from './constants';
 import jwt_decode from 'jwt-decode';
 import { getJwtFromCookie } from './helperFunctions';
 import { appReducer, ACTIONS } from './appReducer';
@@ -21,7 +21,7 @@ const initialState = {
   isClearButtonPressed: false,
   isUserLoading: true,
   initialLoading: true,
-  currentSortOption: OPTION_DEFAULT_SORTING,
+  currentSortOption: SORT_OPTIONS.DEFAULT_SORTING,
 };
 
 export const AppContextProvider = ({ children }) => {
@@ -33,17 +33,17 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const suggestAlternativePhrases = async (query) => {
-    if (query.length > 2) {
-      try {
-        const response = await getSearchSuggestion(query);
-        dispatch({ type: ACTIONS.SET_SUGGESTION, payload: response.data });
-      } catch (error) {
-        console.error(error);
-      }
+    if (query.trim().length > 2 && !query.match(SEARCH_TERM_VALIDATOR)) {
+        try {
+            const response = await getSearchSuggestion(query);
+            dispatch({ type: ACTIONS.SET_SUGGESTION, payload: response.data });
+        } catch (error) {
+            console.error(error);
+        }
     } else {
-      dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
+        dispatch({ type: ACTIONS.SET_SUGGESTION, payload: "No suggestion found" });
     }
-  };
+};
 
   const onSearchIconClick = async (
     event,
@@ -102,7 +102,11 @@ export const AppContextProvider = ({ children }) => {
     if (state.searchTerm.length <= 2) {
       dispatch({ type: ACTIONS.SET_SUGGESTION, payload: EMPTY_STRING });
     } else {
+      try {
       suggestAlternativePhrases(state.searchTerm);
+      } catch(error) {
+        console.error(error)
+      }
     }
   }, [state.searchTerm]);
 

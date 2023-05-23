@@ -66,14 +66,21 @@ export const FIELD_NAME = 'sort';
 
 export const FIELD_PLACEHOLDER = 'Sort Products';
 
-export const OPTION_DEFAULT_SORTING = 'DEFAULT_SORTING';
-
-export const OPTION_START_DATE = 'START_DATE';
-
-export const OPTION_END_DATE = 'END_DATE';
-
-export const OPTION_PRICE_LOW_TO_HIGH = 'PRICE_LOW_TO_HIGH';
-
-export const OPTION_PRICE_HIGH_TO_LOW = 'PRICE_HIGH_TO_LOW';
+export const SORT_OPTIONS = Object.freeze({
+  DEFAULT_SORTING: 'DEFAULT_SORTING',
+  START_DATE: 'START_DATE',
+  END_DATE: 'END_DATE',
+  PRICE_LOW_TO_HIGH: 'PRICE_LOW_TO_HIGH',
+  PRICE_HIGH_TO_LOW: 'PRICE_HIGH_TO_LOW',
+});
 
 export const EMPTY_STRING = '';
+
+export const BUTTON_LABELS = Object.freeze({
+  SOLD: 'SOLD',
+  BOUGHT: 'BOUGHT',
+  BUY: 'BUY',
+  VIEW: 'VIEW',
+});
+
+export const SEARCH_TERM_VALIDATOR = /[^a-zA-Z0-9 ]/g;
