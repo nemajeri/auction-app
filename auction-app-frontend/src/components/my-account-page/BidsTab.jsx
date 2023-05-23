@@ -7,15 +7,18 @@ import { getBidsForUser } from '../../utils/api/bidApi';
 import { hoursDiff } from '../../utils/helperFunctions';
 import { Link } from 'react-router-dom';
 import Button from '../../utils/Button';
-import { shopPagePathToProduct } from '../../utils/paths';
+import {
+  shopPagePathToProduct,
+  shopPagePathToCategory,
+} from '../../utils/paths';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
-import { shopPagePathToCategory } from '../../utils/paths';
-import Image from './Image'; 
+import { BUTTON_LABELS } from '../../utils/constants';
 
 const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
   const { user } = useContext(AppContext);
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -33,18 +36,18 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
   const getButtonLabel = (bid) => {
     switch (true) {
       case bid.product.sold && bid.product.user.id === user.id:
-        return 'SOLD';
+        return BUTTON_LABELS.SOLD;
       case bid.product.sold &&
         bid.product.user.id !== user.id &&
         bid.user.id === user.id:
-        return 'BOUGHT';
+        return BUTTON_LABELS.BOUGHT;
       case hoursDiff(bid.product.endDate) === 0 &&
         bid.product.highestBid === bid.price:
-        return 'BUY';
+        return BUTTON_LABELS.BUY;
       default:
-        return 'VIEW';
+        return BUTTON_LABELS.VIEW;
     }
-  }
+  };
 
   return !loading ? (
     <>
@@ -54,9 +57,16 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
             <tr key={bid.id}>
               {bid.product.images.length > 0 && (
                 <td className={bodyClassNames[0]}>
-                  <Image
+                  {isImageLoading && <LoadingSpinner pageSpinner={false} />}
+                  <img
                     src={bid.product.images[0]}
                     alt={bid.product.productName}
+                    onLoad={() => setIsImageLoading(false)}
+                    className={
+                      isImageLoading
+                        ? 'product-image-loading'
+                        : 'product-image-loaded'
+                    }
                   />
                 </td>
               )}
@@ -109,7 +119,7 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
       </AuctionTable>
     </>
   ) : (
-    <LoadingSpinner />
+    <LoadingSpinner pageSpinner={true}/>
   );
 };
 

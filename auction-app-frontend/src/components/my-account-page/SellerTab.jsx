@@ -9,10 +9,8 @@ import { getProductsForUser } from '../../utils/api/productsApi';
 import { AppContext } from '../../utils/AppContextProvider';
 import Button from '../../utils/Button';
 import { shopPagePathToProduct, sellerToAddItemPath } from '../../utils/paths';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
-import Image from './Image';
 
 const tabs = [
   { id: 'active', label: ACTIVE },
@@ -24,15 +22,8 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
   const [selectedTab, setSelectedTab] = useState(tabs[0].id);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const navigate = useNavigate();
-
-  const handleTabClick = (id) => {
-    setSelectedTab(id);
-  };
-
-  const onClick = () => {
-    navigate(sellerToAddItemPath);
-  };
 
   useEffect(() => {
     (async () => {
@@ -54,7 +45,7 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
     <>
       <Tabs
         tabs={tabs}
-        handleTabClick={handleTabClick}
+        handleTabClick={(id) => setSelectedTab(id)}
         selectedTab={selectedTab}
         containerClassName={'seller-tab__tabs--container'}
         tabClassName={'seller-tab__tabs--individual_tab'}
@@ -69,7 +60,17 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
             <tr key={product.id}>
               {product.images.length > 0 && !loading ? (
                 <td className={bodyClassNames[0]}>
-                  <Image src={product.images[0]} alt={product.productName} />
+                  {isImageLoading && <LoadingSpinner pageSpinner={false} />}
+                  <img
+                    src={product.images[0]}
+                    alt={product.productName}
+                    onLoad={() => setIsImageLoading(false)}
+                    className={
+                      isImageLoading
+                        ? 'product-image-loading'
+                        : 'product-image-loaded'
+                    }
+                  />
                 </td>
               ) : (
                 <LoadingSpinner />
@@ -105,7 +106,7 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
                 text='You do not have any scheduled items for sale.'
                 buttonLabel='START SELLING'
                 buttonClassName='shared-style__btn'
-                onClick={onClick}
+                onClick={() => navigate(sellerToAddItemPath)}
               />
             </td>
           </tr>
@@ -113,7 +114,7 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
       </AuctionTable>
     </>
   ) : (
-    <LoadingSpinner />
+    <LoadingSpinner pageSpinner={true} />
   );
 };
 
