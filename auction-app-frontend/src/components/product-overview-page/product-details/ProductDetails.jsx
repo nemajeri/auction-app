@@ -1,8 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import Button from '../../../utils/Button';
 import Tabs from '../../tabs/Tabs';
 import './productDetails.css';
-import { AppContext } from '../../../utils/AppContextProvider';
 import Modal from '../../../utils/forms/Modal';
 import StripeCheckout from '../../stripe-checkout/StripeCheckout';
 import { useNavigate } from 'react-router-dom';
@@ -20,19 +19,15 @@ const ProductDetails = ({
   bidAmount,
   onBidButtonClick,
   userHighestBid,
+  user
 }) => {
-  const { user } = useContext(AppContext);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
 
   const onClose = () => {
     setShowPaymentModal(false);
     navigate(landingPagePath);
-  };
-
-  const onPayButtonClick = () => {
-    setShowPaymentModal(true);
-  };
+  }
 
   const isAuctionActive = !product.sold && timeLeft !== AUCTION_ENDED;
   const isAuctionEnded = !product.sold && timeLeft === AUCTION_ENDED;
@@ -81,7 +76,8 @@ const ProductDetails = ({
               isAuctionEnded &&
               isUserHighestBidder && (
                 <Button
-                  onClick={onPayButtonClick}
+                  onClick={() => 
+                    setShowPaymentModal(true)}
                   className={'details__button pay'}
                   isOwner={isOwner}
                 >
