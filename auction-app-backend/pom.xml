@@ -67,7 +67,6 @@
             <artifactId>stripe-java</artifactId>
             <version>20.108.0</version>
         </dependency>
-
         <!-- Amazon -->
         <dependency>
             <groupId>com.amazonaws</groupId>
@@ -106,6 +105,11 @@
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
             <version>2.2.0</version>
+        </dependency>
+        <!-- Websocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.api-client</groupId>
