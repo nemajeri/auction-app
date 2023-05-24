@@ -15,6 +15,8 @@ import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -155,6 +157,33 @@ public class TokenService {
         }
         return null;
     }
+
+    public String getJwtFromCookie(ServerHttpRequest request) {
+        HttpHeaders headers = request.getHeaders();
+        List<String> cookieHeaders = headers.get(HttpHeaders.COOKIE);
+
+        if (cookieHeaders != null) {
+            for (String cookieHeader : cookieHeaders) {
+                String[] cookies = cookieHeader.split(";");
+
+                for (String cookieStr : cookies) {
+                    String[] cookieArr = cookieStr.trim().split("=");
+
+                    if (cookieArr.length >= 2) {
+                        String cookieName = cookieArr[0];
+                        String cookieValue = cookieArr[1];
+
+                        if (COOKIE_NAME.equals(cookieName)) {
+                            return cookieValue;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
 
     public void invalidateToken(String token) {
         blacklistedTokens.add(token);

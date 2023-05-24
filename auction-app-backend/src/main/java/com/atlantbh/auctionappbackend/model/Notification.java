@@ -1,9 +1,9 @@
 package com.atlantbh.auctionappbackend.model;
 
 import com.atlantbh.auctionappbackend.enums.NotificationType;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Table(name = "notification", schema = "auction_app_schema")
 public class Notification {
 

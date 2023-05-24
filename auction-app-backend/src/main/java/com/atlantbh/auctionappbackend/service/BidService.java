@@ -1,9 +1,16 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.enums.NotificationType;
 import com.atlantbh.auctionappbackend.exception.BadRequestException;
+import com.atlantbh.auctionappbackend.model.Notification;
+import com.atlantbh.auctionappbackend.repository.NotificationRepository;
+import com.atlantbh.auctionappbackend.request.UserMaxBidRequest;
 import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,6 +41,10 @@ public class BidService {
 
     private final AppUserRepository appUserRepository;
 
+    private final SimpMessagingTemplate template;
+
+    private final NotificationRepository notificationRepository;
+
     public List<Bid> getBidsForAppUser(Long userId) {
         List<Bid> bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, BID_DATE));
         if (bids.isEmpty()) {
@@ -56,11 +67,21 @@ public class BidService {
 
         validateBidAmount(product, amount, appUser);
 
+        Pageable pageable = PageRequest.of(0, 1);
+        UserMaxBidRequest bidDetails = bidRepository.getMaxBidAndUserIdForProduct(productId, pageable);
+
         Bid bid = new Bid();
         bid.setUser(appUser);
         bid.setProduct(product);
         bid.setPrice(amount);
         bidRepository.save(bid);
+
+        Notification notification = new Notification();
+        notification.setUser(appUserRepository.getById(bidDetails.getId()));
+        notification.setProduct(product);
+        notification.setType(NotificationType.OUTBIDDED);
+        template.convertAndSendToUser(notification.getUser().getEmail(), "/topic/notifications", notification);
+        notificationRepository.save(notification);
     }
 
 
