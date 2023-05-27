@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -15,7 +16,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Data
 @Table(name = "notification", schema = "auction_app_schema")
-public class Notification {
+public class Notification implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
