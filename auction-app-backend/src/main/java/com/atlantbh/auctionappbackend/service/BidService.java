@@ -28,6 +28,7 @@ import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.atlantbh.auctionappbackend.utils.Constants.BID_DATE;
 
@@ -67,8 +68,9 @@ public class BidService {
 
         validateBidAmount(product, amount, appUser);
 
-        Pageable pageable = PageRequest.of(0, 1);
-        UserMaxBidRequest bidDetails = bidRepository.getMaxBidAndUserIdForProduct(productId, pageable);
+        Optional<UserMaxBidRequest> userMaxBidRequest = bidRepository.findFirstByProductAndUserOrderByPriceDesc(productId, appUser.getId());
+
+        UserMaxBidRequest bidDetails = userMaxBidRequest.orElseThrow(() -> new AppUserNotFoundException("Invalid user"));
 
         Bid bid = new Bid();
         bid.setUser(appUser);
