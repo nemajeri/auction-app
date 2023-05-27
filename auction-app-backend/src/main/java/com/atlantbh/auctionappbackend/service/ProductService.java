@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.enums.NotificationType;
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
@@ -26,6 +27,7 @@ import java.time.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 import static com.atlantbh.auctionappbackend.utils.Constants.*;
@@ -102,7 +104,7 @@ public class ProductService {
         }
 
         return recommendedProducts.stream()
-                .map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()))
+                .map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()))
                 .toList();
     }
 
@@ -124,7 +126,7 @@ public class ProductService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Product> products = productRepository.findAll(specification, pageable);
-        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
     public void createProduct(NewProductRequest request, List<MultipartFile> images, HttpServletRequest httpServletRequest) {
@@ -169,7 +171,7 @@ public class ProductService {
     public Page<ProductsResponse> getNewProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getNewArrivalsProducts(pageable);
-        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
 
@@ -198,7 +200,7 @@ public class ProductService {
                 product.getProductName(),
                 product.getDescription(),
                 product.getStartPrice(),
-                product.getImages(),
+                product.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()),
                 product.getStartDate(),
                 product.getEndDate(),
                 product.getNumberOfBids(),
@@ -212,7 +214,7 @@ public class ProductService {
     public Page<ProductsResponse> getLastProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getLastChanceProducts(pageable);
-        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
     public List<Product> getAllProducts() {
