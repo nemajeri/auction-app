@@ -2,6 +2,8 @@ package com.atlantbh.auctionappbackend.config;
 
 import com.atlantbh.auctionappbackend.service.TokenService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
@@ -18,20 +20,28 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSocketMessageBroker
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final TokenService tokenService;
 
+    @Value("${allowedOrigin}")
+    private String allowedOrigin;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
         config.setApplicationDestinationPrefixes("/app");
+        config.enableStompBrokerRelay("/topic/")
+                .setRelayHost("localhost")
+                .setRelayPort(61613)
+                .setClientLogin("guest")
+                .setClientPasscode("guest");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/notifications")
+                .setAllowedOrigins(allowedOrigin)
                 .withSockJS()
                 .setInterceptors(handshakeInterceptor());
     }

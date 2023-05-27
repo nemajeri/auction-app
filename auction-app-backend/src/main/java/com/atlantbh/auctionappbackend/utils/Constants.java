@@ -48,4 +48,10 @@ public final class Constants {
 
     public static final String SEARCH_TERM_VALIDATOR = "[^a-zA-Z0-9 ]";
 
+    public static final String AUCTION_EXCHANGE = "auction_exchange";
+
+    public static final String AUCTION_QUEUE = "auction_queue";
+
+    public static final String ROUTING_KEY = "auction.routing.key";
+
 }
