@@ -48,10 +48,16 @@ public final class Constants {
 
     public static final String SEARCH_TERM_VALIDATOR = "[^a-zA-Z0-9 ]";
 
-    public static final String AUCTION_EXCHANGE = "auction_exchange";
+    public static final String AUCTION_FINISHED_EXCHANGE = "auction_finished_exchange";
 
-    public static final String AUCTION_QUEUE = "auction_queue";
+    public static final String AUCTION_FINISHED_QUEUE = "auction_finished_queue";
 
-    public static final String ROUTING_KEY = "auction.routing.key";
+    public static final String AUCTION_FINISHED_ROUTING_KEY = "auction.finished.routing.key";
+
+    public static final String OUTBID_EXCHANGE = "outbid_exchange";
+
+    public static final String OUTBID_QUEUE = "outbid_queue";
+
+    public static final String OUTBID_ROUTING_KEY = "outbid.routing.key";
 
 }

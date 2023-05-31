@@ -1,0 +1,76 @@
+[
+  {
+    "date": "2023-05-26 10:15:30",
+    "type": "OUTBIDDED",
+    "product": {
+      "id": 123,
+      "name": "Product A"
+    },
+    "description": "Auction has finished. You are the highest bidder for product: Product A!"
+  },
+  {
+    "date": "2023-05-25 14:30",
+    "type": "AUCTION FINISHED",
+    "product": {
+      "id": 789,
+      "name": "Product B"
+    },
+    "user": {
+      "id": 456,
+      "name": "John Doe"
+    },
+    "description":"You have been outbid on product: Product B!"
+  },
+  {
+    "date": "2023-05-25 14:30",
+    "type": "OUTBIDDED",
+    "product": {
+      "id": 789,
+      "name": "Product C"
+    },
+    "user": {
+      "id": 456,
+      "name": "John Doe"
+    },
+    "description":"You have been outbid on product: Product C!"
+  },
+  {
+    "date": "2023-05-25 14:30",
+    "type": "AUCTION FINISHED",
+    "product": {
+      "id": 789,
+      "name": "Product B"
+    },
+    "user": {
+      "id": 456,
+      "name": "John Doe"
+    },
+    "description":"You have been outbid on product: Product B!"
+  },
+  {
+    "date": "2023-05-25 14:30",
+    "type": "AUCTION FINISHED",
+    "product": {
+      "id": 789,
+      "name": "Product B"
+    },
+    "user": {
+      "id": 456,
+      "name": "John Doe"
+    },
+    "description":"You have been outbid on product: Product B!"
+  },
+  {
+    "date": "2023-05-25 14:30",
+    "type": "AUCTION FINISHED",
+    "product": {
+      "id": 789,
+      "name": "Product B"
+    },
+    "user": {
+      "id": 456,
+      "name": "John Doe"
+    },
+    "description":"You have been outbid on product: Product B!"
+  }
+]

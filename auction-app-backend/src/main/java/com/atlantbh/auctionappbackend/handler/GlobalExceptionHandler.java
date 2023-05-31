@@ -46,5 +46,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("FILE_DELETION_FAILED", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
+    @ExceptionHandler(NotificationNotFound.class)
+    public ResponseEntity<ErrorResponse> handleNotificationNotFoundException(NotificationNotFound ex) {
+        ErrorResponse errorResponse = new ErrorResponse("NOTIFICATION_NOT_FOUND", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
 }
 

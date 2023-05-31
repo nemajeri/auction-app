@@ -13,18 +13,33 @@ import static com.atlantbh.auctionappbackend.utils.Constants.*;
 public class RabbitMQConfig {
 
     @Bean
-    public Queue auctionQueue() {
-        return new Queue(AUCTION_QUEUE);
+    public Queue auctionFinishedQueue() {
+        return new Queue(AUCTION_FINISHED_QUEUE);
     }
 
     @Bean
-    public DirectExchange auctionExchange() {
-        return new DirectExchange(AUCTION_EXCHANGE);
+    public DirectExchange auctionFinishedExchange() {
+        return new DirectExchange(AUCTION_FINISHED_EXCHANGE);
     }
 
     @Bean
-    public Binding binding(Queue auctionQueue, DirectExchange auctionExchange) {
-        return BindingBuilder.bind(auctionQueue).to(auctionExchange).with(ROUTING_KEY);
+    public Binding auctionFinishedBinding(Queue auctionFinishedQueue, DirectExchange auctionFinishedExchange) {
+        return BindingBuilder.bind(auctionFinishedQueue).to(auctionFinishedExchange).with(AUCTION_FINISHED_ROUTING_KEY);
     }
 
+    @Bean
+    public Queue outbidQueue() {
+        return new Queue(OUTBID_QUEUE);
+    }
+
+    @Bean
+    public DirectExchange outbidExchange() {
+        return new DirectExchange(OUTBID_EXCHANGE);
+    }
+
+    @Bean
+    public Binding outbidBinding(Queue outbidQueue, DirectExchange outbidExchange) {
+        return BindingBuilder.bind(outbidQueue).to(outbidExchange).with(OUTBID_ROUTING_KEY);
+
+    }
 }

@@ -1,57 +1,77 @@
 package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.enums.NotificationType;
+import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.exception.BadRequestException;
-import com.atlantbh.auctionappbackend.model.Notification;
+import com.atlantbh.auctionappbackend.exception.BidAmountException;
+import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
+import com.atlantbh.auctionappbackend.model.*;
+import com.atlantbh.auctionappbackend.repository.AppUserRepository;
+import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.NotificationRepository;
+import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import com.atlantbh.auctionappbackend.request.UserMaxBidRequest;
+import com.atlantbh.auctionappbackend.response.AppUserBidsResponse;
+import com.atlantbh.auctionappbackend.response.NotificationResponse;
+import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
-import com.atlantbh.auctionappbackend.exception.BidAmountException;
-import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
-import com.atlantbh.auctionappbackend.model.AppUser;
-import com.atlantbh.auctionappbackend.model.Bid;
-import com.atlantbh.auctionappbackend.model.Product;
-import com.atlantbh.auctionappbackend.repository.AppUserRepository;
-import com.atlantbh.auctionappbackend.repository.BidRepository;
-import com.atlantbh.auctionappbackend.repository.ProductRepository;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.BID_DATE;
+import static com.atlantbh.auctionappbackend.utils.Constants.*;
 
 @Service
 @RequiredArgsConstructor
 public class BidService {
 
+    private static Logger log = LoggerFactory.getLogger(BidService.class);
     private final BidRepository bidRepository;
-
     private final ProductRepository productRepository;
-
     private final AppUserRepository appUserRepository;
-
-    private final SimpMessagingTemplate template;
-
+    private final RabbitTemplate rabbitTemplate;
     private final NotificationRepository notificationRepository;
 
-    public List<Bid> getBidsForAppUser(Long userId) {
+    public List<AppUserBidsResponse> getBidsForAppUser(Long userId) {
         List<Bid> bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, BID_DATE));
+
         if (bids.isEmpty()) {
             bids = new ArrayList<>();
         }
-        return bids;
+
+        return bids.stream()
+                .map(bid -> new AppUserBidsResponse(
+                        bid.getId(),
+                        bid.getPrice(),
+                        new SingleProductResponse(
+                                bid.getProduct().getId(),
+                                bid.getProduct().getProductName(),
+                                bid.getProduct().getDescription(),
+                                bid.getProduct().getStartPrice(),
+                                bid.getProduct().getImages().stream().map(Image::getImageUrl).toList(),
+                                bid.getProduct().getEndDate(),
+                                bid.getProduct().getNumberOfBids(),
+                                bid.getProduct().getHighestBid(),
+                                bid.getProduct().isSold(),
+                                bid.getProduct().getUser().getId()
+                        ),
+                        bid.getUser().getId()
+                ))
+                .toList();
     }
 
     @Transactional
@@ -68,22 +88,47 @@ public class BidService {
 
         validateBidAmount(product, amount, appUser);
 
-        Optional<UserMaxBidRequest> userMaxBidRequest = bidRepository.findFirstByProductAndUserOrderByPriceDesc(productId, appUser.getId());
+        Float productsHighestBid = product.getHighestBid();
+        PageRequest pageable = PageRequest.of(0, 1);
+        List<UserMaxBidRequest> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(productId, pageable);
 
-        UserMaxBidRequest bidDetails = userMaxBidRequest.orElseThrow(() -> new AppUserNotFoundException("Invalid user"));
+        Long highestBidUserId = null;
+        Float highestBidAmount = product.getStartPrice();
 
-        Bid bid = new Bid();
-        bid.setUser(appUser);
-        bid.setProduct(product);
-        bid.setPrice(amount);
-        bidRepository.save(bid);
+        if (!userWithHighestBid.isEmpty()) {
+            highestBidUserId = userWithHighestBid.get(0).getUserId();
+            highestBidAmount = userWithHighestBid.get(0).getPrice() != null ? userWithHighestBid.get(0).getPrice() : productsHighestBid;
+        }
+        try {
 
-        Notification notification = new Notification();
-        notification.setUser(appUserRepository.getById(bidDetails.getId()));
-        notification.setProduct(product);
-        notification.setType(NotificationType.OUTBIDDED);
-        template.convertAndSendToUser(notification.getUser().getEmail(), "/topic/notifications", notification);
-        notificationRepository.save(notification);
+            Bid bid = Bid.builder().user(appUser).bidDate(ZonedDateTime.now()).product(product).price(amount).build();
+            bidRepository.save(bid);
+
+            if (highestBidUserId != null && !highestBidUserId.equals(appUser.getId())) {
+                Notification notification = new Notification();
+                notification.setUser(appUserRepository.getById(highestBidUserId));
+                notification.setProduct(product);
+                notification.setType(NotificationType.OUTBID);
+                notification.setIsSentToClient(true);
+
+                notificationRepository.save(notification);
+
+                NotificationResponse response = NotificationResponse.builder()
+                        .id(notification.getId())
+                        .date(ZonedDateTime.now())
+                        .userId(notification.getUser().getId())
+                        .productId(product.getId())
+                        .description(notification.getDescription())
+                        .type(notification.getType())
+                        .isSentToClient(true)
+                        .build();
+
+                rabbitTemplate.convertAndSend(OUTBID_EXCHANGE, OUTBID_ROUTING_KEY, response);
+            }
+        } catch (DataAccessException | AmqpException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            throw e;
+        }
     }
 
 

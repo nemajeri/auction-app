@@ -4,11 +4,12 @@ import com.atlantbh.auctionappbackend.model.Product;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
+
 @UtilityClass
 public class ProductSpecifications {
     public static Specification<Product> hasNameLike(String searchTerm) {
         return (root, query, criteriaBuilder) -> {
-            if (searchTerm == null || searchTerm.isEmpty()) {
+            if (searchTerm == null || searchTerm.isEmpty() || searchTerm.matches("^[^#&].*")) {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + searchTerm.toLowerCase() + "%");

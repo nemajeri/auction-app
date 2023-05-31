@@ -1,7 +1,7 @@
 package com.atlantbh.auctionappbackend.controller;
 
-import com.atlantbh.auctionappbackend.model.Bid;
 import com.atlantbh.auctionappbackend.request.BidRequest;
+import com.atlantbh.auctionappbackend.response.AppUserBidsResponse;
 import com.atlantbh.auctionappbackend.service.BidService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +27,8 @@ public class BidController {
     private final BidService bidService;
 
     @GetMapping("/app-user")
-    public ResponseEntity<List<Bid>> getBidsForAppUser(@RequestParam Long userId) {
-        List<Bid> bids = bidService.getBidsForAppUser(userId);
+    public ResponseEntity<List<AppUserBidsResponse>> getBidsForAppUser(@RequestParam Long userId) {
+        List<AppUserBidsResponse> bids = bidService.getBidsForAppUser(userId);
         return new ResponseEntity<>(bids, OK);
     }
 

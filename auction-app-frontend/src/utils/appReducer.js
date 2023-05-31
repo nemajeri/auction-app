@@ -38,7 +38,7 @@ export const ACTIONS = {
       case ACTIONS.SET_IS_USER_LOADING:
         return { ...state, isUserLoading: action.payload };
       case ACTIONS.SET_INITIAL_LOADING:
-        return { ...state, initialLoading: action.payload };  
+        return { ...state, initialLoading: action.payload };
       default:
         return state;
     }

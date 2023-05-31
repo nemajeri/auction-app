@@ -47,7 +47,7 @@ export const getSortedProductsAccordingToDate = (
 };
 
 export const getAllProductsToSeparateHighlighted = () => {
-  return API.get('/products/all-products');
+  return API.get('/products/highlighted-products');
 };
 
 export const getSearchSuggestion = (query) => {

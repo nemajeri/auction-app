@@ -1,6 +1,5 @@
 package com.atlantbh.auctionappbackend.service;
 
-import com.atlantbh.auctionappbackend.enums.NotificationType;
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
@@ -8,6 +7,8 @@ import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.*;
 import com.atlantbh.auctionappbackend.repository.*;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
+import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
+import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
@@ -80,7 +81,7 @@ public class ProductService {
         }
     }
 
-    public List<Product> retrieveUserProductsByType(Long userId, SortBy sortingType) {
+    public List<AppUserProductsResponse> retrieveUserProductsByType(Long userId, SortBy sortingType) {
         ZonedDateTime currentTime = ZonedDateTime.now(ZoneOffset.UTC);
         List<Product> userProducts;
 
@@ -92,7 +93,7 @@ public class ProductService {
                     userId, currentTime, Sort.by(Sort.Direction.DESC, SortBy.START_DATE.getSort()));
         }
 
-        return userProducts;
+        return userProducts.stream().map(product -> new AppUserProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl() ,product.getEndDate(), product.getNumberOfBids(), product.getHighestBid())).toList();
     }
 
     public List<ProductsResponse> getRecommendedProducts(Long userId) {
@@ -134,7 +135,7 @@ public class ProductService {
         String email = tokenService.getClaimFromToken(token, "sub");
 
         Optional<AppUser> userOpt = appUserRepository.getByEmail(email);
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             throw new AppUserNotFoundException("User not found!");
         }
         AppUser appUser = userOpt.get();
@@ -205,6 +206,7 @@ public class ProductService {
                 product.getEndDate(),
                 product.getNumberOfBids(),
                 product.getHighestBid(),
+                product.getUser().getId(),
                 isOwner,
                 product.isSold(),
                 userHighestBid
@@ -217,7 +219,14 @@ public class ProductService {
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<HighlightedProductResponse> getHighlightedProducts() {
+        List<Product> products = productRepository.findByIsHighlightedTrue();
+        return products.stream()
+                .map(product -> new HighlightedProductResponse(product.getId(),
+                        product.getProductName(),
+                        product.getStartPrice(),
+                        product.getImages().get(0).getImageUrl(),
+                        product.getDescription()))
+                .collect(Collectors.toList());
     }
 }

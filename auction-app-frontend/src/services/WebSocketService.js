@@ -3,12 +3,12 @@ import SockJS from 'sockjs-client';
 
 class WebSocketService {
   constructor() {
-    this.socket = new SockJS('http://localhost:8080/notifications');
+    this.socket = new SockJS('http://localhost:8080/ws/notifications');
+    this.socket = new SockJS('http://localhost:8080/ws/notifications');
     this.stompClient = new Client({
       webSocketFactory: () => this.socket,
     });
   }
-  
 
   connect(headers, onConnect) {
     this.stompClient.onConnect = (frame) => {
@@ -22,15 +22,15 @@ class WebSocketService {
 
     this.stompClient.onDisconnect = function (frame) {
       console.log('Disconnected: ' + frame);
-  };
-  
-  this.stompClient.onWebSocketClose = function (event) {
+    };
+
+    this.stompClient.onWebSocketClose = function (event) {
       console.log('Websocket closed. Event: ' + event);
-  };
-  
-  this.stompClient.onWebSocketError = function (event) {
+    };
+
+    this.stompClient.onWebSocketError = function (event) {
       console.log('Websocket error. Event: ' + event);
-  };
+    };
 
     this.stompClient.activate();
   }
@@ -46,8 +46,12 @@ class WebSocketService {
   }
 
   send(destination, body, headers = {}) {
-    this.stompClient.publish({ destination, headers, body: JSON.stringify(body) });
+    this.stompClient.publish({
+      destination,
+      headers,
+      body: JSON.stringify(body),
+    });
   }
 }
 
-export default new WebSocketService();
+export default WebSocketService;

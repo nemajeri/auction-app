@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
+import java.time.ZonedDateTime;
+
 @NoArgsConstructor
-public class ProductsResponse {
+@AllArgsConstructor
+@Data
+public class AppUserProductsResponse {
 
     private Long id;
 
@@ -17,5 +19,10 @@ public class ProductsResponse {
 
     private String images;
 
-    private Long categoryId;
+    private ZonedDateTime endDate;
+
+    private int numberOfBids;
+
+    private Float highestBid;
+
 }

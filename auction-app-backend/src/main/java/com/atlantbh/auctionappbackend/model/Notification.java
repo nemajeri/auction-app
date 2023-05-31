@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -16,7 +15,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Data
 @Table(name = "notification", schema = "auction_app_schema")
-public class Notification implements Serializable {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +36,23 @@ public class Notification implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    @Column(nullable = false)
-    private Boolean read = false;
+    @Column(name = "sent_to_client", nullable = false)
+    private Boolean isSentToClient = false;
+
+    @Column(name = "is_delivered", nullable = false)
+    private Boolean isDelivered = false;
+
+    @Version
+    private Integer version;
+
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead = false;
+
+    @Column(name = "unique_auction_key", unique = true)
+    private String uniqueAuctionKey;
 
     public String getDescription() {
         return String.format(type.getMessageTemplate(), product.getProductName());
     }
 }
+

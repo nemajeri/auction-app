@@ -5,12 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserMaxBidRequest {
 
-    public Long id;
+    private Long userId;
 
-    public Float price;
+    private Float price;
 
 }
