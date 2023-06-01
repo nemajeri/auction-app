@@ -27,7 +27,6 @@
 .notifications__container {
     position: absolute;
     z-index: 99;
-    height: 27.5rem;
     width: 23rem;
     padding: 1rem;
     background-color: var(--white-100);

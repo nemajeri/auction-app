@@ -3,8 +3,7 @@ import { IoNotifications } from 'react-icons/io5';
 import Notification from './Notification';
 import './notifications-center.css';
 
-const NotificationsCenter = ({ notifications, webSocketService, setNotifications }) => {
-  console.log('notifications: ', notifications);
+const NotificationsCenter = ({ notifications, setNotifications }) => {
   const [isOpened, setIsOpened] = useState(false);
   const ref = useRef(null);
 
@@ -12,8 +11,14 @@ const NotificationsCenter = ({ notifications, webSocketService, setNotifications
     setIsOpened(!state);
   };
 
-  const removeNotificationFromState = (notificationId) => {
-    setNotifications(notifications.filter((notification) => notification.id !== notificationId));
+  const removeNotificationFromState = (notificationId, productId) => {
+    setNotifications(
+      notifications.filter(
+        (notification) =>
+          notification.id !== notificationId &&
+          notification.productId !== productId
+      )
+    );
   };
 
   useEffect(() => {
@@ -48,7 +53,6 @@ const NotificationsCenter = ({ notifications, webSocketService, setNotifications
                 key={index}
                 {...notification}
                 setIsOpened={setIsOpened}
-                webSocketService={webSocketService}
                 removeNotificationFromState={removeNotificationFromState}
               />
             ))}

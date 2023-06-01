@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { SocialMediaIcons } from '../../components/social-icons/SocialMediaIcons';
 import './navbar.css';
 import Logo from '../../assets/Logo';
@@ -9,7 +9,6 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../utils/AppContextProvider';
 import { loginPath, registrationPath } from '../../utils/paths';
 import { logoutUser } from '../../utils/api/authApi.js';
-import { getNotifications } from '../../utils/api/notificationApi';
 import { EMPTY_STRING } from '../../utils/constants';
 import { ACTIONS } from '../../utils/appReducer';
 import { toast } from 'react-toastify';
@@ -30,59 +29,42 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  console.log('notifications: ', notifications);
 
   useEffect(() => {
     setActiveLink(pathname.replace('/', '') || 'home');
   }, [pathname]);
 
-  const webSocketServiceRef = useRef(null);
-
   useEffect(() => {
     if (user) {
       let subscription;
-        const fetchInitialNotifications = async () => {
-            try {
-                const response = await getNotifications(user?.id);
-                console.log('response: ', response);
-                setNotifications(response.data);
-            } catch (error) {
-                console.error('An error occurred while fetching notifications:', error);
-            }
+
+      const webSocketService = new WebSocketService();
+
+      webSocketService.connect(() => {
+        subscription = webSocketService.subscribe(
+          `/queue/notifications-${user.id}`,
+          (message) => {
+            const newNotification = JSON.parse(message.body);
+            setNotifications((prevNotifications) => [
+              ...prevNotifications,
+              newNotification,
+            ]);
+          }
+        );
+      });
+
+      return () => {
+        if (subscription) {
+          subscription.unsubscribe();
         }
 
-        fetchInitialNotifications().then(() => {
-            
-            webSocketServiceRef.current = new WebSocketService();
-
-            webSocketServiceRef.current.connect({}, () => {
-                subscription = webSocketServiceRef.current.subscribe(
-                    `/queue/notifications-${user.id}`,
-                    (message) => {
-                        const newNotification = JSON.parse(message.body);
-                        console.log('newNotification: ', newNotification);
-                        setNotifications((prevNotifications) => [
-                            ...prevNotifications,
-                            newNotification,
-                        ]);
-                    }
-                );
-                webSocketServiceRef.current.send('/app/get-notifications', {});
-            });
-        });
-
-        return () => {
-            if (subscription) {
-                subscription.unsubscribe();
-            }
-
-            if (webSocketServiceRef.current) {
-                webSocketServiceRef.current.disconnect();
-            }
-            setNotifications([]);
-        };
+        if (webSocketService) {
+          webSocketService.disconnect();
+        }
+        setNotifications([]);
+      };
     }
-}, [user]);
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -154,7 +136,10 @@ const Navbar = () => {
           ) : (
             <div className='navbar__active-account'>
               {notifications?.length > 0 && (
-                <NotificationsCenter notifications={notifications} webSocketService={webSocketServiceRef.current} setNotifications={setNotifications} />
+                <NotificationsCenter
+                  notifications={notifications}
+                  setNotifications={setNotifications}
+                />
               )}
               <p>
                 Hi, {user.firstName} {user.lastName}

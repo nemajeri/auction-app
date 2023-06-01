@@ -3,15 +3,14 @@ import SockJS from 'sockjs-client';
 
 class WebSocketService {
   constructor() {
-    this.socket = new SockJS('http://localhost:8080/ws/notifications');
-    this.socket = new SockJS('http://localhost:8080/ws/notifications');
+    this.socket = new SockJS(process.env.REACT_APP_BASE_URL.replace('/api/v1', '/ws/notifications'));
     this.stompClient = new Client({
       webSocketFactory: () => this.socket,
     });
   }
 
-  connect(headers, onConnect) {
-    this.stompClient.onConnect = (frame) => {
+  connect(onConnect) {
+    this.stompClient.onConnect = () => {
       onConnect();
     };
 

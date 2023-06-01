@@ -32,8 +32,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final AppUserRepository appUserRepository;
 
-    public static Logger log = LoggerFactory.getLogger(WebSocketConfig.class);
-
     @Value("${allowedOrigin}")
     private String allowedOrigin;
 
@@ -63,13 +61,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                            WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
                 String jwt = tokenService.getJwtFromCookie(request);
-                log.debug("JWT: " + jwt);
                 if(StringUtils.hasText(jwt) && tokenService.validateToken(jwt)) {
                     String email = tokenService.getClaimFromToken(jwt, "sub");
-                    log.debug("Email: " + email);
                     Optional<AppUser> user = appUserRepository.getByEmail(email);
                     if(user.isPresent()) {
-                        log.debug("UserId: " + user.get().getId());
                         attributes.put("id", user.get().getId());
                         return true;
                     }
@@ -80,7 +75,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                        WebSocketHandler wsHandler, Exception exception) {
-                log.debug("After handshake");
             }
         };
     }

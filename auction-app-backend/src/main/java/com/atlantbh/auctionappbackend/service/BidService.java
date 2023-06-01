@@ -8,7 +8,6 @@ import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.*;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
-import com.atlantbh.auctionappbackend.repository.NotificationRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import com.atlantbh.auctionappbackend.request.UserMaxBidRequest;
 import com.atlantbh.auctionappbackend.response.AppUserBidsResponse;
@@ -16,8 +15,6 @@ import com.atlantbh.auctionappbackend.response.NotificationResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.dao.DataAccessException;
@@ -32,6 +29,7 @@ import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.atlantbh.auctionappbackend.utils.Constants.*;
 
@@ -39,12 +37,10 @@ import static com.atlantbh.auctionappbackend.utils.Constants.*;
 @RequiredArgsConstructor
 public class BidService {
 
-    private static Logger log = LoggerFactory.getLogger(BidService.class);
     private final BidRepository bidRepository;
     private final ProductRepository productRepository;
     private final AppUserRepository appUserRepository;
     private final RabbitTemplate rabbitTemplate;
-    private final NotificationRepository notificationRepository;
 
     public List<AppUserBidsResponse> getBidsForAppUser(Long userId) {
         List<Bid> bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, BID_DATE));
@@ -88,16 +84,13 @@ public class BidService {
 
         validateBidAmount(product, amount, appUser);
 
-        Float productsHighestBid = product.getHighestBid();
         PageRequest pageable = PageRequest.of(0, 1);
         List<UserMaxBidRequest> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(productId, pageable);
 
         Long highestBidUserId = null;
-        Float highestBidAmount = product.getStartPrice();
 
         if (!userWithHighestBid.isEmpty()) {
             highestBidUserId = userWithHighestBid.get(0).getUserId();
-            highestBidAmount = userWithHighestBid.get(0).getPrice() != null ? userWithHighestBid.get(0).getPrice() : productsHighestBid;
         }
         try {
 
@@ -105,22 +98,16 @@ public class BidService {
             bidRepository.save(bid);
 
             if (highestBidUserId != null && !highestBidUserId.equals(appUser.getId())) {
-                Notification notification = new Notification();
-                notification.setUser(appUserRepository.getById(highestBidUserId));
-                notification.setProduct(product);
-                notification.setType(NotificationType.OUTBID);
-                notification.setIsSentToClient(true);
 
-                notificationRepository.save(notification);
+                UUID uuid = UUID.randomUUID();
 
                 NotificationResponse response = NotificationResponse.builder()
-                        .id(notification.getId())
+                        .id(uuid)
                         .date(ZonedDateTime.now())
-                        .userId(notification.getUser().getId())
+                        .userId(highestBidUserId)
                         .productId(product.getId())
-                        .description(notification.getDescription())
-                        .type(notification.getType())
-                        .isSentToClient(true)
+                        .description("You've been outbid on " + product.getProductName())
+                        .type(NotificationType.OUTBID)
                         .build();
 
                 rabbitTemplate.convertAndSend(OUTBID_EXCHANGE, OUTBID_ROUTING_KEY, response);
