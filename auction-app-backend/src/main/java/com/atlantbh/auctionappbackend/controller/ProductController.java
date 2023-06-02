@@ -2,7 +2,6 @@ package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
-import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
 import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
@@ -21,9 +20,10 @@ import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -74,28 +74,35 @@ public class ProductController {
     }
 
     @PostMapping(path = "/add-item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
-                                        @RequestPart("images") List<MultipartFile> images,
-                                        BindingResult bindingResult,
-                                        HttpServletRequest httpServletRequest) {
-        Map<String, String> response = new HashMap<>();
+    public ResponseEntity<Void> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
+                                           @RequestPart("images") List<MultipartFile> images,
+                                           BindingResult bindingResult,
+                                           HttpServletRequest httpServletRequest) {
         if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-            return ResponseEntity.status(BAD_REQUEST).body(errors);
+            return ResponseEntity.status(BAD_REQUEST).build();
         }
 
         try {
             productService.createProduct(request, images, httpServletRequest);
-            response.put("status", "created");
             return new ResponseEntity<>(CREATED);
         } catch (Exception e) {
-            response.clear();
-            response.put("error: ", "Error creating product: " + e.getMessage());
             return new ResponseEntity<>(BAD_REQUEST);
         }
     }
 
+    @PostMapping("/upload-csv-file")
+    public ResponseEntity<Void> uploadCSVFile(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        } else {
+            try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                productService.proccessCsvFileToCreateProduct(reader);
+                return new ResponseEntity<>(HttpStatus.CREATED);
+            } catch (Exception ex) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
 
     @GetMapping(path = "/{productId}")
     public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId) {
