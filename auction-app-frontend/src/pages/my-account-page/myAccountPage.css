@@ -46,6 +46,40 @@
     gap: 15px;
 }
 
+.my-account-page__btn-container {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    text-align: end;
+}
+
+.my-account-page__btn-container p:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--purple);
+}
+
+.my-account-page__csv-modal {
+    text-align: center;
+    width: 100%;
+}
+
+.my-account-page__csv-modal .dropzone{
+    margin: 1.5rem;
+}
+
+.my-account-page__csv-btn {
+    background-color: var(--purple);
+    border: none;
+    padding: 15px 30px;
+    color: var(--white-100);
+    cursor: pointer;    
+}
+
+.my-account-page__csv-btn p {
+    text-transform: uppercase;
+}
+
 .seller-tab__btn span{
     font-size: larger;
 }

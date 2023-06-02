@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
 
-const Dropzone = ({ onDrop, images }) => {
+const Dropzone = ({ onDrop, files = [], maxFiles = 0 }) => {
   const {
     getRootProps,
     getInputProps,
@@ -9,7 +9,8 @@ const Dropzone = ({ onDrop, images }) => {
     fileRejections,
   } = useDropzone({ 
     onDrop,
-    maxFiles: 5,
+    maxFiles: maxFiles,
+    accept: { 'image/png': ['.png'], 'text/csv': ['.csv']},
   });
 
   const fileRejectionItems = fileRejections.map(({ file, errors }) => (
@@ -25,11 +26,11 @@ const Dropzone = ({ onDrop, images }) => {
         <p>Drop the files here ...</p>
       ) : (
         <div className='dropzone__text'>
-          {images.length <= 5 ? (
+          {files.length <= maxFiles ? (
             <>
-              <h5>Upload photos</h5>
+              <h5>Upload files</h5>
               <h6>or just drag and drop</h6>
-              <p>Accepted files: {images.length}</p>
+              <p>Accepted files: {files.length}</p>
               <p>Rejected files:</p>
               <ul>{fileRejectionItems}</ul>
             </>

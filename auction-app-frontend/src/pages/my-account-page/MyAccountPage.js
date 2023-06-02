@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import './myAccountPage.css';
+import '../sell-page/sellpage.css';
 import BreadCrumbs from '../../components/breadcrumbs/Breadcrumbs';
 import { myAccountTabs } from '../../utils/constants';
 import Button from '../../utils/Button';
@@ -12,14 +13,18 @@ import { AppContext } from '../../utils/AppContextProvider';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { usePageLoading } from '../../hooks/usePageLoading';
 import { headerClassNames, bodyClassNames } from '../../utils/styles';
-import {sellerHeadings, bidHeadings} from '../../data/headings';
+import { sellerHeadings, bidHeadings } from '../../data/headings';
+import Dropzone from '../../utils/Dropzone';
+import Modal from '../../utils/forms/Modal';
 
 const MyAccountPage = () => {
   const { pathname } = useLocation();
   const [selectedTab, setSelectedTab] = useState(
     pathname === bidsPath ? bidsPath : sellerPath
   );
-  const { initialLoading } =  useContext(AppContext);
+  const [showCsvModal, setShowCsvModal] = useState(false);
+  const [csvFile, setCsvFile] = useState([]);
+  const { initialLoading } = useContext(AppContext);
 
   const navigate = useNavigate();
 
@@ -28,6 +33,10 @@ const MyAccountPage = () => {
   const handleTabClick = (path) => {
     setSelectedTab(path);
     navigate(`/my-account${path}`);
+  };
+
+  const onClick = () => {
+    setShowCsvModal(!showCsvModal);
   };
 
   if (initialLoading) {
@@ -52,15 +61,30 @@ const MyAccountPage = () => {
               </div>
             ))}
           </div>
-          <Link to={sellerToAddItemPath}>
-            <Button
-              className={'my-account-page__btn'}
-              SocialMediaIcon={AiOutlinePlus}
-            >
-              ADD ITEM
-            </Button>
-          </Link>
+          <div className='my-account-page__btn-container'>
+            <Link to={sellerToAddItemPath}>
+              <Button
+                className={'my-account-page__btn'}
+                SocialMediaIcon={AiOutlinePlus}
+              >
+                ADD ITEM
+              </Button>
+            </Link>
+            <p onClick={onClick}>Add CSV +</p>
+          </div>
         </div>
+          <Modal showModal={showCsvModal} onClose={onClick}>
+            <div className='my-account-page__csv-modal'>
+            <p>Please drop the csv file here:</p>
+            <Dropzone
+              Dropzone
+              onDrop={(acceptedFile) => setCsvFile([acceptedFile])}
+              files={csvFile}
+              maxFiles={1}
+            />
+            <Button className={'my-account-page__csv-btn'}>Submit</Button>
+            </div>
+          </Modal>
         {(() => {
           switch (selectedTab) {
             case sellerPath:

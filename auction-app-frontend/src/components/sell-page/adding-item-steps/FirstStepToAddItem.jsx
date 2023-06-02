@@ -43,7 +43,8 @@ const FirstStepToAddItem = ({
               onDrop={(acceptedFiles) =>
                 setImages([...images, ...acceptedFiles])
               }
-              images={images}
+              files={images}
+              maxFiles={5}
             />
             <div className='shared-form-style__btns'>
               <Link to={sellerPath}>
