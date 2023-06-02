@@ -6,12 +6,15 @@ import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.*;
 import com.atlantbh.auctionappbackend.repository.*;
+import com.atlantbh.auctionappbackend.request.CsvProductRequest;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
 import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +26,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.Reader;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -35,6 +40,7 @@ import java.util.stream.Collectors;
 import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
 import static com.atlantbh.auctionappbackend.utils.Constants.SEARCH_VALIDATOR;
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
+import static java.lang.Long.parseLong;
 
 
 @Service
@@ -166,10 +172,10 @@ public class ProductService {
                 .user(appUser)
                 .build();
 
-        Category category = categoryRepository.findById(Long.parseLong(request.getCategoryId())).orElseThrow(() -> new CategoryNotFoundException("Category not found."));
+        Category category = categoryRepository.findById(parseLong(request.getCategoryId())).orElseThrow(() -> new CategoryNotFoundException("Category not found."));
         product.setCategory(category);
 
-        Subcategory subcategory = subcategoryRepository.findById(Long.parseLong(request.getCategoryId())).orElseThrow(() -> new CategoryNotFoundException("Category not found."));
+        Subcategory subcategory = subcategoryRepository.findById(parseLong(request.getCategoryId())).orElseThrow(() -> new CategoryNotFoundException("Category not found."));
         product.setSubcategory(subcategory);
 
         Product savedProduct = productRepository.save(product);
@@ -181,6 +187,50 @@ public class ProductService {
             img.setProduct(savedProduct);
             imageRepository.save(img);
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void processCsvFileToCreateProduct(Reader reader) throws Exception {
+        Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+        String email = principal.getName();
+        Optional<AppUser> userOpt = appUserRepository.getByEmail(email);
+        CsvToBean<CsvProductRequest> csvToBean = new CsvToBeanBuilder<CsvProductRequest>(reader)
+                .withType(CsvProductRequest.class)
+                .withIgnoreLeadingWhiteSpace(true)
+                .build();
+
+        AppUser user = userOpt.orElseThrow(() -> new AppUserNotFoundException("User not found"));
+
+        List<CsvProductRequest> products = csvToBean.parse();
+        
+            for (CsvProductRequest product : products) {
+                validateProductBeforeStoring(product);
+
+                Optional<Category> categoryOpt = categoryRepository.findByCategoryName(product.getCategoryName());
+                Optional<Subcategory> subCategoryOpt = subcategoryRepository.findBySubcategoryName(product.getCategoryName());
+
+                if (!categoryOpt.isPresent() || !subCategoryOpt.isPresent()) {
+                    throw new CategoryNotFoundException("Projected category or subcategory does not exist");
+                }
+
+                Product fullProduct = new Product(
+                        product.getProductName(),
+                        product.getDescription(),
+                        Float.parseFloat(product.getStartPrice()),
+                        product.getImages(),
+                        product.getStartDate(),
+                        product.getEndDate(),
+                        categoryOpt.get(),
+                        subCategoryOpt.get(),
+                        user,
+                        product.getAddress(),
+                        product.getCity(),
+                        product.getZipCode(),
+                        product.getCountry(),
+                        product.getPhone()
+                );
+                productRepository.save(fullProduct);
+            }
     }
 
     public Page<ProductsResponse> getNewProducts(int pageNumber, int size) {
@@ -242,5 +292,36 @@ public class ProductService {
                         product.getStartPrice(),
                         product.getImages().get(0).getImageUrl(),
                         product.getDescription())).toList();
+    }
+
+    private void validateProductBeforeStoring(CsvProductRequest productRequest) throws Exception {
+
+        if (productRequest.getProductName().isEmpty() || productRequest.getDescription().isEmpty()) {
+            throw new Exception("Please enter a name for the product and a relevant description.");
+        }
+
+        if (productRequest.getStartDate().isAfter(productRequest.getEndDate())) {
+            throw new Exception("Start date cannot be after end date.");
+        }
+
+        if (productRequest.getEndDate().isBefore(productRequest.getStartDate())) {
+            throw new Exception("End date cannot be before start date.");
+        }
+
+        if (Float.parseFloat(productRequest.getStartPrice()) < 0) {
+            throw new Exception("Start price cannot be less than 0.");
+        }
+
+        if (productRequest.getImages().isEmpty() || productRequest.getImages().size() < 3) {
+            throw new Exception("Product must have at least 3 images.");
+        }
+
+        if (productRequest.getAddress().isEmpty() ||
+                productRequest.getCity().isEmpty() ||
+                productRequest.getZipCode().isEmpty() ||
+                productRequest.getCountry().isEmpty() ||
+                productRequest.getPhone().isEmpty()) {
+            throw new Exception("All shipment details must be provided.");
+        }
     }
 }

@@ -96,7 +96,7 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         } else {
             try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-                productService.proccessCsvFileToCreateProduct(reader);
+                productService.processCsvFileToCreateProduct(reader);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } catch (Exception ex) {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
