@@ -2,6 +2,7 @@ package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
+import com.atlantbh.auctionappbackend.exception.UnprocessableCSVFileException;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
 import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
@@ -10,6 +11,8 @@ import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +37,8 @@ import static org.springframework.http.HttpStatus.*;
 public class ProductController {
 
     private final ProductService productService;
+
+    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping("/search-suggestions")
     public ResponseEntity<String> searchSuggestions(@RequestParam("query") String query) {
@@ -99,7 +104,8 @@ public class ProductController {
                 productService.processCsvFileToCreateProduct(reader);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } catch (Exception ex) {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                log.error("Error processing CSV file: ", ex);
+                throw new UnprocessableCSVFileException("Error processing the uploaded CSV file. Please ensure the file is in the correct format and try again.");
             }
         }
     }

@@ -8,6 +8,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.io.FileNotFoundException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -47,5 +50,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleFileNotFoundException(FileNotFoundException  ex) {
+        ErrorResponse errorResponse = new ErrorResponse("FILE_NOT_FOUND", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    @ExceptionHandler(UnprocessableCSVFileException.class)
+    public ResponseEntity<ErrorResponse> handleUnprocessableCSVFileException(UnprocessableCSVFileException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("CANT_READ_CSV_FILE", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
+    }
+
+    @ExceptionHandler(SubcategoryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> SubcategoryNotFoundException(SubcategoryNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("SUBCATEGORY_NOT_FOUND", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> CategoryNotFoundException(CategoryNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("CATEGORY_NOT_FOUND", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 }
 
