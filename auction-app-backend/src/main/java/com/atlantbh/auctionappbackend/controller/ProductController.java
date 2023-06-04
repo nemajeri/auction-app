@@ -101,7 +101,7 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         } else {
             try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-                productService.processCsvFileToCreateProduct(reader);
+                productService.processCsvFileToCreateProducts(reader);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } catch (Exception ex) {
                 log.error("Error processing CSV file: ", ex);

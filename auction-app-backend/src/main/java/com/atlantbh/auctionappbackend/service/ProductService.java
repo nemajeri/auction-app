@@ -4,14 +4,16 @@ import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
+import com.atlantbh.auctionappbackend.exception.SubcategoryNotFoundException;
 import com.atlantbh.auctionappbackend.model.*;
 import com.atlantbh.auctionappbackend.repository.*;
-import com.atlantbh.auctionappbackend.request.CsvProductRequest;
+import com.atlantbh.auctionappbackend.request.ProductCsvImport;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
 import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
+import com.atlantbh.auctionappbackend.utils.ByteToMultipartFileConverter;
 import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
@@ -27,12 +29,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Reader;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,6 +66,8 @@ public class ProductService {
     private final S3Service s3Service;
 
     private final BidRepository bidRepository;
+
+    private final RestTemplate restTemplate;
 
     private static final Logger log = LoggerFactory.getLogger(ProductService.class);
 
@@ -190,47 +196,23 @@ public class ProductService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void processCsvFileToCreateProduct(Reader reader) throws Exception {
+    public void processCsvFileToCreateProducts(Reader reader) throws Exception {
         Authentication principal = SecurityContextHolder.getContext().getAuthentication();
         String email = principal.getName();
         Optional<AppUser> userOpt = appUserRepository.getByEmail(email);
-        CsvToBean<CsvProductRequest> csvToBean = new CsvToBeanBuilder<CsvProductRequest>(reader)
-                .withType(CsvProductRequest.class)
+
+        CsvToBean<ProductCsvImport> csvToBean = new CsvToBeanBuilder<ProductCsvImport>(reader)
+                .withType(ProductCsvImport.class)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
 
         AppUser user = userOpt.orElseThrow(() -> new AppUserNotFoundException("User not found"));
 
-        List<CsvProductRequest> products = csvToBean.parse();
-        
-            for (CsvProductRequest product : products) {
-                validateProductBeforeStoring(product);
+        List<ProductCsvImport> productsFromCsvFile = csvToBean.parse();
 
-                Optional<Category> categoryOpt = categoryRepository.findByCategoryName(product.getCategoryName());
-                Optional<Subcategory> subCategoryOpt = subcategoryRepository.findBySubcategoryName(product.getCategoryName());
-
-                if (!categoryOpt.isPresent() || !subCategoryOpt.isPresent()) {
-                    throw new CategoryNotFoundException("Projected category or subcategory does not exist");
-                }
-
-                Product fullProduct = new Product(
-                        product.getProductName(),
-                        product.getDescription(),
-                        Float.parseFloat(product.getStartPrice()),
-                        product.getImages(),
-                        product.getStartDate(),
-                        product.getEndDate(),
-                        categoryOpt.get(),
-                        subCategoryOpt.get(),
-                        user,
-                        product.getAddress(),
-                        product.getCity(),
-                        product.getZipCode(),
-                        product.getCountry(),
-                        product.getPhone()
-                );
-                productRepository.save(fullProduct);
-            }
+        for (ProductCsvImport product : productsFromCsvFile) {
+            processSingleProductToCreateIt(product, user);
+        }
     }
 
     public Page<ProductsResponse> getNewProducts(int pageNumber, int size) {
@@ -294,34 +276,84 @@ public class ProductService {
                         product.getDescription())).toList();
     }
 
-    private void validateProductBeforeStoring(CsvProductRequest productRequest) throws Exception {
+    private void validateProductBeforeStoring(ProductCsvImport product) throws Exception {
 
-        if (productRequest.getProductName().isEmpty() || productRequest.getDescription().isEmpty()) {
+        if (product.getProductName().isBlank() || product.getDescription().isBlank()) {
             throw new Exception("Please enter a name for the product and a relevant description.");
         }
 
-        if (productRequest.getStartDate().isAfter(productRequest.getEndDate())) {
+        if (product.getStartDate().isAfter(product.getEndDate())) {
             throw new Exception("Start date cannot be after end date.");
         }
 
-        if (productRequest.getEndDate().isBefore(productRequest.getStartDate())) {
-            throw new Exception("End date cannot be before start date.");
-        }
-
-        if (Float.parseFloat(productRequest.getStartPrice()) < 0) {
+        if (product.getStartPrice() < 0) {
             throw new Exception("Start price cannot be less than 0.");
         }
 
-        if (productRequest.getImages().isEmpty() || productRequest.getImages().size() < 3) {
+        if (product.getImages().isEmpty() || product.getImages().size() < 3) {
             throw new Exception("Product must have at least 3 images.");
         }
 
-        if (productRequest.getAddress().isEmpty() ||
-                productRequest.getCity().isEmpty() ||
-                productRequest.getZipCode().isEmpty() ||
-                productRequest.getCountry().isEmpty() ||
-                productRequest.getPhone().isEmpty()) {
+        if (product.getAddress().isBlank() ||
+                product.getCity().isBlank() ||
+                product.getZipCode().isBlank() ||
+                product.getCountry().isBlank() ||
+                product.getPhone().isBlank()) {
             throw new Exception("All shipment details must be provided.");
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    private void processSingleProductToCreateIt(ProductCsvImport product, AppUser user) throws Exception {
+
+        validateProductBeforeStoring(product);
+
+        Category category = categoryRepository.findByCategoryName(product.getCategoryName())
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+
+        Subcategory subcategory = subcategoryRepository.findBysubCategoryName(product.getSubcategoryName())
+                .orElseThrow(() -> new SubcategoryNotFoundException("Subcategory not found"));
+
+        Product fullProduct = new Product(
+                product.getProductName(),
+                product.getDescription(),
+                product.getStartPrice(),
+                new ArrayList<>(),
+                product.getStartDate(),
+                product.getEndDate(),
+                category,
+                subcategory,
+                user,
+                product.getAddress(),
+                product.getCity(),
+                product.getZipCode(),
+                product.getCountry(),
+                product.getPhone()
+        );
+
+        fullProduct = productRepository.save(fullProduct);
+
+        List<Image> images = new ArrayList<>();
+        for (String imageUrl : product.getImages()) {
+            try {
+                byte[] imageBytes = restTemplate.getForObject(imageUrl, byte[].class);
+
+                MultipartFile multipartFile = new ByteToMultipartFileConverter(imageBytes, imageUrl);
+
+                String s3Url = s3Service.uploadFile(multipartFile, S3_KEY_PREFIX);
+
+                Image image = new Image();
+                image.setImageUrl(s3Url);
+                image.setProduct(fullProduct);
+                images.add(image);
+
+            } catch (Exception e) {
+                throw new IllegalStateException("Images not processable");
+            }
+            log.info("Finished processing CSV file");
+        }
+
+        fullProduct.setImages(images);
+        productRepository.save(fullProduct);
     }
 }
