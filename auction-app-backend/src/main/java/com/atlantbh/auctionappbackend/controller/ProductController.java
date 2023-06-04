@@ -83,6 +83,15 @@ public class ProductController {
                                            @RequestPart("images") List<MultipartFile> images,
                                            BindingResult bindingResult,
                                            HttpServletRequest httpServletRequest) {
+        boolean isPngOrImageType = images.stream().allMatch(image -> {
+            String contentType = image.getContentType();
+            return "image/jpeg".equalsIgnoreCase(contentType) || "image/png".equalsIgnoreCase(contentType);
+        });
+
+        if (!isPngOrImageType) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        }
+
         if (bindingResult.hasErrors()) {
             return ResponseEntity.status(BAD_REQUEST).build();
         }
@@ -97,7 +106,8 @@ public class ProductController {
 
     @PostMapping("/upload-csv-file")
     public ResponseEntity<Void> uploadCSVFile(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
+        String contentType = file.getContentType();
+        if (file.isEmpty() || contentType == null || !contentType.equalsIgnoreCase("text/csv")) {
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         } else {
             try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
