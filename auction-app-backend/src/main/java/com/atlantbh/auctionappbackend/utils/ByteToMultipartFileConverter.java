@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 
 @AllArgsConstructor
-@Component
 public class ByteToMultipartFileConverter implements MultipartFile {
 
     private final byte[] imgContent;
