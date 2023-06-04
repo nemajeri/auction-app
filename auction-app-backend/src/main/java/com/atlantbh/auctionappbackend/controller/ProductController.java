@@ -83,13 +83,10 @@ public class ProductController {
                                            @RequestPart("images") List<MultipartFile> images,
                                            BindingResult bindingResult,
                                            HttpServletRequest httpServletRequest) {
-        boolean isPngOrImageType = images.stream().allMatch(image -> {
-            String contentType = image.getContentType();
-            return "image/jpeg".equalsIgnoreCase(contentType) || "image/png".equalsIgnoreCase(contentType);
-        });
+        List<String> allowedContentTypes = List.of("image/jpeg", "image/png", "image/jpg");
 
-        if (!isPngOrImageType) {
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        if (!images.stream().allMatch(image -> allowedContentTypes.contains(image.getContentType()))) {
+            return new ResponseEntity<>(NOT_ACCEPTABLE);
         }
 
         if (bindingResult.hasErrors()) {
