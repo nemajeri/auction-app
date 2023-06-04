@@ -16,6 +16,7 @@ import { headerClassNames, bodyClassNames } from '../../utils/styles';
 import { sellerHeadings, bidHeadings } from '../../data/headings';
 import Dropzone from '../../utils/Dropzone';
 import Modal from '../../utils/forms/Modal';
+import { addCsvFileForProccessing } from '../../utils/api/productsApi';
 
 const MyAccountPage = () => {
   const { pathname } = useLocation();
@@ -23,7 +24,9 @@ const MyAccountPage = () => {
     pathname === bidsPath ? bidsPath : sellerPath
   );
   const [showCsvModal, setShowCsvModal] = useState(false);
-  const [csvFile, setCsvFile] = useState([]);
+  const [csvFile, setCsvFile] = useState(null);
+  console.log('csvFile: ', csvFile);
+  const [ loading, setLoading ] = useState(false);
   const { initialLoading } = useContext(AppContext);
 
   const navigate = useNavigate();
@@ -80,9 +83,8 @@ const MyAccountPage = () => {
               Dropzone
               onDrop={(acceptedFile) => setCsvFile([acceptedFile])}
               files={csvFile}
-              maxFiles={1}
             />
-            <Button className={'my-account-page__csv-btn'}>Submit</Button>
+            <Button className={'my-account-page__csv-btn'} onClick={() => addCsvFileForProccessing(csvFile, navigate)}>Submit</Button>
             </div>
           </Modal>
         {(() => {

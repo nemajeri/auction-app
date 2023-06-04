@@ -53,7 +53,7 @@
     text-align: end;
 }
 
-.my-account-page__btn-container p:hover {
+.my-account-page__btn-container > p:hover {
     text-decoration: underline;
     cursor: pointer;
     color: var(--purple);

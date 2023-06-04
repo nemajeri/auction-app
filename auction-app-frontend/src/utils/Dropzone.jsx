@@ -1,17 +1,13 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
 
-const Dropzone = ({ onDrop, files = [], maxFiles = 0 }) => {
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    fileRejections,
-  } = useDropzone({ 
-    onDrop,
-    maxFiles: maxFiles,
-    accept: { 'image/png': ['.png'], 'text/csv': ['.csv']},
-  });
+const Dropzone = ({ onDrop, files = [], maxFiles = 1, fileType = 'text/csv' }) => {
+  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+    useDropzone({
+      onDrop,
+      maxFiles: maxFiles,
+      accept: { 'image/png': ['.png'], 'text/csv': ['.csv'] },
+    });
 
   const fileRejectionItems = fileRejections.map(({ file, errors }) => (
     <li key={file.path}>
@@ -26,7 +22,9 @@ const Dropzone = ({ onDrop, files = [], maxFiles = 0 }) => {
         <p>Drop the files here ...</p>
       ) : (
         <div className='dropzone__text'>
-          {files.length <= maxFiles ? (
+          {fileType === 'text/csv' ? (
+            <h5>Click to upload CSV, TSV</h5>
+          ) : (
             <>
               <h5>Upload files</h5>
               <h6>or just drag and drop</h6>
@@ -34,8 +32,6 @@ const Dropzone = ({ onDrop, files = [], maxFiles = 0 }) => {
               <p>Rejected files:</p>
               <ul>{fileRejectionItems}</ul>
             </>
-          ) : (
-            <h5>Upload completed.</h5>
           )}
         </div>
       )}

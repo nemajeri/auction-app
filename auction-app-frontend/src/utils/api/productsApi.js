@@ -96,25 +96,32 @@ export const addNewItemForAuction = async (productDetails, images, setLoading, n
   }
 };
 
-export const addCsvFileForProccessing = async (csvFile, setLoading, navigate) => {
-  try {
-    const formData = new FormData();
-    formData.append('file', csvFile[0]);
+export const addCsvFileForProccessing = async (csvFile, navigate) => {
+  const formData = new FormData();
+  formData.append('file', csvFile[0][0]);
 
-    const response = await AuthAPI.post('/products/add-item', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+  try {
+    const response = await AuthAPI.post('/products/upload-csv-file', formData, {
+      headers: { 'Content-Type': 'multipart/form-data'  },
     });
 
     if (response.status === 201) {
       toast.success('Product created:', response.data);
       navigate(sellerPath);
-    } else {
-      toast.error('Error creating product.'); 
     }
   } catch (error) {
-    toast.error('Error creating product.');
-  } finally {
-    setLoading(false);
+    if (error.response) {
+      const { status } = error.response;
+      if (status === 406) {
+        toast.error('You can`t submit empty file to add product');
+      } else {
+        toast.error(`Error reading from csv file. Check if the content is valid and fields are mapped correctly`);
+      }
+    } else if (error.request) {
+      toast.error('No response from server. Please try again.');
+    } else {
+      toast.error('Error creating product.');
+    }
   }
 };
 

@@ -44,7 +44,8 @@ const FirstStepToAddItem = ({
                 setImages([...images, ...acceptedFiles])
               }
               files={images}
-              maxFiles={5}
+              maxFiles={5} 
+              fileType={'image/jpeg'}
             />
             <div className='shared-form-style__btns'>
               <Link to={sellerPath}>
