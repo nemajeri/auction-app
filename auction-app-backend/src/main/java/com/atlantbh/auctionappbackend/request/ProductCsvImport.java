@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.request;
 
+import com.atlantbh.auctionappbackend.utils.FloatConverter;
 import com.atlantbh.auctionappbackend.utils.ZonedDateTimeConverter;
 import com.opencsv.bean.CsvBindAndSplitByName;
 import com.opencsv.bean.CsvBindByName;
@@ -27,8 +28,8 @@ public class ProductCsvImport {
     @CsvBindByName( column = "Subcategory Name")
     private String subcategoryName;
 
-    @CsvBindByName(column = "Start Price")
-    private String startPrice;
+    @CsvCustomBindByName(converter = FloatConverter.class, column = "Start Price")
+    private Float startPrice;
 
     @CsvCustomBindByName(converter = ZonedDateTimeConverter.class, column = "Start Date")
     private ZonedDateTime startDate;
