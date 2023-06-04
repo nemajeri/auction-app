@@ -25,8 +25,7 @@ const MyAccountPage = () => {
   );
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
-  console.log('csvFile: ', csvFile);
-  const [ loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { initialLoading } = useContext(AppContext);
 
   const navigate = useNavigate();
@@ -42,7 +41,7 @@ const MyAccountPage = () => {
     setShowCsvModal(!showCsvModal);
   };
 
-  if (initialLoading) {
+  if (initialLoading || loading) {
     return <LoadingSpinner pageSpinner={true} />;
   }
 
@@ -76,17 +75,24 @@ const MyAccountPage = () => {
             <p onClick={onClick}>Add CSV +</p>
           </div>
         </div>
-          <Modal showModal={showCsvModal} onClose={onClick}>
-            <div className='my-account-page__csv-modal'>
+        <Modal showModal={showCsvModal} onClose={onClick}>
+          <div className='my-account-page__csv-modal'>
             <p>Please drop the csv file here:</p>
             <Dropzone
               Dropzone
               onDrop={(acceptedFile) => setCsvFile([acceptedFile])}
               files={csvFile}
             />
-            <Button className={'my-account-page__csv-btn'} onClick={() => addCsvFileForProccessing(csvFile, navigate)}>Submit</Button>
-            </div>
-          </Modal>
+            <Button
+              className={'my-account-page__csv-btn'}
+              onClick={() =>
+                addCsvFileForProccessing(csvFile, setShowCsvModal, setLoading, setCsvFile)
+              }
+            >
+              Submit
+            </Button>
+          </div>
+        </Modal>
         {(() => {
           switch (selectedTab) {
             case sellerPath:

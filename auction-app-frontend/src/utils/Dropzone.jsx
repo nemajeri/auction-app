@@ -6,7 +6,7 @@ const Dropzone = ({ onDrop, files = [], maxFiles = 1, fileType = 'text/csv' }) =
     useDropzone({
       onDrop,
       maxFiles: maxFiles,
-      accept: { 'image/png': ['.png'], 'text/csv': ['.csv'] },
+      accept: ['image/jpeg', 'image/png', 'image/jpg', 'text/csv'],
     });
 
   const fileRejectionItems = fileRejections.map(({ file, errors }) => (
@@ -23,7 +23,11 @@ const Dropzone = ({ onDrop, files = [], maxFiles = 1, fileType = 'text/csv' }) =
       ) : (
         <div className='dropzone__text'>
           {fileType === 'text/csv' ? (
+            <>
             <h5>Click to upload CSV, TSV</h5>
+            <p>Accepted files: {files?.length}</p>
+            <ul>{fileRejectionItems}</ul>
+            </>
           ) : (
             <>
               <h5>Upload files</h5>

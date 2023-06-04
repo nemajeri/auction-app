@@ -84,7 +84,7 @@ export const addNewItemForAuction = async (productDetails, images, setLoading, n
     });
 
     if (response.status === 201) {
-      toast.success('Product created:', response.data);
+      toast.success('Product created.');
       navigate(sellerPath);
     } else {
       toast.error('Error creating product.'); 
@@ -96,32 +96,31 @@ export const addNewItemForAuction = async (productDetails, images, setLoading, n
   }
 };
 
-export const addCsvFileForProccessing = async (csvFile, navigate) => {
+export const addCsvFileForProccessing = async (csvFile, setShowCsvModal, setLoading, setCsvFile ) => {
   const formData = new FormData();
   formData.append('file', csvFile[0][0]);
 
   try {
+    setLoading(true);
     const response = await AuthAPI.post('/products/upload-csv-file', formData, {
       headers: { 'Content-Type': 'multipart/form-data'  },
     });
-
     if (response.status === 201) {
-      toast.success('Product created:', response.data);
-      navigate(sellerPath);
+      toast.success('Products created');
     }
   } catch (error) {
-    if (error.response) {
-      const { status } = error.response;
-      if (status === 406) {
-        toast.error('You can`t submit empty file to add product');
-      } else {
-        toast.error(`Error reading from csv file. Check if the content is valid and fields are mapped correctly`);
-      }
-    } else if (error.request) {
-      toast.error('No response from server. Please try again.');
+    debugger
+    if (error.response.status === 422 || error.response.status  === 406) { 
+      toast.error('Unable to process CSV file. Please ensure the file is in the correct format and try again.');
+    } else if (error.response.status === 404) {
+      toast.error('Category or Subcategory not found.');
     } else {
-      toast.error('Error creating product.');
+      toast.error('Unexpected error occurred while creating product.');
     }
+  } finally {
+    setShowCsvModal(false);
+    setLoading(false);
+    setCsvFile(null);
   }
 };
 
