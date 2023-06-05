@@ -23,15 +23,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import java.time.*;
 import javax.servlet.http.HttpServletRequest;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
-import static com.atlantbh.auctionappbackend.utils.Constants.*;
+import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
+import static com.atlantbh.auctionappbackend.utils.Constants.SEARCH_TERM_VALIDATOR;
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
 
@@ -93,7 +93,7 @@ public class ProductService {
                     userId, currentTime, Sort.by(Sort.Direction.DESC, SortBy.START_DATE.getSort()));
         }
 
-        return userProducts.stream().map(product -> new AppUserProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl() ,product.getEndDate(), product.getNumberOfBids(), product.getHighestBid())).toList();
+        return userProducts.stream().map(product -> new AppUserProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getEndDate(), product.getNumberOfBids(), product.getHighestBid())).toList();
     }
 
     public List<ProductsResponse> getRecommendedProducts(Long userId) {
@@ -222,11 +222,11 @@ public class ProductService {
     public List<HighlightedProductResponse> getHighlightedProducts() {
         List<Product> products = productRepository.findByIsHighlightedTrue();
         return products.stream()
-                .map(product -> new HighlightedProductResponse(product.getId(),
+                .map(product -> new HighlightedProductResponse(
+                        product.getId(),
                         product.getProductName(),
                         product.getStartPrice(),
                         product.getImages().get(0).getImageUrl(),
-                        product.getDescription()))
-                .collect(Collectors.toList());
+                        product.getDescription())).toList();
     }
 }

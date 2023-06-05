@@ -24,10 +24,8 @@ const ProductDetails = ({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  console.log('location.state: ', location.state);
   useEffect(() => {
     if (location.state?.openModal) {
-      console.log('location.state: ', location.state);
       setShowPaymentModal(true);
     }
   }, [location]);

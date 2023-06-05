@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class HighlightedProductResponse extends ProductsResponse {
+public class HighlightedProductResponse {
 
      private Long id;
 

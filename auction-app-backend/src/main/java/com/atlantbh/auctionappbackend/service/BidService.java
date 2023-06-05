@@ -38,8 +38,11 @@ import static com.atlantbh.auctionappbackend.utils.Constants.*;
 public class BidService {
 
     private final BidRepository bidRepository;
+
     private final ProductRepository productRepository;
+
     private final AppUserRepository appUserRepository;
+
     private final RabbitTemplate rabbitTemplate;
 
     public List<AppUserBidsResponse> getBidsForAppUser(Long userId) {

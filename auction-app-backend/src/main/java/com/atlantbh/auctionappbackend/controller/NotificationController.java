@@ -19,7 +19,9 @@ import static com.atlantbh.auctionappbackend.utils.Constants.OUTBID_QUEUE;
 public class NotificationController {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationController.class);
+
     private final SimpMessagingTemplate template;
+
     private final AppUserRepository appUserRepository;
 
     @RabbitListener(queues = AUCTION_FINISHED_QUEUE)

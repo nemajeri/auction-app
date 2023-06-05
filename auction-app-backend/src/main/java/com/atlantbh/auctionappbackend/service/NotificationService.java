@@ -29,11 +29,14 @@ import static com.atlantbh.auctionappbackend.utils.Constants.AUCTION_FINISHED_RO
 public class NotificationService {
 
     private final ProductRepository productRepository;
+
     private final AppUserRepository appUserRepository;
+
     private final BidRepository bidRepository;
+
     private final RabbitTemplate rabbitTemplate;
 
-    @Scheduled(fixedDelay = 3600000 * 24, initialDelay = 36000 * 12)
+    @Scheduled(fixedDelay = 3600000 * 48, initialDelay = 3600000 * 48)
     @Transactional
     public void checkAuctions() {
 
