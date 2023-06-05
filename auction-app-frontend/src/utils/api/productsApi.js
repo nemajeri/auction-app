@@ -22,7 +22,7 @@ export const getAllProducts = (
   let url = `/products/items?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
   if (searchTerm !== '') {
-    url += `&searchTerm=${searchTerm}`;
+    url += `&searchTerm=${encodeURIComponent(searchTerm)}`;
   }
 
   if (categoryId !== null) {

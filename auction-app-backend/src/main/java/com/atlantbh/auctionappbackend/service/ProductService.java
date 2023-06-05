@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
-import static com.atlantbh.auctionappbackend.utils.Constants.SEARCH_TERM_VALIDATOR;
+import static com.atlantbh.auctionappbackend.utils.Constants.SEARCH_VALIDATOR;
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
 
@@ -55,9 +55,8 @@ public class ProductService {
 
     private final BidRepository bidRepository;
 
-
     public String getSuggestion(String query) {
-        if (query.matches(SEARCH_TERM_VALIDATOR) || query.trim().isEmpty()) {
+        if (!query.matches(SEARCH_VALIDATOR) || query.isBlank()) {
             return "No suggestion found";
         }
 
