@@ -10,7 +10,7 @@ import static com.atlantbh.auctionappbackend.utils.Constants.SEARCH_VALIDATOR;
 public class ProductSpecifications {
     public static Specification<Product> hasNameLike(String searchTerm) {
         return (root, query, criteriaBuilder) -> {
-            if (searchTerm == null || searchTerm.isEmpty() || !searchTerm.matches(SEARCH_VALIDATOR)) {
+            if (searchTerm == null || searchTerm.isEmpty() || !searchTerm.trim().matches(SEARCH_VALIDATOR)) {
                 return criteriaBuilder.disjunction();
             }
             return criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + searchTerm.toLowerCase() + "%");
@@ -18,11 +18,6 @@ public class ProductSpecifications {
     }
 
     public static Specification<Product> hasCategoryId(Long categoryId) {
-        return (root, query, criteriaBuilder) -> {
-            if (categoryId == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.equal(root.get("category").get("id"), categoryId);
-        };
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("category").get("id"), categoryId);
     }
 }

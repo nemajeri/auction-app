@@ -13,6 +13,8 @@ import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +56,8 @@ public class ProductService {
     private final S3Service s3Service;
 
     private final BidRepository bidRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
 
     public String getSuggestion(String query) {
         if (!query.matches(SEARCH_VALIDATOR) || query.isBlank()) {
@@ -110,10 +114,15 @@ public class ProductService {
 
 
     public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId, SortBy sortBy) {
-        Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));
+        Specification<Product> specification = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+
+        if(!searchTerm.isBlank()) {
+            specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));
+        }
 
         if (categoryId != null) {
-            specification = specification.and(ProductSpecifications.hasCategoryId(categoryId));
+            Specification<Product> categorySpec = ProductSpecifications.hasCategoryId(categoryId);
+            specification = specification.and(categorySpec);
         }
 
         Sort sort = switch (sortBy) {
@@ -125,7 +134,13 @@ public class ProductService {
         };
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Product> products = productRepository.findAll(specification, pageable);
+        Page<Product> products;
+        try {
+            products = productRepository.findAll(specification, pageable);
+        } catch (Exception e) {
+            log.error("Error while fetching products from the database", e);
+            throw new ProductNotFoundException("Searched products don't exist");
+        }
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
@@ -177,7 +192,7 @@ public class ProductService {
 
     public SingleProductResponse getProductById(Long id) throws ProductNotFoundException {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
         boolean isOwner = false;
         float userHighestBid = 0f;
