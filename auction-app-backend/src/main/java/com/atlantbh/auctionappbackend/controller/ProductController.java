@@ -4,6 +4,8 @@ import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
+import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
+import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
@@ -64,11 +66,10 @@ public class ProductController {
 
 
     @GetMapping("/items/app-user")
-    public ResponseEntity<List<Product>> retrieveProductsFromUser(@RequestParam Long userId,
-                                                                  @RequestParam String type){
+    public ResponseEntity<List<AppUserProductsResponse>> retrieveProductsFromUser(@RequestParam Long userId,
+                                                                                  @RequestParam String type){
         SortBy sortBy = SortBy.fromValue(type);
-        List<Product> products = productService.retrieveUserProductsByType(userId, sortBy);
-
+        List<AppUserProductsResponse> products = productService.retrieveUserProductsByType(userId, sortBy);
         return new ResponseEntity<>(products, OK);
     }
 
@@ -121,9 +122,9 @@ public class ProductController {
         return ResponseEntity.ok().body(productDTOs);
     }
 
-    @GetMapping("/all-products")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> productDTOs = productService.getAllProducts();
-        return ResponseEntity.ok(productDTOs);
+    @GetMapping("/highlighted-products")
+    public ResponseEntity<List<HighlightedProductResponse>> getHighlightedProducts() {
+        List<HighlightedProductResponse> productResponse = productService.getHighlightedProducts();
+        return ResponseEntity.ok(productResponse);
     }
 }

@@ -46,6 +46,18 @@ public final class Constants {
 
     public static final String FACEBOOK_GRAPH_API_URL = "https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token=";
 
-    public static final String SEARCH_TERM_VALIDATOR = "[^a-zA-Z0-9 ]";
+    public static final String SEARCH_VALIDATOR = "^[a-zA-Z0-9 ,.-]*$";
+
+    public static final String AUCTION_FINISHED_EXCHANGE = "auction_finished_exchange";
+
+    public static final String AUCTION_FINISHED_QUEUE = "auction_finished_queue";
+
+    public static final String AUCTION_FINISHED_ROUTING_KEY = "auction.finished.routing.key";
+
+    public static final String OUTBID_EXCHANGE = "outbid_exchange";
+
+    public static final String OUTBID_QUEUE = "outbid_queue";
+
+    public static final String OUTBID_ROUTING_KEY = "outbid.routing.key";
 
 }

@@ -7,15 +7,15 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductsResponse {
+public class HighlightedProductResponse {
 
-    private Long id;
+     private Long id;
 
-    private String productName;
+     private String productName;
 
-    private float startPrice;
+     private float startPrice;
 
-    private String images;
+     private String images;
 
-    private Long categoryId;
+     private String description;
 }

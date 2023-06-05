@@ -23,7 +23,7 @@ const HighlightedProduct = ({ highlightedProduct }) => {
       <div className='highlighted-product__image'>
       {isLoading && <LoadingSpinner pageSpinner={false}/>}
         <img
-          src={highlightedProduct?.images[0]}
+          src={highlightedProduct?.images}
           alt='highlighted-product'
           className={isLoading ? 'product-image-loading' : 'product-image-loaded'}
           onLoad={() => setIsLoading(false)}

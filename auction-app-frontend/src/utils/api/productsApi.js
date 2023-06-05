@@ -22,7 +22,7 @@ export const getAllProducts = (
   let url = `/products/items?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
   if (searchTerm !== '') {
-    url += `&searchTerm=${searchTerm}`;
+    url += `&searchTerm=${encodeURIComponent(searchTerm)}`;
   }
 
   if (categoryId !== null) {
@@ -47,7 +47,7 @@ export const getSortedProductsAccordingToDate = (
 };
 
 export const getAllProductsToSeparateHighlighted = () => {
-  return API.get('/products/all-products');
+  return API.get('/products/highlighted-products');
 };
 
 export const getSearchSuggestion = (query) => {

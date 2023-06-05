@@ -1,5 +1,6 @@
 package com.atlantbh.auctionappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,8 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -32,10 +31,9 @@ public class Product {
     @Column(name = "start_price", nullable = false)
     private float startPrice;
 
-    @ElementCollection
-    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "image")
-    private List<String> images;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<Image> images;
 
     @Column(name = "start_date", nullable = false)
     private ZonedDateTime startDate;

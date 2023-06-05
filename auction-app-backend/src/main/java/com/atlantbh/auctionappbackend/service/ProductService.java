@@ -7,10 +7,14 @@ import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.*;
 import com.atlantbh.auctionappbackend.repository.*;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
+import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
+import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.utils.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,14 +25,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import java.time.*;
 import javax.servlet.http.HttpServletRequest;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-
-import static com.atlantbh.auctionappbackend.utils.Constants.*;
+import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
+import static com.atlantbh.auctionappbackend.utils.Constants.SEARCH_VALIDATOR;
 import static com.atlantbh.auctionappbackend.utils.LevenshteinDistanceCalculation.calculate;
 
 
@@ -52,9 +57,10 @@ public class ProductService {
 
     private final BidRepository bidRepository;
 
+    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
 
     public String getSuggestion(String query) {
-        if (query.matches(SEARCH_TERM_VALIDATOR) || query.trim().isEmpty()) {
+        if (!query.matches(SEARCH_VALIDATOR) || query.isBlank()) {
             return "No suggestion found";
         }
 
@@ -78,7 +84,7 @@ public class ProductService {
         }
     }
 
-    public List<Product> retrieveUserProductsByType(Long userId, SortBy sortingType) {
+    public List<AppUserProductsResponse> retrieveUserProductsByType(Long userId, SortBy sortingType) {
         ZonedDateTime currentTime = ZonedDateTime.now(ZoneOffset.UTC);
         List<Product> userProducts;
 
@@ -90,7 +96,7 @@ public class ProductService {
                     userId, currentTime, Sort.by(Sort.Direction.DESC, SortBy.START_DATE.getSort()));
         }
 
-        return userProducts;
+        return userProducts.stream().map(product -> new AppUserProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getEndDate(), product.getNumberOfBids(), product.getHighestBid())).toList();
     }
 
     public List<ProductsResponse> getRecommendedProducts(Long userId) {
@@ -102,16 +108,21 @@ public class ProductService {
         }
 
         return recommendedProducts.stream()
-                .map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()))
+                .map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()))
                 .toList();
     }
 
 
     public Page<ProductsResponse> getAllFilteredProducts(int pageNumber, int pageSize, String searchTerm, Long categoryId, SortBy sortBy) {
-        Specification<Product> specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));
+        Specification<Product> specification = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+
+        if(!searchTerm.isBlank()) {
+            specification = Specification.where(ProductSpecifications.hasNameLike(searchTerm));
+        }
 
         if (categoryId != null) {
-            specification = specification.and(ProductSpecifications.hasCategoryId(categoryId));
+            Specification<Product> categorySpec = ProductSpecifications.hasCategoryId(categoryId);
+            specification = specification.and(categorySpec);
         }
 
         Sort sort = switch (sortBy) {
@@ -123,8 +134,14 @@ public class ProductService {
         };
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Product> products = productRepository.findAll(specification, pageable);
-        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
+        Page<Product> products;
+        try {
+            products = productRepository.findAll(specification, pageable);
+        } catch (Exception e) {
+            log.error("Error while fetching products from the database", e);
+            throw new ProductNotFoundException("Searched products don't exist");
+        }
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
     public void createProduct(NewProductRequest request, List<MultipartFile> images, HttpServletRequest httpServletRequest) {
@@ -132,7 +149,7 @@ public class ProductService {
         String email = tokenService.getClaimFromToken(token, "sub");
 
         Optional<AppUser> userOpt = appUserRepository.getByEmail(email);
-        if(userOpt.isEmpty()) {
+        if (userOpt.isEmpty()) {
             throw new AppUserNotFoundException("User not found!");
         }
         AppUser appUser = userOpt.get();
@@ -169,13 +186,13 @@ public class ProductService {
     public Page<ProductsResponse> getNewProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getNewArrivalsProducts(pageable);
-        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
 
     public SingleProductResponse getProductById(Long id) throws ProductNotFoundException {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
         boolean isOwner = false;
         float userHighestBid = 0f;
@@ -198,11 +215,12 @@ public class ProductService {
                 product.getProductName(),
                 product.getDescription(),
                 product.getStartPrice(),
-                product.getImages(),
+                product.getImages().stream().map(Image::getImageUrl).collect(Collectors.toList()),
                 product.getStartDate(),
                 product.getEndDate(),
                 product.getNumberOfBids(),
                 product.getHighestBid(),
+                product.getUser().getId(),
                 isOwner,
                 product.isSold(),
                 userHighestBid
@@ -212,10 +230,17 @@ public class ProductService {
     public Page<ProductsResponse> getLastProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getLastChanceProducts(pageable);
-        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0), product.getCategory().getId()));
+        return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<HighlightedProductResponse> getHighlightedProducts() {
+        List<Product> products = productRepository.findByIsHighlightedTrue();
+        return products.stream()
+                .map(product -> new HighlightedProductResponse(
+                        product.getId(),
+                        product.getProductName(),
+                        product.getStartPrice(),
+                        product.getImages().get(0).getImageUrl(),
+                        product.getDescription())).toList();
     }
 }

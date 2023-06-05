@@ -1,8 +1,8 @@
 package com.atlantbh.auctionappbackend.model;
 
-import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Bid {
 
     @Id

@@ -7,16 +7,34 @@ import { AppContext } from '../../utils/AppContextProvider';
 import { EMPTY_STRING } from '../../utils/constants';
 
 const SearchField = ({ categoryId, pathname, navigate }) => {
-  const { dispatch, searchTerm, onSearchIconClick, onSearchTermChange, currentSortOption } =
-    useContext(AppContext);
+  const {
+    dispatch,
+    searchTerm,
+    onSearchIconClick,
+    onSearchTermChange,
+    currentSortOption,
+  } = useContext(AppContext);
 
   return (
     <div className='search'>
       <input
+        id='search'
         type='text'
         value={searchTerm}
         placeholder='Try enter: Shoes'
         onChange={onSearchTermChange}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            onSearchIconClick(
+              e,
+              categoryId,
+              null,
+              navigate,
+              pathname,
+              currentSortOption
+            );
+          }
+        }}
       />
       {searchTerm.length > 0 && (
         <GrFormClose
@@ -41,7 +59,14 @@ const SearchField = ({ categoryId, pathname, navigate }) => {
       <AiOutlineSearch
         className='search__icon'
         onClick={(event) =>
-          onSearchIconClick( event, categoryId, null, navigate, pathname, currentSortOption)
+          onSearchIconClick(
+            event,
+            categoryId,
+            null,
+            navigate,
+            pathname,
+            currentSortOption
+          )
         }
       />
     </div>

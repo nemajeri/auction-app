@@ -67,7 +67,6 @@
             <artifactId>stripe-java</artifactId>
             <version>20.108.0</version>
         </dependency>
-
         <!-- Amazon -->
         <dependency>
             <groupId>com.amazonaws</groupId>
@@ -107,10 +106,36 @@
             <artifactId>google-api-client</artifactId>
             <version>2.2.0</version>
         </dependency>
+        <!-- Websocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <!-- Google api client -->
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client-jackson2</artifactId>
             <version>1.20.0</version>
+        </dependency>
+        <!-- AMQP protocol -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.4.10</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-core</artifactId>
+            <version>1.0.10</version>
         </dependency>
     </dependencies>
     <build>

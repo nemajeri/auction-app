@@ -38,7 +38,7 @@ const ProductOverviewPage = () => {
         setIsOwner(response.data.owner);
         setUserHighestBid(response.data.userHighestBid);
       } catch (error) {
-        console.error(error);
+        
       } finally {
         setLoading(false);
       }

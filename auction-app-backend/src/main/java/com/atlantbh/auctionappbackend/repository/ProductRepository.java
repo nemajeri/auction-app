@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Repository
@@ -50,6 +51,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Query("SELECT p FROM Product p WHERE p.endDate > CURRENT_TIMESTAMP AND p.sold = false")
     Page<Product> findFirstActiveProducts(Pageable pageable);
+
+    List<Product> findByIsHighlightedTrue();
+
+    @Query("SELECT p FROM Product p WHERE p.endDate < :now AND p.sold = false")
+    Stream<Product> findEndedAndUnsoldProducts(@Param("now") ZonedDateTime now);
+
 
 }
 

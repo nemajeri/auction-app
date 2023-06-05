@@ -46,5 +46,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("FILE_DELETION_FAILED", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
 }
 

@@ -33,7 +33,7 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
         const response = await getProductsForUser(user.id, tab.label);
         setProducts(response.data);
       } catch (error) {
-        console.error(error);
+        
         setProducts([]);
       } finally {
         setLoading(false);
@@ -58,11 +58,11 @@ const SellerTab = ({ sellerHeadings, headerClassNames, bodyClassNames }) => {
         {products.length !== 0 ? (
           products.map((product) => (
             <tr key={product.id}>
-              {product.images.length > 0 && !loading ? (
+              {product?.images?.length > 0 && !loading ? (
                 <td className={bodyClassNames[0]}>
                   {isImageLoading && <LoadingSpinner pageSpinner={false} />}
                   <img
-                    src={product.images[0]}
+                    src={product.images}
                     alt={product.productName}
                     onLoad={() => setIsImageLoading(false)}
                     className={

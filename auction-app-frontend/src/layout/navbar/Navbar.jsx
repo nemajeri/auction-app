@@ -12,6 +12,8 @@ import { logoutUser } from '../../utils/api/authApi.js';
 import { EMPTY_STRING } from '../../utils/constants';
 import { ACTIONS } from '../../utils/appReducer';
 import { toast } from 'react-toastify';
+import NotificationsCenter from '../../components/notifications/NotificationsCenter';
+import WebSocketService from '../../services/WebSocketService';
 
 const Navbar = () => {
   const {
@@ -24,12 +26,45 @@ const Navbar = () => {
     user,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
+  const [notifications, setNotifications] = useState([]);
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     setActiveLink(pathname.replace('/', '') || 'home');
   }, [pathname]);
+
+  useEffect(() => {
+    if (user) {
+      let subscription;
+
+      const webSocketService = new WebSocketService();
+
+      webSocketService.connect(() => {
+        subscription = webSocketService.subscribe(
+          `/queue/notifications-${user.id}`,
+          (message) => {
+            const newNotification = JSON.parse(message.body);
+            setNotifications((prevNotifications) => [
+              ...prevNotifications,
+              newNotification,
+            ]);
+          }
+        );
+      });
+
+      return () => {
+        if (subscription) {
+          subscription.unsubscribe();
+        }
+
+        if (webSocketService) {
+          webSocketService.disconnect();
+        }
+        setNotifications([]);
+      };
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -100,6 +135,12 @@ const Navbar = () => {
             </div>
           ) : (
             <div className='navbar__active-account'>
+              {notifications?.length > 0 && (
+                <NotificationsCenter
+                  notifications={notifications}
+                  setNotifications={setNotifications}
+                />
+              )}
               <p>
                 Hi, {user.firstName} {user.lastName}
               </p>

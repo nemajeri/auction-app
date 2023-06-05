@@ -15,8 +15,6 @@ import Tabs from '../../components/tabs/Tabs';
 import { AppContext } from '../../utils/AppContextProvider';
 import RecommendedProducts from '../../components/landing-page/recommended-products/RecommendedProducts.jsx';
 import { useGridView } from '../../hooks/useGridView';
-import { getStartOfTodayUTC } from '../../utils/helperFunctions';
-import moment from 'moment';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { usePageLoading } from '../../hooks/usePageLoading';
 
@@ -65,12 +63,9 @@ const LandingPage = () => {
       currentPageNumber
     );
 
-    let allProducts = await getAllProductsToSeparateHighlighted();
-    let highlightedProducts = allProducts?.data?.filter((product) => {
-      const endDate = moment(product.endDate);
-      return product.highlighted === true && getStartOfTodayUTC() <= endDate;
-    });
-    setHighlightedProducts(highlightedProducts);
+    let highlightedProducts = await getAllProductsToSeparateHighlighted();
+
+    setHighlightedProducts(highlightedProducts.data);
     setProducts(sortedProducts.data.content);
     setLoading(false);
   };

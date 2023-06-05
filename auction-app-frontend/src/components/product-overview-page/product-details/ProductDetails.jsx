@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '../../../utils/Button';
 import Tabs from '../../tabs/Tabs';
 import './productDetails.css';
 import Modal from '../../../utils/forms/Modal';
 import StripeCheckout from '../../stripe-checkout/StripeCheckout';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { landingPagePath } from '../../../utils/paths';
 import { AUCTION_ENDED } from '../../../utils/constants';
 
@@ -23,6 +23,12 @@ const ProductDetails = ({
 }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.openModal) {
+      setShowPaymentModal(true);
+    }
+  }, [location]);
 
   const onClose = () => {
     setShowPaymentModal(false);

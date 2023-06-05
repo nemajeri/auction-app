@@ -35,11 +35,11 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
 
   const getButtonLabel = (bid) => {
     switch (true) {
-      case bid.product.sold && bid.product.user.id === user.id:
+      case bid.product.sold && bid.product.userId === user.id:
         return BUTTON_LABELS.SOLD;
       case bid.product.sold &&
-        bid.product.user.id !== user.id &&
-        bid.user.id === user.id:
+        bid.product.userId !== user.id &&
+        bid.userId === user.id:
         return BUTTON_LABELS.BOUGHT;
       case hoursDiff(bid.product.endDate) === 0 &&
         bid.product.highestBid === bid.price:
