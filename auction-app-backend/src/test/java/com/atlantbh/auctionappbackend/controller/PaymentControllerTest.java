@@ -41,7 +41,7 @@ public class PaymentControllerTest {
         String currency = "USD";
         Long productId = 1L;
 
-        PaymentResponse paymentResponse = new PaymentResponse("paymentId", PaymentStatus.SUCCESS, amount, currency);
+        PaymentResponse paymentResponse = new PaymentResponse("paymentId", PaymentStatus.SUCCESS.getStatus(), amount, currency);
 
         when(paymentService.payForProduct(amount, currency, paymentMethodId, productId)).thenReturn(paymentResponse);
 
@@ -56,7 +56,7 @@ public class PaymentControllerTest {
                         .content(objectMapper.writeValueAsString(paymentData)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(paymentResponse.getId()))
-                .andExpect(jsonPath("$.status").value(paymentResponse.getStatus().name()))
+                .andExpect(jsonPath("$.status").value(paymentResponse.getStatus()))
                 .andExpect(jsonPath("$.amount").value(amount))
                 .andExpect(jsonPath("$.currency").value(currency));
 

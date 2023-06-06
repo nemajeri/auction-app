@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { shopPagePathToProduct } from '../../utils/paths';
+import { formatDate  } from '../../utils/helperFunctions';
 
 const Notification = ({
   id,
@@ -26,7 +27,7 @@ const Notification = ({
   return (
     <div className='notification unread' onClick={handleClick}>
       <header className='notification-header'>
-        <time>{date}</time>
+        <time>{formatDate(date)}</time>
         <span>{formattedType}</span>
       </header>
       <section className='notification-content'>

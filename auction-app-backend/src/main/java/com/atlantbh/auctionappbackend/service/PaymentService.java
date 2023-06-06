@@ -32,21 +32,21 @@ public class PaymentService {
         try {
             PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-            if (paymentIntent.getStatus().equals(PaymentStatus.SUCCESS.toString())) {
+            if (paymentIntent.getStatus().equals(PaymentStatus.SUCCESS.getStatus())) {
                 productRepository.findById(productId).ifPresent(product -> {
                     product.setSold(true);
                     productRepository.save(product);
                 });
 
-                return new PaymentResponse(paymentIntent.getId(), PaymentStatus.SUCCESS, paymentIntent.getAmount(), paymentIntent.getCurrency());
+                return new PaymentResponse(paymentIntent.getId(), PaymentStatus.SUCCESS.getStatus(), paymentIntent.getAmount(), paymentIntent.getCurrency());
             }
 
         } catch (StripeException e) {
             log.error("Stripe payment error", e);
-            return new PaymentResponse(null, PaymentStatus.ERROR, null, null);
+            return new PaymentResponse(null, PaymentStatus.ERROR.getStatus(), null, null);
         }
 
-        return new PaymentResponse(null, PaymentStatus.FAILED, null, null);
+        return new PaymentResponse(null, PaymentStatus.FAILED.getStatus(), null, null);
     }
 }
 

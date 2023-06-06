@@ -83,3 +83,7 @@ export const isValidRoute = (pathname) => {
     return regex.test(pathname);
   });
 };
+
+export const formatDate = (dateString) => {
+  return moment(dateString).format('YYYY-MM-DD HH:mm:ss');
+};
