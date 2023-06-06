@@ -110,6 +110,11 @@
     margin: 60px 0;
 }
 
+.call-to-action > p {
+    color: var(--black);
+    border-bottom: none;
+}
+
 .shared-style--icon {
     height: 80px;
     width: 80px;

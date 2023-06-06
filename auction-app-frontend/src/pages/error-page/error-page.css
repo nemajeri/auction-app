@@ -1,0 +1,42 @@
+.error-page__wrapper {
+    text-align: center;
+}
+
+.error-page__logo {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.error-page__wrapper h1 {
+    position: relative;
+    color: var(--purple);
+    font-size: 20rem;
+}
+  
+.error-page__wrapper h1::before {
+    content: '404';
+    position: absolute;
+    top: 0.8rem;
+    left: 20.5rem;
+    color: var(--grey-100);
+    text-shadow: none;
+    font-size: 20rem;
+    z-index: -1;
+}
+  
+.error-page__btn {
+  border: 3px solid var(--purple);
+  padding: 10px 50px;
+  background-color: var(--white-100);
+  text-transform: uppercase;
+  font-weight: bolder;
+  cursor: pointer;
+}
+
+.error-page__wrapper h5 {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin-bottom: 3rem;
+}

@@ -21,6 +21,7 @@ import {
   PrivacyPolicyPage,
   LoginPage,
   RegisterPage,
+  ErrorPage,
 } from './pages/index';
 import { Route, Routes } from 'react-router-dom';
 import { AppContextProvider } from './utils/AppContextProvider';
@@ -31,12 +32,17 @@ import LoggedInRoute from './utils/routes/LoggedInRoute';
 import LoadingSpinner from './components/loading-spinner/LoadingSpinner';
 
 const LandingPage = lazy(() => import('./pages/landing-page/LandingPage.js'));
-const ProductOverviewPage = lazy(() => import('./pages/product-overview-page/ProductOverviewPage.js'));
-const TermsAndCondPage = lazy(() => import('./pages/terms-and-cond/TermsAndCondPage.js'));
+const ProductOverviewPage = lazy(() =>
+  import('./pages/product-overview-page/ProductOverviewPage.js')
+);
+const TermsAndCondPage = lazy(() =>
+  import('./pages/terms-and-cond/TermsAndCondPage.js')
+);
 const ShopPage = lazy(() => import('./pages/shop-page/ShopPage.js'));
-const MyAccountPage = lazy(() => import('./pages/my-account-page/MyAccountPage.js'));
+const MyAccountPage = lazy(() =>
+  import('./pages/my-account-page/MyAccountPage.js')
+);
 const SellPage = lazy(() => import('./pages/sell-page/SellPage.js'));
-
 
 function App() {
   return (
@@ -131,6 +137,7 @@ function App() {
               </LoggedInRoute>
             }
           />
+          <Route path='*' element={<ErrorPage />} />
         </Routes>
         <Footer />
       </AppContextProvider>
