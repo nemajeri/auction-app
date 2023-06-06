@@ -52,7 +52,7 @@ public class ProductController {
             @RequestParam(defaultValue = "9") int pageSize,
             @RequestParam(defaultValue = "") String searchTerm,
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String sort) {
+            @RequestParam(defaultValue = "DEFAULT_SORTING", required = false) String sort)  {
 
         try {
             Page<ProductsResponse> productsList;
@@ -90,14 +90,15 @@ public class ProductController {
         }
 
         if (bindingResult.hasErrors()) {
+            log.error("Product creation failed with errors: {}", bindingResult.getAllErrors() );
             return ResponseEntity.status(BAD_REQUEST).build();
         }
-
         try {
             productService.createProduct(request, images, httpServletRequest);
             return new ResponseEntity<>(CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(BAD_REQUEST);
+            log.error("Product creation failed.");
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR);
         }
     }
 
