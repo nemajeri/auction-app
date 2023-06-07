@@ -195,7 +195,6 @@ public class ProductService {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void processCsvFileToCreateProducts(Reader reader) throws Exception {
         Authentication principal = SecurityContextHolder.getContext().getAuthentication();
         String email = principal.getName();
