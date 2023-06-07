@@ -2,7 +2,7 @@ package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
-import com.atlantbh.auctionappbackend.model.Product;
+import com.atlantbh.auctionappbackend.exception.UnprocessableCSVFileException;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
 import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
@@ -11,6 +11,8 @@ import com.atlantbh.auctionappbackend.response.SingleProductResponse;
 import com.atlantbh.auctionappbackend.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,9 +23,10 @@ import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -34,6 +37,8 @@ import static org.springframework.http.HttpStatus.*;
 public class ProductController {
 
     private final ProductService productService;
+
+    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping("/search-suggestions")
     public ResponseEntity<String> searchSuggestions(@RequestParam("query") String query) {
@@ -74,28 +79,43 @@ public class ProductController {
     }
 
     @PostMapping(path = "/add-item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
-                                        @RequestPart("images") List<MultipartFile> images,
-                                        BindingResult bindingResult,
-                                        HttpServletRequest httpServletRequest) {
-        Map<String, String> response = new HashMap<>();
+    public ResponseEntity<Void> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
+                                           @RequestPart("images") List<MultipartFile> images,
+                                           BindingResult bindingResult,
+                                           HttpServletRequest httpServletRequest) {
+        List<String> allowedContentTypes = List.of("image/jpeg", "image/png", "image/jpg");
+
+        if (!images.stream().allMatch(image -> allowedContentTypes.contains(image.getContentType()))) {
+            return new ResponseEntity<>(NOT_ACCEPTABLE);
+        }
+
         if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-            return ResponseEntity.status(BAD_REQUEST).body(errors);
+            return ResponseEntity.status(BAD_REQUEST).build();
         }
 
         try {
             productService.createProduct(request, images, httpServletRequest);
-            response.put("status", "created");
             return new ResponseEntity<>(CREATED);
         } catch (Exception e) {
-            response.clear();
-            response.put("error: ", "Error creating product: " + e.getMessage());
             return new ResponseEntity<>(BAD_REQUEST);
         }
     }
 
+    @PostMapping("/upload-csv-file")
+    public ResponseEntity<Void> uploadCSVFile(@RequestParam("file") MultipartFile file) {
+        String contentType = file.getContentType();
+        if (file.isEmpty() || contentType == null || !contentType.equalsIgnoreCase("text/csv")) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        } else {
+            try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                productService.processCsvFileToCreateProducts(reader);
+                return new ResponseEntity<>(HttpStatus.CREATED);
+            } catch (Exception ex) {
+                log.error("Error processing CSV file: ", ex);
+                throw new UnprocessableCSVFileException("Error processing the uploaded CSV file. Please ensure the file is in the correct format and try again.");
+            }
+        }
+    }
 
     @GetMapping(path = "/{productId}")
     public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId) {

@@ -137,6 +137,12 @@
             <artifactId>reactor-netty-core</artifactId>
             <version>1.0.10</version>
         </dependency>
+        <!-- CSV parser library -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

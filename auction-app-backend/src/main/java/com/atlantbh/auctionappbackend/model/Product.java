@@ -48,7 +48,7 @@ public class Product {
     private Float highestBid;
 
     @Column(name = "is_highlighted", nullable = false)
-    private boolean isHighlighted;
+    private boolean isHighlighted = false;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -72,7 +72,24 @@ public class Product {
 
     private String phone;
 
-    private boolean sold;
+    private boolean sold = false;
+
+    public Product( String productName, String description, float startPrice, List<Image> images, ZonedDateTime startDate, ZonedDateTime endDate, Category category, Subcategory subcategory, AppUser user, String address, String city, String zipCode, String country, String phone) {
+        this.productName = productName;
+        this.description = description;
+        this.startPrice = startPrice;
+        this.images = images;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.category = category;
+        this.subcategory = subcategory;
+        this.user = user;
+        this.address = address;
+        this.city = city;
+        this.zipCode = zipCode;
+        this.country = country;
+        this.phone = phone;
+    }
 
     public Float getHighestBid() {
         if (highestBid == null && numberOfBids == 0) {
