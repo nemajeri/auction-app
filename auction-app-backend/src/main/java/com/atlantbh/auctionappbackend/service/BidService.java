@@ -29,6 +29,7 @@ import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.atlantbh.auctionappbackend.utils.Constants.*;
@@ -74,13 +75,9 @@ public class BidService {
     }
 
     @Transactional
-    public void createBid(Long productId, float amount) throws ProductNotFoundException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
-
-        AppUser appUser = appUserRepository.getByEmail(email)
-                .orElseThrow(() -> new AppUserNotFoundException("User with email " + email + " not found"));
+    public void createBid(Long productId, float amount, Long userId) throws ProductNotFoundException, AppUserNotFoundException {
+        AppUser appUser = appUserRepository.findById(userId)
+                .orElseThrow(() -> new AppUserNotFoundException("User not found"));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
@@ -141,7 +138,7 @@ public class BidService {
             throw new BadRequestException("Auction ended for this product");
         }
 
-        if (product.isOwner(appUser.getEmail())) {
+        if (product.isOwner(appUser.getId())) {
             throw new BadRequestException("You can't bid on your own product");
         }
     }

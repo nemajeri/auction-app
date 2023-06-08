@@ -105,8 +105,8 @@ public class Product {
         return this.numberOfBids;
     }
 
-    public boolean isOwner(String email) {
-        return this.user.getEmail().equals(email);
+    public boolean isOwner(Long userId) {
+        return this.user.getId().equals(userId);
     }
 
 }

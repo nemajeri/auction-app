@@ -34,7 +34,7 @@ public class BidController {
 
     @PostMapping("/create-bid")
     public ResponseEntity<Void> createBid(@Valid @RequestBody BidRequest bidRequest) {
-        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount());
+        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount(), bidRequest.getUserId());
         return new ResponseEntity<>(CREATED);
     }
 }
