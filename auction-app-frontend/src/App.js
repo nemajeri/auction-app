@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import './App.css';
 import Navbar from './layout/navbar/Navbar';
 import Footer from './layout/footer/Footer';
+import ErrorBoundary from './utils/ErrorBoundary';
 import {
   aboutUsPath,
   privacyPolicyPath,
@@ -55,7 +56,9 @@ function App() {
             path={shopPagePathToProduct}
             element={
               <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                <ProductOverviewPage />{' '}
+                <ErrorBoundary>
+                  <ProductOverviewPage />
+                </ErrorBoundary>
               </Suspense>
             }
           />
@@ -64,7 +67,9 @@ function App() {
             element={
               <LoggedInRoute>
                 <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                  <MyAccountPage />
+                  <ErrorBoundary>
+                    <MyAccountPage />
+                  </ErrorBoundary>
                 </Suspense>
               </LoggedInRoute>
             }
@@ -73,7 +78,9 @@ function App() {
             path={shopPagePath}
             element={
               <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                <ShopPage />
+                <ErrorBoundary>
+                  <ShopPage />
+                </ErrorBoundary>
               </Suspense>
             }
           />
@@ -81,7 +88,9 @@ function App() {
             path={shopPagePathToCategory}
             element={
               <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                <ShopPage />
+                <ErrorBoundary>
+                  <ShopPage />
+                </ErrorBoundary>
               </Suspense>
             }
           />
@@ -89,7 +98,9 @@ function App() {
             path={productOverviewPagePath}
             element={
               <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                <ProductOverviewPage />
+                <ErrorBoundary>
+                  <ProductOverviewPage />
+                </ErrorBoundary>
               </Suspense>
             }
           />
@@ -113,7 +124,9 @@ function App() {
             path={landingPagePath}
             element={
               <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                <LandingPage />
+                <ErrorBoundary>
+                  <LandingPage />
+                </ErrorBoundary>
               </Suspense>
             }
           />
@@ -122,7 +135,9 @@ function App() {
             path={privacyPolicyPath}
             element={
               <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                <TermsAndCondPage />
+                <ErrorBoundary>
+                  <TermsAndCondPage />
+                </ErrorBoundary>
               </Suspense>
             }
           />
@@ -132,7 +147,9 @@ function App() {
             element={
               <LoggedInRoute>
                 <Suspense fallback={<LoadingSpinner pageSpinner={true} />}>
-                  <SellPage />
+                  <ErrorBoundary>
+                    <SellPage />
+                  </ErrorBoundary>
                 </Suspense>
               </LoggedInRoute>
             }
