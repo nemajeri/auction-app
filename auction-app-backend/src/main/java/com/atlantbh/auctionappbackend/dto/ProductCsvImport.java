@@ -1,4 +1,4 @@
-package com.atlantbh.auctionappbackend.request;
+package com.atlantbh.auctionappbackend.dto;
 
 import com.atlantbh.auctionappbackend.utils.FloatConverter;
 import com.atlantbh.auctionappbackend.utils.ZonedDateTimeConverter;
@@ -7,6 +7,8 @@ import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
 import com.opencsv.bean.validators.MustMatchRegexExpression;
 import com.opencsv.bean.validators.PreAssignmentValidator;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.ZonedDateTime;
@@ -14,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@Builder
 public class ProductCsvImport {
 
     @CsvBindByName(column = "Product Name")

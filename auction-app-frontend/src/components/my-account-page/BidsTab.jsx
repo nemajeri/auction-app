@@ -13,6 +13,7 @@ import {
 } from '../../utils/paths';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { BUTTON_LABELS } from '../../utils/constants';
+import { toast } from 'react-toastify';
 
 const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
   const { user } = useContext(AppContext);
@@ -26,14 +27,14 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
     (async () => {
       try {
         setLoading(true);
-        const response = await getBidsForUser(user.id);
+        const response = await getBidsForUser();
         setBids(response.data);
         setLoading(false);
       } catch (error) {
-        console.error(error);
+        toast.error("Cant load bids at the moment.");
       }
     })();
-  }, [user.id]);
+  }, []);
 
   const getButtonLabel = (bid) => {
     switch (true) {

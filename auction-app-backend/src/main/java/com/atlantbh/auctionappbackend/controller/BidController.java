@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,6 +17,8 @@ import static org.springframework.http.HttpStatus.OK;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 @AllArgsConstructor
 @RestController
@@ -27,14 +28,14 @@ public class BidController {
     private final BidService bidService;
 
     @GetMapping("/app-user")
-    public ResponseEntity<List<AppUserBidsResponse>> getBidsForAppUser(@RequestParam Long userId) {
-        List<AppUserBidsResponse> bids = bidService.getBidsForAppUser(userId);
+    public ResponseEntity<List<AppUserBidsResponse>> getBidsForAppUser(HttpServletRequest request) {
+        List<AppUserBidsResponse> bids = bidService.getBidsForAppUser(request);
         return new ResponseEntity<>(bids, OK);
     }
 
     @PostMapping("/create-bid")
-    public ResponseEntity<Void> createBid(@Valid @RequestBody BidRequest bidRequest) {
-        bidService.createBid(bidRequest.getProductId(), bidRequest.getAmount(), bidRequest.getUserId());
+    public ResponseEntity<Void> createBid(@Valid @RequestBody BidRequest bidRequest, HttpServletRequest request) {
+        bidService.createBidAndPublishToQueue(bidRequest.getProductId(), bidRequest.getAmount(), request);
         return new ResponseEntity<>(CREATED);
     }
 }

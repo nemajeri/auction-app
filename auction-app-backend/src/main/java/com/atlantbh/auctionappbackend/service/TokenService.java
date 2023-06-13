@@ -1,6 +1,7 @@
 package com.atlantbh.auctionappbackend.service;
 
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
+import com.atlantbh.auctionappbackend.exception.UnauthorizedException;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.security.enums.TokenType;
@@ -22,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -155,7 +157,7 @@ public class TokenService {
                 }
             }
         }
-        return null;
+        return "";
     }
 
     public String getJwtFromCookie(ServerHttpRequest request) {
@@ -181,12 +183,29 @@ public class TokenService {
             }
         }
 
-        return null;
+        return "";
     }
 
 
     public void invalidateToken(String token) {
         blacklistedTokens.add(token);
+    }
+
+    public AppUser getAuthenticatedUser(HttpServletRequest request) {
+        String token = getJwtFromCookie(request);
+
+        if (!StringUtils.hasText(token)) {
+            throw new IllegalStateException("No token found in request");
+        }
+
+        if (!validateToken(token)) {
+            throw new UnauthorizedException("Token is blacklisted");
+        }
+
+        String email = getClaimFromToken(token, "sub");
+
+        return appUserRepository.getByEmail(email)
+                .orElseThrow(() -> new AppUserNotFoundException("User not found"));
     }
 
 }

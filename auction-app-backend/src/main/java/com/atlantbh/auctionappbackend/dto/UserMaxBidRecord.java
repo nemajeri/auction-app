@@ -1,4 +1,4 @@
-package com.atlantbh.auctionappbackend.request;
+package com.atlantbh.auctionappbackend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserMaxBidRequest {
+public class UserMaxBidRecord {
 
     private Long userId;
 
