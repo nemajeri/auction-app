@@ -20,13 +20,13 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="first_name",length = 50,nullable = false)
+    @Column(name = "first_name", length = 50, nullable = false)
     private String firstName;
 
-    @Column(name = "last_name",length = 50,nullable = false)
+    @Column(name = "last_name", length = 50, nullable = false)
     private String lastName;
 
-    @Column(length = 100 ,nullable = false, unique = true)
+    @Column(length = 100, nullable = false, unique = true)
     @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}")
     private String email;
 
@@ -34,14 +34,7 @@ public class AppUser {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    private String city;
-
-    private String address;
-
-    private String country;
-
-    private String zipCode;
-
-    private String phone;
+    @Embedded
+    private ShippingInfo info;
 
 }

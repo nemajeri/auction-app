@@ -15,6 +15,4 @@ public class BidRequest {
     @Min(value = 1, message = "Amount must be greater than 0.")
     private float amount;
 
-    private Long userId;
-
 }
