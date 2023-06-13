@@ -24,7 +24,7 @@
 
        cd <directory-name>
 
-3. Update the `application-dev.properties` file with your specific details as follows:
+3. Update the `application.properties` file with your specific details as follows:
    
 
 >       spring.datasource.url=<your PostgreSQL database URL>
