@@ -101,7 +101,7 @@ export const addNewItemForAuction = async (
     }
   } catch (error) {
     if (error.response.status === 406) {
-      toast.success('Please use the right format for product images.');
+      toast.success(error.response.data);
     }
     toast.error('Error creating product.');
   } finally {
@@ -128,15 +128,16 @@ export const addCsvFileForProccessing = async (
       toast.success('Products created');
     }
   } catch (error) {
-    debugger;
-    if (error.response.status === 422 || error.response.status === 406) {
+    if ( error.response.status === 406) {
       toast.error(
-        'Unable to process CSV file. Please ensure the file is in the correct format and try again.'
+        'Unable to process CSV file: ' + error.response.data
       );
     } else if (error.response.status === 404) {
-      toast.error('Category or Subcategory not found.');
+      toast.error('Processing CSV file failed.');
+    } else if(error.response.status === 422) {
+      toast.error(error.response.data.message);
     } else {
-      toast.error('Unexpected error occurred while creating product.');
+      toast.error('Unexpected error occurred parsing the CSV file. Please try again.');
     }
   } finally {
     setShowCsvModal(false);
@@ -145,12 +146,12 @@ export const addCsvFileForProccessing = async (
   }
 };
 
-export const getRecommendedProducts = async (userId) => {
+export const getRecommendedProducts = async () => {
   try {
-    const response = await API.get(`/products/recommended?userId=${userId}`);
+    const response = await AuthAPI.get('/products/recommended');
     return response.data;
   } catch (error) {
-    console.error('Error fetching recommended products:', error);
+    toast.error('Error fetching recommended products');
     return [];
   }
 };

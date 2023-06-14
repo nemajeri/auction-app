@@ -40,6 +40,7 @@ import static com.atlantbh.auctionappbackend.utils.Constants.*;
 @Service
 @AllArgsConstructor
 public class AuthService {
+
     private final AppUserRepository appUserRepository;
 
     private final PasswordEncoder passwordEncoder;

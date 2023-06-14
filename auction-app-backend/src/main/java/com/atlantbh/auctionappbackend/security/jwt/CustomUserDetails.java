@@ -12,12 +12,16 @@ import java.util.Collection;
 @Getter
 @Setter
 public class CustomUserDetails implements UserDetails {
-    private String email;
-    private String password;
-    private String firstName;
-    private String lastName;
-    private Collection<? extends GrantedAuthority> authorities;
 
+    private String email;
+
+    private String password;
+
+    private String firstName;
+
+    private String lastName;
+
+    private Collection<? extends GrantedAuthority> authorities;
 
     public String getEmail() {
         return email;
@@ -26,7 +30,6 @@ public class CustomUserDetails implements UserDetails {
     public String getFirstName() {
         return firstName;
     }
-
 
     public String getLastName() {
         return lastName;

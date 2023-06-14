@@ -18,6 +18,10 @@ public final class Constants {
             "/api/v1/products/items/app-user",
             "/api/v1/products/add-item",
             "/api/v1/app-user/by-email",
+            "/api/v1/auth/logout",
+            "/api/v1/payments",
+            "/api/v1/products/recommended",
+            "/api/v1/products/upload-csv-file"
     };
 
     public static final String S3_KEY_PREFIX = "product-images/";

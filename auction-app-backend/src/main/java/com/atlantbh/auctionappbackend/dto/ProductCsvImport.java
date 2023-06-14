@@ -1,23 +1,21 @@
 package com.atlantbh.auctionappbackend.dto;
 
-import com.atlantbh.auctionappbackend.utils.FloatConverter;
-import com.atlantbh.auctionappbackend.utils.ZonedDateTimeConverter;
 import com.opencsv.bean.CsvBindAndSplitByName;
 import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvCustomBindByName;
 import com.opencsv.bean.validators.MustMatchRegexExpression;
 import com.opencsv.bean.validators.PreAssignmentValidator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @Builder
+@NoArgsConstructor
 public class ProductCsvImport {
 
     @CsvBindByName(column = "Product Name")
@@ -32,14 +30,14 @@ public class ProductCsvImport {
     @CsvBindByName( column = "Subcategory Name")
     private String subcategoryName;
 
-    @CsvCustomBindByName(converter = FloatConverter.class, column = "Start Price")
-    private Float startPrice;
+    @CsvBindByName( column = "Start Price")
+    private String startPrice;
 
-    @CsvCustomBindByName(converter = ZonedDateTimeConverter.class, column = "Start Date")
-    private ZonedDateTime startDate;
+    @CsvBindByName( column = "Start Date")
+    private String startDate;
 
-    @CsvCustomBindByName(converter = ZonedDateTimeConverter.class, column = "End Date")
-    private ZonedDateTime endDate;
+    @CsvBindByName(column = "End Date")
+    private String endDate;
 
     @CsvBindByName(column = "Address")
     private String address;
@@ -47,6 +45,7 @@ public class ProductCsvImport {
     @CsvBindByName(column = "City")
     private String city;
 
+    @PreAssignmentValidator(validator = MustMatchRegexExpression.class, paramString = "^\\d{6}$")
     @CsvBindByName(column = "Zip Code")
     private String zipCode;
 

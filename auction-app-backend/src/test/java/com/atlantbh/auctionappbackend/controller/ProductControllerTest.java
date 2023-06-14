@@ -2,6 +2,7 @@ package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.model.Category;
+import com.atlantbh.auctionappbackend.model.ShippingInfo;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.HighlightedProductResponse;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
@@ -17,21 +18,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import javax.servlet.http.HttpServletRequest;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
 import java.io.Reader;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -42,14 +36,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ProductControllerTest {
+class ProductControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,7 +57,7 @@ public class ProductControllerTest {
     private ProductService productService;
 
     @Test
-    public void testGetSuggestions_ShouldReturnSuggestions() throws Exception {
+    void testGetSuggestions_ShouldReturnSuggestions() throws Exception {
         String query = "Bear";
         String bestSuggestion = "Bear chain";
         when(productService.getSuggestion(query))
@@ -75,7 +71,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void testGetAllItemsAsProducts_ShouldReturnSortedProducts() throws Exception {
+    void testGetAllItemsAsProducts_ShouldReturnSortedProducts() throws Exception {
         ProductsResponse product1 = new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L);
         ProductsResponse product2 = new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L);
 
@@ -110,10 +106,10 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void testGetProductById_ReturnsAProductById() throws Exception {
-
+    void testGetProductById_ReturnsAProductById() throws Exception {
         SingleProductResponse product = SingleProductResponse.builder()
                 .id(1L)
+                .userId(2L)
                 .productName("Shoes Collection")
                 .description("New shoes collection")
                 .startPrice(10.00f)
@@ -125,13 +121,13 @@ public class ProductControllerTest {
                 .isOwner(false)
                 .build();
 
-        when(productService.getProductById(eq(product.getId()))).thenReturn(product);
+        when(productService.getProductById(eq(product.getId()), any(HttpServletRequest.class))).thenReturn(product);
 
-
-        mockMvc.perform(get("/api/v1/products/{id}", product.getId())
+        mockMvc.perform(get("/api/v1/products/{productId}", product.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(product.getId()))
+                .andExpect(jsonPath("$.userId").value(product.getUserId()))
                 .andExpect(jsonPath("$.productName").value(product.getProductName()))
                 .andExpect(jsonPath("$.description").value(product.getDescription()))
                 .andExpect(jsonPath("$.startPrice").value(product.getStartPrice()))
@@ -141,11 +137,12 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.numberOfBids").value(product.getNumberOfBids()))
                 .andExpect(jsonPath("$.highestBid").value(product.getHighestBid()))
                 .andExpect(jsonPath("$.owner").value(product.isOwner()))
+                .andExpect(jsonPath("$.userHighestBidder").value(product.isUserHighestBidder()))
                 .andReturn();
     }
 
     @Test
-    public void testGetProductsNewArrivals_ReturnsNewestProducts() throws Exception {
+    void testGetProductsNewArrivals_ReturnsNewestProducts() throws Exception {
         ProductsResponse product1 = new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L);
         ProductsResponse product2 = new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L);
 
@@ -174,7 +171,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void testGetProductsLastChance_ReturnsLastChanceProducts() throws Exception {
+    void testGetProductsLastChance_ReturnsLastChanceProducts() throws Exception {
 
         ProductsResponse product1 = new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L);
         ProductsResponse product2 = new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L);
@@ -204,7 +201,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void testGetAllProducts_ReturnsAllProducts() throws Exception {
+    void testGetAllProducts_ReturnsAllProducts() throws Exception {
 
         Category category = new Category();
         category.setId(1L);
@@ -250,22 +247,21 @@ public class ProductControllerTest {
 
     @Test
     @WithMockUser
-    public void testAddNewItem_ShouldReturnCreated() throws Exception {
-        NewProductRequest productRequest = new NewProductRequest();
-        productRequest.setProductName("SWAROVSKI Kris Bear-Forget-me-not, Clear");
-        productRequest.setDescription("Great gifts, Swarovski figurines, Package Dimensions: 6.858 L x 9.652 H x 9.652 W (centimeters)");
-        productRequest.setCategoryId(String.valueOf(2L));
-        productRequest.setSubcategoryId(String.valueOf(3L));
-        productRequest.setStartPrice(String.valueOf(79.99f));
-        ZonedDateTime startDate = ZonedDateTime.now();
-        ZonedDateTime endDate = startDate.plusDays(30);
-        productRequest.setStartDate(startDate);
-        productRequest.setEndDate(endDate);
-        productRequest.setAddress("Example Street, 123");
-        productRequest.setCity("Example City");
-        productRequest.setZipCode("12345");
-        productRequest.setCountry("Example Country");
-        productRequest.setPhone("+1234567890");
+    void testAddNewItem_ShouldReturnCreated() throws Exception {
+
+        NewProductRequest productRequest = NewProductRequest.builder()
+                .productName("SWAROVSKI Kris Bear-Forget-me-not, Clear")
+                .description("Great gifts, Swarovski figurines, Package Dimensions: 6.858 L x 9.652 H x 9.652 W (centimeters)")
+                .categoryId(2L)
+                .subcategoryId(3L)
+                .startPrice(79.99f)
+                .startDate(ZonedDateTime.now())
+                .endDate(ZonedDateTime.now().plusDays(30))
+                .address("Example Street, 123")
+                .city("Example City")
+                .phone("+1234567890")
+                .zipCode("12345")
+                .build();
 
 
         List<MultipartFile> images = new ArrayList<>();
@@ -287,11 +283,12 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void testUploadCSVFile_ShouldReturnCreated() throws Exception {
+    @WithMockUser
+    void testUploadCSVFile_ShouldReturnCreated() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.csv", "text/csv", "content".getBytes());
 
-        doNothing().when(productService).processCsvFileToCreateProducts(any(Reader.class));
+        doNothing().when(productService).processCsvFileToCreateProducts(any(Reader.class), any(HttpServletRequest.class));
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/products/upload-csv-file")
                         .file(file)

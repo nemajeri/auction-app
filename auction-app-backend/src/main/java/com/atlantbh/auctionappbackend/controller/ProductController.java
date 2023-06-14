@@ -1,7 +1,6 @@
 package com.atlantbh.auctionappbackend.controller;
 
 import com.atlantbh.auctionappbackend.enums.SortBy;
-import com.atlantbh.auctionappbackend.exception.CategoryNotFoundException;
 import com.atlantbh.auctionappbackend.exception.UnprocessableCSVFileException;
 import com.atlantbh.auctionappbackend.request.NewProductRequest;
 import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
@@ -19,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,18 +52,13 @@ public class ProductController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(defaultValue = "DEFAULT_SORTING", required = false) String sort)  {
 
-        try {
-            Page<ProductsResponse> productsList;
-            productsList = productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId, SortBy.fromName(sort));
-            return ResponseEntity.ok(productsList);
-        } catch (CategoryNotFoundException e) {
-            return ResponseEntity.status(BAD_REQUEST).body(null);
-        }
+        Page<ProductsResponse> productsList = productService.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId, SortBy.fromName(sort));
+        return ResponseEntity.ok(productsList);
     }
 
     @GetMapping("/recommended")
-    public ResponseEntity<List<ProductsResponse>> getRecommendedProducts(@RequestParam("userId") Long userId) {
-        List<ProductsResponse> recommendedProducts = productService.getRecommendedProducts(userId);
+    public ResponseEntity<List<ProductsResponse>> getRecommendedProducts(HttpServletRequest request) {
+        List<ProductsResponse> recommendedProducts = productService.getRecommendedProducts(request);
         return new ResponseEntity<>(recommendedProducts, HttpStatus.OK);
     }
 
@@ -79,19 +72,19 @@ public class ProductController {
     }
 
     @PostMapping(path = "/add-item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
+    public ResponseEntity<String> addNewItem(@RequestPart("productDetails") @Valid NewProductRequest request,
                                            @RequestPart("images") List<MultipartFile> images,
                                            BindingResult bindingResult,
                                            HttpServletRequest httpServletRequest) {
         List<String> allowedContentTypes = List.of("image/jpeg", "image/png", "image/jpg");
 
         if (!images.stream().allMatch(image -> allowedContentTypes.contains(image.getContentType()))) {
-            return new ResponseEntity<>(NOT_ACCEPTABLE);
+            return ResponseEntity.status(NOT_ACCEPTABLE).body("All images should be of a valid format");
         }
 
         if (bindingResult.hasErrors()) {
             log.error("Product creation failed with errors: {}", bindingResult.getAllErrors() );
-            return ResponseEntity.status(BAD_REQUEST).build();
+            return new ResponseEntity<>(BAD_REQUEST);
         }
         try {
             productService.createProduct(request, images, httpServletRequest);
@@ -103,28 +96,24 @@ public class ProductController {
     }
 
     @PostMapping("/upload-csv-file")
-    public ResponseEntity<Void> uploadCSVFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadCSVFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         String contentType = file.getContentType();
         if (file.isEmpty() || contentType == null || !contentType.equalsIgnoreCase("text/csv")) {
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            return ResponseEntity.status(NOT_ACCEPTABLE).body("File not accepted");
         } else {
             try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-                productService.processCsvFileToCreateProducts(reader);
+                productService.processCsvFileToCreateProducts(reader, request);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } catch (Exception ex) {
-                log.error("Error processing CSV file: ", ex);
-                throw new UnprocessableCSVFileException("Error processing the uploaded CSV file. Please ensure the file is in the correct format and try again.");
+                log.error("Error while parsing CSV file: ", ex);
+                throw new UnprocessableCSVFileException( ex.getMessage());
             }
         }
     }
 
     @GetMapping(path = "/{productId}")
-    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId) {
-        try {
-            return ResponseEntity.ok(productService.getProductById(productId));
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<SingleProductResponse> getProductById(@PathVariable("productId") Long productId, HttpServletRequest request) {
+        return ResponseEntity.ok(productService.getProductById(productId, request));
     }
 
     @GetMapping("/filtered-products")

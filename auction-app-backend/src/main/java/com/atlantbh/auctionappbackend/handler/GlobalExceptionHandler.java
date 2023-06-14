@@ -58,7 +58,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UnprocessableCSVFileException.class)
     public ResponseEntity<ErrorResponse> handleUnprocessableCSVFileException(UnprocessableCSVFileException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("CANT_READ_CSV_FILE", ex.getMessage());
+        String[] errorMessage = ex.getMessage().split("\\.", 2);
+        ErrorResponse errorResponse = new ErrorResponse("CANT_READ_CSV_FILE", errorMessage[0]);
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
     }
 

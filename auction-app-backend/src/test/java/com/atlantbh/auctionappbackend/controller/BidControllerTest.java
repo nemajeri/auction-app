@@ -13,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,25 +38,25 @@ class BidControllerTest {
     BidService bidService;
 
     @Test
-    public void createBid_ReturnCreatedResponse() throws Exception {
+    void createBid_ReturnCreatedResponse() throws Exception {
         BidRequest bidRequest = new BidRequest(2L, 50.00f);
 
-        doNothing().when(bidService).createBid(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()));
+        doNothing().when(bidService).createBidAndPublishToQueue(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()), any(HttpServletRequest.class));
 
         mockMvc.perform(post("/api/v1/bid/create-bid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(bidRequest).getBytes()))
                 .andExpect(status().isCreated());
 
-        verify(bidService, times(1)).createBid(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()));
+        verify(bidService, times(1)).createBidAndPublishToQueue(eq(bidRequest.getProductId()), eq(bidRequest.getAmount()), any(HttpServletRequest.class));
     }
 
     @Test
-    public void retrieveAllBidsForUser_ReturnsAllBidsByUser() throws Exception {
+    void retrieveAllBidsForUser_ReturnsAllBidsByUser() throws Exception {
         Long userId = 2L;
         List<AppUserBidsResponse> bids = new ArrayList<>();
 
-        when(bidService.getBidsForAppUser(userId)).thenReturn(bids);
+        when(bidService.getBidsForAppUser(any(HttpServletRequest.class))).thenReturn(bids);
 
         mockMvc.perform(get("/api/v1/bid/app-user")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -63,6 +64,6 @@ class BidControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(bids)));
 
-        verify(bidService, times(1)).getBidsForAppUser(eq(userId));
+        verify(bidService, times(1)).getBidsForAppUser(any(HttpServletRequest.class));
     }
 }

@@ -14,7 +14,8 @@ import java.util.UUID;
 public class NotificationResponse implements Serializable {
 
     private UUID id;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "UTC")
     private ZonedDateTime date;
 
     private NotificationType type;

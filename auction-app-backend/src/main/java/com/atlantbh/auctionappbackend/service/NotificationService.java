@@ -6,7 +6,7 @@ import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
-import com.atlantbh.auctionappbackend.request.UserMaxBidRequest;
+import com.atlantbh.auctionappbackend.dto.UserMaxBidRecord;
 import com.atlantbh.auctionappbackend.response.NotificationResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -44,7 +44,7 @@ public class NotificationService {
         PageRequest pageable = PageRequest.of(0, 1);
 
         products.forEach(product -> {
-            List<UserMaxBidRequest> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(product.getId(), pageable);
+            List<UserMaxBidRecord> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(product.getId(), pageable);
 
             if (!userWithHighestBid.isEmpty()) {
                 AppUser highestBidder = appUserRepository.getById(userWithHighestBid.get(0).getUserId());

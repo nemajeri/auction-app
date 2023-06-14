@@ -45,7 +45,7 @@ const LandingPage = () => {
     (async () => {
       if (user) {
         try {
-          const response = await getRecommendedProducts(user.id);
+          const response = await getRecommendedProducts();
           setRecommendedProducts(response);
         } catch (error) {
           console.error('Error fetching recommended products:', error);

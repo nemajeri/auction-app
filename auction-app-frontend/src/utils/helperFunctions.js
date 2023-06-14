@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import { AUCTION_ENDED, COOKIE_NAME } from './constants';
-import moment from 'moment/moment';
+import moment from 'moment-timezone';
 import * as Paths from '../utils/paths';
 
 export const getTotalPages = (products, size) => {
@@ -8,8 +8,11 @@ export const getTotalPages = (products, size) => {
 };
 
 export const calculateTimeLeft = (product) => {
-  const currentDate = moment.utc();
-  const endDate = moment.utc(product.endDate);
+  const userTimezone = moment.tz.guess();
+  const currentDate = moment.tz(userTimezone);
+
+  const productEndDate = product.endDate;
+  const endDate = moment.tz(productEndDate, "UTC").tz(userTimezone); 
 
   const differenceInDays = endDate.diff(currentDate, 'days');
   const differenceInWeeks = Math.floor(differenceInDays / 7);

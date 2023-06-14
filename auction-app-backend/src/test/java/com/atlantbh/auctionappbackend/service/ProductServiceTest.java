@@ -1,137 +1,482 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.enums.SortBy;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
-import com.atlantbh.auctionappbackend.model.AppUser;
-import com.atlantbh.auctionappbackend.model.Category;
-import com.atlantbh.auctionappbackend.model.Product;
-import com.atlantbh.auctionappbackend.repository.ProductRepository;
+import com.atlantbh.auctionappbackend.model.*;
+import com.atlantbh.auctionappbackend.repository.*;
+import com.atlantbh.auctionappbackend.request.NewProductRequest;
+import com.atlantbh.auctionappbackend.dto.ProductCsvImport;
+import com.atlantbh.auctionappbackend.dto.UserMaxBidRecord;
+import com.atlantbh.auctionappbackend.response.AppUserProductsResponse;
 import com.atlantbh.auctionappbackend.response.ProductsResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
+import com.atlantbh.auctionappbackend.utils.CsvToBeanParser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.Reader;
+import java.io.StringReader;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.atlantbh.auctionappbackend.utils.Constants.S3_KEY_PREFIX;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ProductServiceTest {
+class ProductServiceTest {
 
-    @Mock
-    TokenService tokenService;
-
+    @Captor
+    ArgumentCaptor<Product> productCaptor;
+    @Captor
+    ArgumentCaptor<String> stringCaptor;
+    @Captor
+    ArgumentCaptor<MultipartFile> fileCaptor;
     @Mock
     private ProductRepository productRepository;
-
     @Mock
-    private PasswordEncoder passwordEncoder;
-
+    private BidRepository bidRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
+    @Mock
+    private SubcategoryRepository subcategoryRepository;
+    @Mock
+    private ImageRepository imageRepository;
+    @Mock
+    private S3Service s3Service;
+    @Mock
+    private TokenService tokenService;
+    @Mock
+    private RestTemplate restTemplate;
+    @Mock
+    private CsvToBeanParser productCsvParser;
     @InjectMocks
     private ProductService underTest;
 
     @Test
     @DisplayName("Test should return filtered products")
-    void testGetAllFilteredProducts() {
+    void testGetAllFilteredProducts_ShouldReturnFilteredProducts() {
         List<Product> products = new ArrayList<>();
-        Category category1 = new Category(1L, "Women");
-        String encodedPassword = passwordEncoder.encode("12345");
-        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword, null, null, null, null, null);
+        Category category1 = new Category(2L, "Shoes");
+        Subcategory subcategory1 = new Subcategory(3L, "Sport Shoes", 4, category1);
+        AppUser appUser = new AppUser();
 
+        products.add(
+                Product.builder().id(1L)
+                        .productName("Shoes Collection")
+                        .description("New shoes collection")
+                        .startPrice(59.99f)
+                        .images(Collections.singletonList(
+                                Image.builder()
+                                        .id(1L)
+                                        .imageUrl("./images/shoe-1.jpg")
+                                        .build()
+                        ))
+                        .startDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")))
+                        .endDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")).plusDays(10))
+                        .isHighlighted(false)
+                        .category(category1)
+                        .subcategory(subcategory1)
+                        .user(appUser)
+                        .info(new ShippingInfo("123 Paris Street", "Paris", "75000", "France", "+1134567890"))
+                        .sold(false)
+                        .build()
+        );
 
-        products.add(new Product(7L, "Example Product 6", "A example product", 79.99f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, null, appUser, null, null, null, null, null));
-        products.add(new Product(9L, "Example Product 8", "A example product", 99.99f, Collections.singletonList("/images/shoe-2.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, null, appUser, null, null, null, null, null));
-
-
+        products.add(
+                Product.builder()
+                        .id(2L)
+                        .productName("Shoes Collection")
+                        .description("New shoes collection")
+                        .startPrice(59.99f)
+                        .images(Collections.singletonList(
+                                Image.builder()
+                                        .id(2L)
+                                        .imageUrl("./images/shoe-1.jpg")
+                                        .build()
+                        ))
+                        .startDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")))
+                        .endDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")).plusDays(10))
+                        .isHighlighted(false)
+                        .category(category1)
+                        .subcategory(subcategory1)
+                        .user(appUser)
+                        .info(new ShippingInfo("456 Paris Street", "Paris", "75001", "France", "+1187654321"))
+                        .sold(false)
+                        .build()
+        );
         int pageNumber = 0;
         int pageSize = 9;
         String searchTerm = "";
-        Long categoryId = 1L;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Long categoryId = 2L;
+        SortBy sortBy = SortBy.DEFAULT_SORTING;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.unsorted());
 
-        Mockito.when(productRepository.findAll(ArgumentMatchers.<Specification<Product>>any(), ArgumentMatchers.<Pageable>any())).thenReturn(new PageImpl<>(products, pageable, 1));
+        when(productRepository.findAll(ArgumentMatchers.<Specification<Product>>any(), ArgumentMatchers.<Pageable>any())).thenReturn(new PageImpl<>(products, pageable, 1));
 
         List<ProductsResponse> expectedProductsResponses = new ArrayList<>();
-        expectedProductsResponses.add(new ProductsResponse(7L, "Example Product 6", 79.99f, "/images/shoe-4.jpg", 1L));
-        expectedProductsResponses.add(new ProductsResponse(9L, "Example Product 8", 99.99f, "/images/shoe-2.jpg", 1L));
+        expectedProductsResponses.add(new ProductsResponse(1L, "Shoes Collection", 59.99f, "./images/shoe-1.jpg", category1.getId()));
+        expectedProductsResponses.add(new ProductsResponse(2L, "Shoes Collection", 59.99f, "./images/shoe-1.jpg", category1.getId()));
 
         Page<ProductsResponse> expectedProductsResponsePage = new PageImpl<>(expectedProductsResponses, pageable, 1);
 
-        Page<ProductsResponse> actualProductsResponsePage = underTest.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId);
+        Page<ProductsResponse> actualProductsResponsePage = underTest.getAllFilteredProducts(pageNumber, pageSize, searchTerm, categoryId, sortBy);
 
-        assertEquals(expectedProductsResponsePage, actualProductsResponsePage);
+        assertEquals(expectedProductsResponsePage.getContent(), actualProductsResponsePage.getContent());
+    }
+
+    @Test
+    @DisplayName("Test should return sold products for user")
+    void testProductRetrievalForUserByType_ShouldReturnSoldProductsRelatedToUser() {
+        Long userId = 1L;
+
+        Category category1 = new Category(2L, "Shoes");
+        AppUser appUser = new AppUser();
+        appUser.setId(userId);
+        Product product1 = Product.builder()
+                .id(1L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(59.99f)
+                .images(Collections.singletonList(
+                        Image.builder()
+                                .id(1L)
+                                .imageUrl("./images/shoe-1.jpg")
+                                .build()
+                ))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC))
+                .endDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10))
+                .isHighlighted(false)
+                .category(category1)
+                .user(appUser)
+                .info(new ShippingInfo("123 Paris Street", "Paris", "75000", "France", "+1134567890"))
+                .sold(false)
+                .build();
+
+        Product product2 = Product.builder()
+                .id(1L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(69.99f)
+                .images(Collections.singletonList(
+                        Image.builder()
+                                .id(1L)
+                                .imageUrl("./images/shoe-1.jpg")
+                                .build()
+                ))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC))
+                .endDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10))
+                .isHighlighted(false)
+                .category(category1)
+                .user(appUser)
+                .info(new ShippingInfo("123 Tierra del Fuego", "Ushuaia", "86000", "Argentina", "+1756195793"))
+                .sold(false)
+                .build();
+        SortBy sort = SortBy.SOLD;
+
+        when(productRepository.findAllByUserIdAndEndDateBeforeAndSoldIsTrue(eq(userId), any(ZonedDateTime.class), eq(Sort.by(Sort.Direction.DESC, SortBy.END_DATE.getSort())))).thenReturn(List.of(product1, product2));
+
+        List<AppUserProductsResponse> actualProducts = underTest.retrieveUserProductsByType(userId, sort);
+
+        List<AppUserProductsResponse> expectedProducts = List.of(
+                new AppUserProductsResponse(product1.getId(), product1.getProductName(), product1.getStartPrice(), product1.getImages().get(0).getImageUrl(), product1.getEndDate(), product1.getNumberOfBids(), product1.getHighestBid()),
+                new AppUserProductsResponse(product2.getId(), product2.getProductName(), product2.getStartPrice(), product2.getImages().get(0).getImageUrl(), product2.getEndDate(), product2.getNumberOfBids(), product2.getHighestBid())
+        );
+
+        assertEquals(expectedProducts, actualProducts);
+
+        verify(productRepository, times(1)).findAllByUserIdAndEndDateBeforeAndSoldIsTrue(eq(userId), any(ZonedDateTime.class), eq(Sort.by(Sort.Direction.DESC, SortBy.END_DATE.getSort())));
+        verify(productRepository, never()).findAllByUserIdAndEndDateAfterAndSoldIsFalse(anyLong(), any(ZonedDateTime.class), any(Sort.class));
+    }
+
+    @Test
+    @DisplayName("Test should return products that are not sold for user")
+    void testProductRetrievalForUserByType_ShouldReturnProductsThatAreNotSoldButAreRelatedToUser() {
+        Long userId = 1L;
+
+        Category category1 = new Category(2L, "Shoes");
+        AppUser appUser = new AppUser();
+        Product product1 = Product.builder()
+                .id(1L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(59.99f)
+                .images(Collections.singletonList(
+                        Image.builder()
+                                .id(1L)
+                                .imageUrl("./images/shoe-1.jpg")
+                                .build()
+                ))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC))
+                .endDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10))
+                .isHighlighted(false)
+                .category(category1)
+                .user(appUser)
+                .info(new ShippingInfo("123 Paris Street", "Paris", "75000", "France", "+1134567890"))
+                .sold(false)
+                .build();
+
+        Product product2 = Product.builder()
+                .id(1L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(69.99f)
+                .images(Collections.singletonList(
+                        Image.builder()
+                                .id(1L)
+                                .imageUrl("./images/shoe-1.jpg")
+                                .build()
+                ))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC))
+                .endDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10))
+                .isHighlighted(false)
+                .category(category1)
+                .user(appUser)
+                .info(new ShippingInfo("123 Tierra del Fuego", "Ushuaia", "86000", "Argentina", "+1756195793"))
+                .sold(false)
+                .build();
+        SortBy sort = SortBy.ACTIVE;
+
+        when(productRepository.findAllByUserIdAndEndDateAfterAndSoldIsFalse(eq(userId), any(ZonedDateTime.class), eq(Sort.by(Sort.Direction.DESC, SortBy.START_DATE.getSort())))).thenReturn(List.of(product1, product2));
+
+        List<AppUserProductsResponse> actualProducts = underTest.retrieveUserProductsByType(userId, sort);
+
+        List<AppUserProductsResponse> expectedProducts = List.of(
+                new AppUserProductsResponse(product1.getId(), product1.getProductName(), product1.getStartPrice(), product1.getImages().get(0).getImageUrl(), product1.getEndDate(), product1.getNumberOfBids(), product1.getHighestBid()),
+                new AppUserProductsResponse(product2.getId(), product2.getProductName(), product2.getStartPrice(), product2.getImages().get(0).getImageUrl(), product2.getEndDate(), product2.getNumberOfBids(), product2.getHighestBid())
+        );
+
+        assertEquals(expectedProducts, actualProducts);
+
+        verify(productRepository, times(1)).findAllByUserIdAndEndDateAfterAndSoldIsFalse(eq(userId), any(ZonedDateTime.class), eq(Sort.by(Sort.Direction.DESC, SortBy.START_DATE.getSort())));
+        verify(productRepository, never()).findAllByUserIdAndEndDateBeforeAndSoldIsTrue(anyLong(), any(ZonedDateTime.class), any(Sort.class));
     }
 
 
     @Test
-    @DisplayName("Test should return a product with the given Id")
+    @DisplayName("Test should return recommended products for a user")
+    void testGetRecommendedProducts_ReturnsAllRecommendedProducts() {
+
+        Long userId = 1L;
+
+        Category category1 = new Category(2L, "Shoes");
+        AppUser appUser = new AppUser();
+        appUser.setId(userId);
+
+        HttpServletRequest httpServletRequest = new MockHttpServletRequest();
+
+        Product product1 = Product.builder()
+                .id(1L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(59.99f)
+                .images(Collections.singletonList(
+                        Image.builder()
+                                .id(1L)
+                                .imageUrl("./images/shoe-1.jpg")
+                                .build()
+                ))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC))
+                .endDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10))
+                .isHighlighted(false)
+                .category(category1)
+                .user(appUser)
+                .info(new ShippingInfo("123 Paris Street", "Paris", "75000", "France", "+1134567890"))
+                .sold(false)
+                .build();
+        when(tokenService.getAuthenticatedUser(httpServletRequest)).thenReturn(appUser);
+        when(productRepository.findRecommendedProducts(userId, PageRequest.of(0, 3))).thenReturn(new PageImpl<>(List.of(product1), PageRequest.of(0, 3), 1));
+
+        List<ProductsResponse> actualProducts = underTest.getRecommendedProducts(httpServletRequest);
+
+        List<ProductsResponse> expectedProducts = List.of(new ProductsResponse(product1.getId(), product1.getProductName(), product1.getStartPrice(), product1.getImages().get(0).getImageUrl(), product1.getCategory().getId()));
+
+        assertEquals(expectedProducts, actualProducts);
+
+        verify(productRepository, times(1)).findRecommendedProducts(userId, PageRequest.of(0, 3));
+        verify(productRepository, never()).findFirstActiveProducts(PageRequest.of(0, 3));
+    }
+
+
+    @Test
+    @DisplayName("Test should return a product with the given Id and User Id")
     void testGetProductById_ReturnsProduct() throws ProductNotFoundException {
         Long id = 1L;
+        Long userId = 2L;
 
-        Category category2 = new Category(2L, "Men");
-        String encodedPassword = passwordEncoder.encode("12345");
-        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword, null, null, null, null, null);
+        HttpServletRequest request = mock(HttpServletRequest.class);
 
+        AppUser appUser = new AppUser();
+        appUser.setId(userId);
+        appUser.setEmail("testuser@gmail.com");
 
-        Product product = new Product(id, "Shoes Collection", "New shoes collection", 10.00f, Collections.singletonList("/images/shoe-4.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 3, 23, 0, 0), 5, 25.00f, true, category2, null, appUser, null, null, null, null, null);
+        Product product = new Product();
+        product.setId(id);
+        product.setProductName("Shoes Collection");
+        product.setDescription("New shoes collection");
+        product.setStartPrice(10.00f);
+        product.setImages(Collections.singletonList(new Image(id, "/images/shoe-4.jpg", product)));
+        product.setStartDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")));
+        product.setEndDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")));
+        product.setNumberOfBids(5);
+        product.setHighestBid(25.00f);
+        product.setUser(appUser);
 
-        SingleProductResponse expectedProduct = new SingleProductResponse(
-                1L,
-                "Shoes Collection",
-                "New shoes collection",
-                10.00f,
-                Collections.singletonList("/images/shoe-4.jpg"),
-                LocalDateTime.of(2023, 3, 23, 0, 0),
-                LocalDateTime.of(2023, 3, 23, 0, 0),
-                5,
-                25.00f,
-                false
-        );
+        when(productRepository.findById(any(Long.class))).thenReturn(Optional.of(product));
+        when(tokenService.getAuthenticatedUser(any(HttpServletRequest.class))).thenReturn(appUser);
+        when(bidRepository.findHighestBidAndUserByProduct(any(Long.class), any(PageRequest.class)))
+                .thenReturn(Collections.emptyList());
 
-        String jwt = "jwt-token";
+        SingleProductResponse actualProduct = underTest.getProductById(id, request);
 
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(tokenService.getJwtFromCookie(any(HttpServletRequest.class))).thenReturn(jwt);
-        Mockito.when(tokenService.validateToken(jwt)).thenReturn(false);
+        SingleProductResponse expectedProduct = SingleProductResponse.builder()
+                .id(id)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(10.00f)
+                .images(Collections.singletonList("/images/shoe-4.jpg"))
+                .startDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")))
+                .endDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")))
+                .numberOfBids(5)
+                .highestBid(25.00f)
+                .userId(userId)
+                .isOwner(true)
+                .isUserHighestBidder(false)
+                .build();
 
-        SingleProductResponse actualProductDTO = underTest.getProductById(id, any(HttpServletRequest.class));
-
-        assertEquals(expectedProduct, actualProductDTO);
+        assertEquals(expectedProduct, actualProduct);
     }
+
+
 
     @Test
     @DisplayName("Test should return new arrival products")
-    void testGetNewProducts_ReturnsProductDTOList() {
-        List<Product> products = new ArrayList<>();
+    void testGetNewProducts_ReturnsProductPage() {
+        Category category = new Category(1L, "Shoes");
+        Subcategory subcategory = new Subcategory(1L, "Men", 5, category);
+        AppUser appUser = new AppUser();
 
-        Category category1 = new Category(1L, "Women");
-        String encodedPassword = passwordEncoder.encode("12345");
-        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword, null, null, null, null, null);
+        Product product1 = Product.builder()
+                .id(1L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(59.99f)
+                .images(Collections.singletonList(new Image(1L, "./images/shoe-1.jpg", null)))
+                .startDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")))
+                .endDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")).plusDays(10))
+                .numberOfBids(5)
+                .highestBid(59.99f)
+                .isHighlighted(false)
+                .category(category)
+                .subcategory(subcategory)
+                .user(appUser)
+                .info(new ShippingInfo("123 Paris Street", "Paris", "75000", "France", "+1134567890"))
+                .sold(false)
+                .build();
 
-        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, null, appUser, null, null, null, null, null));
-        products.add(new Product(2L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, null, appUser, null, null, null, null, null));
+        Product product2 = Product.builder()
+                .id(2L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(59.99f)
+                .images(Collections.singletonList(new Image(2L, "./images/shoe-1.jpg", null)))
+                .startDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")))
+                .endDate(ZonedDateTime.now(ZoneId.of("Europe/Paris")).plusDays(10))
+                .numberOfBids(5)
+                .highestBid(59.99f)
+                .isHighlighted(false)
+                .category(category)
+                .subcategory(subcategory)
+                .user(appUser)
+                .info(new ShippingInfo("456 Paris Street", "Paris", "75001", "France", "+1187654321"))
+                .sold(false)
+                .build();
+
+        List<Product> products = List.of(product1, product2);
+        Page<Product> productPage = new PageImpl<>(products);
+
+        List<ProductsResponse> expectedProductResponses = products.stream()
+                .map(p -> new ProductsResponse(p.getId(), p.getProductName(), p.getStartPrice(), p.getImages().get(0).getImageUrl(), p.getCategory().getId()))
+                .collect(Collectors.toList());
 
         int pageNumber = 0;
         int size = 2;
         Pageable pageable = PageRequest.of(pageNumber, size);
-        Mockito.when(productRepository.getNewArrivalsProducts(pageable)).thenReturn(new PageImpl<>(products));
+        when(productRepository.getNewArrivalsProducts(pageable)).thenReturn(productPage);
+
+        Page<ProductsResponse> productResponsePage = underTest.getNewProducts(pageNumber, size);
+
+        assertNotNull(productResponsePage);
+        assertEquals(expectedProductResponses, productResponsePage.getContent());
+    }
+
+
+    @Test
+    @DisplayName("Test should return new arrival products")
+    void testGetNewProducts_ReturnsProductList() {
+        List<Product> products = new ArrayList<>();
+        Category category = new Category(1L, "Shoes");
+        Subcategory subcategory = new Subcategory(1L, "Men", 5, category);
+        AppUser appUser = new AppUser();
+
+        products.add(Product.builder()
+                .id(1L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(59.99f)
+                .images(Collections.singletonList(new Image(1L, "./images/shoe-1.jpg", null)))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC))
+                .endDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10))
+                .numberOfBids(5)
+                .highestBid(59.99f)
+                .isHighlighted(false)
+                .category(category)
+                .subcategory(subcategory)
+                .user(appUser)
+                .info(new ShippingInfo("123 Paris Street", "Paris", "75000", "France", "+1134567890"))
+                .sold(false)
+                .build());
+
+        products.add(Product.builder()
+                .id(2L)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(59.99f)
+                .images(Collections.singletonList(new Image(2L, "./images/shoe-1.jpg", null)))
+                .startDate(ZonedDateTime.now(ZoneOffset.UTC))
+                .endDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10))
+                .numberOfBids(5)
+                .highestBid(59.99f)
+                .isHighlighted(false)
+                .category(category)
+                .subcategory(subcategory)
+                .user(appUser)
+                .info(new ShippingInfo("456 Paris Street", "Paris", "75001", "France", "+1187654321"))
+                .sold(false)
+                .build());
+
+        int pageNumber = 0;
+        int size = 2;
+        Pageable pageable = PageRequest.of(pageNumber, size);
+
+        when(productRepository.getNewArrivalsProducts(pageable)).thenReturn(new PageImpl<>(products));
 
         List<ProductsResponse> expectedProductResponses = new ArrayList<>();
         expectedProductResponses.add(new ProductsResponse(1L, "Shoes Collection", 59.99f, "./images/shoe-1.jpg", 1L));
@@ -143,56 +488,146 @@ public class ProductServiceTest {
         assertEquals(expectedProductResponses, actualProductResponses);
     }
 
-
     @Test
-    @DisplayName("Test should return last chance products")
-    void testGetLastProducts_ReturnsProductsResponsePage() {
-        List<Product> products = new ArrayList<>();
+    @DisplayName("Make new auction for the product")
+    void createProduct_ShouldSaveProduct() {
+        Long appUserId = 2L;
+        String userEmail = "testuser@gmail.com";
+        AppUser appUser = new AppUser();
+        appUser.setId(appUserId);
+        appUser.setEmail(userEmail);
 
-        Category category2 = new Category(2L, "Men");
-        String encodedPassword = passwordEncoder.encode("12345");
-        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword, null, null, null, null, null);
+        Category category = new Category(2L, "Shoe");
+        Subcategory subcategory = new Subcategory(3L, "Boots", 5, category);
 
-        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, true, category2, null, appUser, null, null, null, null , null));
-        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category2, null, appUser, null, null, null, null, null));
+        NewProductRequest request = NewProductRequest.builder()
+                .productName("Shoe Collection")
+                .description("New shoe collection in May")
+                .categoryId(category.getId())
+                .subcategoryId(subcategory.getId())
+                .startPrice(56.33f)
+                .startDate(ZonedDateTime.now())
+                .endDate(ZonedDateTime.now().plusDays(30))
+                .address("123 Manchester Street")
+                .city("Manchester")
+                .zipCode("1145645")
+                .country("United Kingdom")
+                .phone("+1174556834")
+                .build();
 
-        int pageNumber = 0;
-        int size = 2;
-        Pageable pageable = PageRequest.of(pageNumber, size);
-        Mockito.when(productRepository.getLastChanceProducts(pageable)).thenReturn(new PageImpl<>(products));
+        MockMultipartFile image1 = new MockMultipartFile(
+                "image",
+                "hello.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "Image content".getBytes());
 
-        List<ProductsResponse> expectedProductsResponses = new ArrayList<>();
-        expectedProductsResponses.add(new ProductsResponse(1L, "Shoes Collection", 59.99f, "./images/shoe-1.jpg", 2L));
-        expectedProductsResponses.add(new ProductsResponse(2L, "Shoes Collection", 39.99f, "./images/shoe-1.jpg", 2L));
+        MockMultipartFile image2 = new MockMultipartFile(
+                "image",
+                "world.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "Image content".getBytes());
 
-        Page<ProductsResponse> expectedProductDTOs = new PageImpl<>(expectedProductsResponses, pageable, 2);
+        List<MultipartFile> images = List.of(image1, image2);
 
-        Page<ProductsResponse> actualProductDTOs = underTest.getLastProducts(pageNumber, size);
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
-        assertEquals(expectedProductDTOs, actualProductDTOs);
+        when(tokenService.getAuthenticatedUser(httpServletRequest)).thenReturn(appUser);
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        when(subcategoryRepository.findById(subcategory.getId())).thenReturn(Optional.of(subcategory));
+
+
+        when(productRepository.save(any(Product.class))).thenAnswer(i -> {
+            Product p = (Product) i.getArguments()[0];
+            return p;
+        });
+
+        when(imageRepository.save(any(Image.class))).thenAnswer(i -> {
+            Image im = (Image) i.getArguments()[0];
+            im.setId(1L);
+            return im;
+        });
+
+        underTest.createProduct(request, images, httpServletRequest);
+
+        productCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).save(productCaptor.capture());
+        Product savedProduct = productCaptor.getValue();
+
+        verify(imageRepository, times(images.size())).save(any(Image.class));
+
+        assertThat(savedProduct.getProductName()).isEqualTo(request.getProductName());
+        assertThat(savedProduct.getDescription()).isEqualTo(request.getDescription());
+        assertThat(savedProduct.getStartPrice()).isEqualTo(request.getStartPrice());
+        assertThat(savedProduct.getStartDate()).isEqualTo(request.getStartDate());
+        assertThat(savedProduct.getEndDate()).isEqualTo(request.getEndDate());
+        assertThat(savedProduct.getInfo().getAddress()).isEqualTo(request.getAddress());
+        assertThat(savedProduct.getInfo().getCity()).isEqualTo(request.getCity());
+        assertThat(savedProduct.getInfo().getZipCode()).isEqualTo(request.getZipCode());
+        assertThat(savedProduct.getInfo().getCountry()).isEqualTo(request.getCountry());
+        assertThat(savedProduct.getInfo().getPhone()).isEqualTo(request.getPhone());
+        assertThat(savedProduct.getUser()).isEqualTo(appUser);
+
+        fileCaptor = ArgumentCaptor.forClass(MultipartFile.class);
+        stringCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(s3Service, times(images.size())).uploadFile(fileCaptor.capture(), stringCaptor.capture());
+
+        List<MultipartFile> capturedFiles = fileCaptor.getAllValues();
+        List<String> capturedStrings = stringCaptor.getAllValues();
+
+        for (int i = 0; i < images.size(); i++) {
+            assertThat(capturedFiles.get(i)).isEqualTo(images.get(i));
+            assertThat(capturedStrings.get(i)).startsWith(S3_KEY_PREFIX + savedProduct.getId() + "/");
+        }
     }
 
-
     @Test
-    @DisplayName("Test should return all products")
-    void testGetAllProducts_ReturnsProductDTOList() {
-        List<Product> products = new ArrayList<>();
+    void processCsvFileToCreateProducts_ValidInput_ProcessesCorrectly() throws Exception {
+        Reader reader = new StringReader("Csv input");
+        HttpServletRequest request = mock(HttpServletRequest.class);
 
-        Category category1 = new Category(1L, "Women");
-        String encodedPassword = passwordEncoder.encode("12345");
-        AppUser appUser = new AppUser(1L, "Nemanja", "Jerinic", "nemanja.jerinic99@gmail.com", encodedPassword, null, null, null, null, null);
+        AppUser user = new AppUser();
+        user.setId(1L);
 
-        products.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, true, category1, null, appUser, null, null, null, null , null));
-        products.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, null, appUser, null, null, null, null, null));
-        Mockito.when(productRepository.findAll()).thenReturn(products);
+        ProductCsvImport productCsvImport = ProductCsvImport.builder()
+                .productName("Shoe Collection")
+                .description("New shoes collection")
+                .categoryName("Shoes")
+                .subcategoryName("Men")
+                .startPrice(String.valueOf(1000.00f))
+                .startDate(String.valueOf(ZonedDateTime.now()))
+                .endDate(String.valueOf(ZonedDateTime.now().plusDays(10)))
+                .address("123 New Atlantic")
+                .city("New Orleans")
+                .zipCode("71856")
+                .country("US")
+                .phone("+78345438914")
+                .images(Arrays.asList("image1.png", "image2.png", "image3.png"))
+                .build();
 
-        List<Product> expectedProducts = new ArrayList<>();
-        expectedProducts.add(new Product(1L, "Shoes Collection", "New product description", 59.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 35.00f, true, category1, null, appUser, null, null, null, null , null));
-        expectedProducts.add(new Product(2L, "Shoes Collection", "New product description", 39.99f, Collections.singletonList("./images/shoe-1.jpg"), LocalDateTime.of(2023, 3, 23, 0, 0), LocalDateTime.of(2023, 4, 15, 0, 0), 5, 25.00f, false, category1, null, appUser, null, null, null, null, null));
+        List<ProductCsvImport> productsFromCsvFile = List.of(productCsvImport);
+        Category category = new Category();
+        Subcategory subcategory = new Subcategory();
+        byte[] imageBytes = "image bytes".getBytes();
+        String s3Url = "http://s3Url";
 
-        List<Product> actualProducts = underTest.getAllProducts();
+        when(tokenService.getAuthenticatedUser(request)).thenReturn(user);
+        when(productCsvParser.parse(any(Reader.class), eq(ProductCsvImport.class))).thenReturn(productsFromCsvFile);
+        when(categoryRepository.findByCategoryName(any())).thenReturn(Optional.of(category));
+        when(subcategoryRepository.findBysubCategoryName(any())).thenReturn(Optional.of(subcategory));
+        when(restTemplate.getForObject(anyString(), eq(byte[].class))).thenReturn(imageBytes);
+        when(s3Service.uploadFile(any(), any())).thenReturn(s3Url);
+        when(productRepository.save(any(Product.class))).thenAnswer(i -> {
+            Product p = i.getArgument(0);
+            p.setId(1L);
+            return p;
+        });
 
-        assertEquals(expectedProducts, actualProducts);
+        underTest.processCsvFileToCreateProducts(reader, request);
+
+        verify(productRepository, times(2)).save(any());
     }
 
 }
+
+

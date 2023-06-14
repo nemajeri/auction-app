@@ -62,7 +62,6 @@ const ShopPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const { categoryId } = useParams();
-
   usePageLoading();
 
   useEffect(() => {
@@ -89,7 +88,6 @@ const ShopPage = () => {
         setCategories(response.data);
       } catch (error) {
         if (axios.isCancel(error)) {
-          console.error('Request cancelled:', error.message);
           return;
         } else {
           console.error('Error fetching categories: ' + error);
@@ -131,27 +129,10 @@ const ShopPage = () => {
         );
 
         const { content, totalElements } = productsResponse.data;
-
-        if (!isOpening && category) {
-          if (searchedProducts) {
-            dispatch({
-              type: ACTIONS.SET_PRODUCTS,
-              payload: searchedProducts.content,
-            });
-          } else {
-            dispatch({ type: ACTIONS.SET_PRODUCTS, payload: [] });
-          }
-        } else {
-          if (searchedProducts) {
-            const filteredItems = searchedProducts.content.filter(
-              (product) => product.categoryId === categoryId
-            );
-            dispatch({ type: ACTIONS.SET_PRODUCTS, payload: filteredItems });
-          } else {
-            dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
-          }
+        if(searchedProducts) {
+          dispatch({ type: ACTIONS.SET_SEARCHED_PRODUCTS, payload: content });
         }
-
+        dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
         setProductsByCategories({ content, totalElements });
       } catch (error) {
         console.error(error);
@@ -260,15 +241,16 @@ const ShopPage = () => {
     dispatch({ type: ACTIONS.SET_SORT_OPTION, payload: chosenSortOption });
     try {
       const response = await getAllProducts(
-        pageNumber,
+        0,
         PAGE_SIZE,
         undefined,
-        activeCategory,
+        activeCategory !== null ? activeCategory : ALL_CATEGORIES_ID,
         chosenSortOption
       );
       const { content, totalElements } = response.data;
       dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
       setProductsByCategories({ content, totalElements });
+      dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: 0})
     } catch (error) {
       console.error('Error while sorting products');
     } finally {
@@ -312,7 +294,7 @@ const ShopPage = () => {
               </>
             )}
             {((searchedProducts
-              ? pageNumber < searchedProducts.pageData.totalPages - 1
+              ? pageNumber < searchedProducts?.pageData?.totalPages - 1
               : pageNumber < totalPages - 1) ||
               (productsByCategories.totalElements > PAGE_SIZE &&
                 products.length < productsByCategories.totalElements)) &&

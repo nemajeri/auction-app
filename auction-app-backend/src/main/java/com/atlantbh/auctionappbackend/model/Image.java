@@ -1,10 +1,7 @@
 package com.atlantbh.auctionappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -26,5 +23,6 @@ public class Image {
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     @JsonManagedReference
+    @ToString.Exclude
     private Product product;
 }

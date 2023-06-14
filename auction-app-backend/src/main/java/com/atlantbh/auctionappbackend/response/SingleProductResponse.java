@@ -1,6 +1,8 @@
 package com.atlantbh.auctionappbackend.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class SingleProductResponse {
 
     private Long id;
@@ -22,8 +25,10 @@ public class SingleProductResponse {
 
     private List<String> images;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime startDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime endDate;
 
     private int numberOfBids;
@@ -36,18 +41,6 @@ public class SingleProductResponse {
 
     private boolean sold;
 
-    private Float userHighestBid;
+    private boolean  isUserHighestBidder;
 
-    public SingleProductResponse(Long id, String productName, String description, float startPrice, List<String> images, ZonedDateTime endDate, int numberOfBids, Float highestBid, boolean sold, Long userId) {
-        this.id = id;
-        this.productName = productName;
-        this.description = description;
-        this.startPrice = startPrice;
-        this.images = images;
-        this.endDate = endDate;
-        this.numberOfBids = numberOfBids;
-        this.highestBid = highestBid;
-        this.sold = sold;
-        this.userId = userId;
-    }
 }
