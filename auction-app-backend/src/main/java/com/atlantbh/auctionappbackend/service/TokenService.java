@@ -33,7 +33,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.*;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_MAX_AGE;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_NAME;
 
 @Slf4j
 @Service

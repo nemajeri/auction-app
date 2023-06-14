@@ -6,7 +6,6 @@ import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
 import com.atlantbh.auctionappbackend.model.AppUser;
 import com.atlantbh.auctionappbackend.model.Bid;
 import com.atlantbh.auctionappbackend.model.Product;
-import com.atlantbh.auctionappbackend.repository.AppUserRepository;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
 import com.atlantbh.auctionappbackend.dto.UserMaxBidRecord;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
-public class BidServiceTest {
+class BidServiceTest {
 
     @InjectMocks
     private BidService bidService;

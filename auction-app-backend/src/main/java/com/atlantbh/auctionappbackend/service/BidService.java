@@ -1,12 +1,17 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.dto.UserMaxBidRecord;
 import com.atlantbh.auctionappbackend.enums.NotificationType;
-import com.atlantbh.auctionappbackend.exception.*;
-import com.atlantbh.auctionappbackend.model.*;
-import com.atlantbh.auctionappbackend.repository.AppUserRepository;
+import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
+import com.atlantbh.auctionappbackend.exception.AuctionStateException;
+import com.atlantbh.auctionappbackend.exception.BidAmountException;
+import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
+import com.atlantbh.auctionappbackend.model.AppUser;
+import com.atlantbh.auctionappbackend.model.Bid;
+import com.atlantbh.auctionappbackend.model.Image;
+import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
-import com.atlantbh.auctionappbackend.dto.UserMaxBidRecord;
 import com.atlantbh.auctionappbackend.response.AppUserBidsResponse;
 import com.atlantbh.auctionappbackend.response.NotificationResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
@@ -34,8 +39,6 @@ public class BidService {
     private final BidRepository bidRepository;
 
     private final ProductRepository productRepository;
-
-    private final AppUserRepository appUserRepository;
 
     private final RabbitTemplate rabbitTemplate;
 

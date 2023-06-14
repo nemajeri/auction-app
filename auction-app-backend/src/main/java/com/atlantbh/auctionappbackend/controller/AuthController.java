@@ -13,14 +13,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.*;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.LOGOUT_COOKIE_MAX_AGE;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
