@@ -34,7 +34,7 @@ public class NotificationController {
                     notification
             );
         } else {
-            log.debug("No user found for id " + notification.getUserId() + ", skipping...");
+            log.debug("No user found for id {}, skipping...", notification.getUserId());
         }
     }
 
@@ -47,7 +47,7 @@ public class NotificationController {
                     notification
             );
         } else {
-            log.debug("No user found for id " + notification.getUserId() + ", skipping...");
+            log.debug("No user found for id {}, skipping...", notification.getUserId());
         }
     }
 }

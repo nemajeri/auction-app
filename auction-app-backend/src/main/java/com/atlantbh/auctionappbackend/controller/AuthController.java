@@ -5,6 +5,7 @@ import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
 import com.atlantbh.auctionappbackend.service.AuthService;
 import com.atlantbh.auctionappbackend.service.TokenService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -29,6 +30,7 @@ import static org.springframework.http.HttpStatus.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Api(value = "Authentication Controller")
 public class AuthController {
 
     private final AuthService authService;

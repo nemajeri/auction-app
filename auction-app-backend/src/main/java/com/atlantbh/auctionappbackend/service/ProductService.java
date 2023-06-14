@@ -201,6 +201,10 @@ public class ProductService {
     public Page<ProductsResponse> getNewProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getNewArrivalsProducts(pageable);
+
+        if (products.isEmpty()) {
+            return Page.empty();
+        }
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
@@ -243,11 +247,19 @@ public class ProductService {
     public Page<ProductsResponse> getLastProducts(int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<Product> products = productRepository.getLastChanceProducts(pageable);
+
+        if (products.isEmpty()) {
+            return Page.empty();
+        }
         return products.map(product -> new ProductsResponse(product.getId(), product.getProductName(), product.getStartPrice(), product.getImages().get(0).getImageUrl(), product.getCategory().getId()));
     }
 
     public List<HighlightedProductResponse> getHighlightedProducts() {
         List<Product> products = productRepository.findByIsHighlightedTrue();
+
+        if (products.isEmpty()) {
+            return new ArrayList<>();
+        }
         return products.stream()
                 .map(product -> new HighlightedProductResponse(
                         product.getId(),
