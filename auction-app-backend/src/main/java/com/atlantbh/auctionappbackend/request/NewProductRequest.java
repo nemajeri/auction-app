@@ -1,13 +1,14 @@
 package com.atlantbh.auctionappbackend.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
 
-import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 @Data
+@Builder
 public class NewProductRequest {
 
     @NotBlank(message = "Product name is required")
@@ -17,18 +18,19 @@ public class NewProductRequest {
     private String description;
 
     @NotBlank(message = "Category ID is required")
-    private String categoryId;
+    private Long categoryId;
 
-    private String subcategoryId;
+    private Long subcategoryId;
 
     @NotBlank(message = "Start price is required")
-    @Pattern(regexp = "\\d+(\\.\\d{1,2})?", message = "Start price must be a valid number")
-    private String startPrice;
+    private Float startPrice;
 
     @NotNull(message = "Start date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime startDate;
 
     @NotNull(message = "End date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime endDate;
 
     @NotBlank(message = "Address is required")

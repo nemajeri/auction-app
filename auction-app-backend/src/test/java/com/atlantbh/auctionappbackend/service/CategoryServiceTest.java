@@ -28,7 +28,7 @@ class CategoryServiceTest {
 
     @Test
     @DisplayName("Test should return category data transfer objects")
-    void testCanGetAllCategories_ReturnsCategoryDTOList() {
+    void testCanGetAllCategories_ReturnsCategoryList() {
         List<Category> categories = new ArrayList<>();
         categories.add(new Category(1L, "Fashion"));
         categories.add(new Category(2L, "Shoes"));
@@ -37,9 +37,9 @@ class CategoryServiceTest {
         List<Category> expectedCategories = new ArrayList<>();
         expectedCategories.add(new Category(1L, "Fashion"));
         expectedCategories.add(new Category(2L, "Shoes"));
-        List<Category> categoriesDTOList = underTest.getAllCategories();
+        List<Category> categoriesList = underTest.getAllCategories();
 
-        assertEquals(expectedCategories, categoriesDTOList);
+        assertEquals(expectedCategories, categoriesList);
     }
 
 }

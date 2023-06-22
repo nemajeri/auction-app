@@ -1,16 +1,16 @@
 import { AuthAPI, COOKIE_NAME } from '../constants';
 import { getJwtFromCookie } from '../helperFunctions';
 
-export const getBidsForUser = (userId) => {
+export const getBidsForUser = () => {
   const jwtToken = getJwtFromCookie(COOKIE_NAME);
   if (!jwtToken) {
     return;
   }
 
-  return AuthAPI.get(`/bid/app-user?userId=${userId}`);
+  return AuthAPI.get('/bid/app-user');
 };
 
-export const updateBid = (id, bidAmount) => {
+export const updateBid = ( id, bidAmount) => {
   const jwtToken = getJwtFromCookie(COOKIE_NAME);
   if (!jwtToken) {
     return;
@@ -20,14 +20,5 @@ export const updateBid = (id, bidAmount) => {
     productId: id,
     amount: bidAmount,
   });
-};
-
-export const getHighestBidForUserAndProduct = (userId, productId) => {
-  const jwtToken = getJwtFromCookie(COOKIE_NAME);
-  if (!jwtToken) {
-    return;
-  }
-
-  return AuthAPI.get(`/bid/app-user/highest-bidder?userId=${userId}&productId=${productId}`);
 };
 

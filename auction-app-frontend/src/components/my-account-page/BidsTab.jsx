@@ -5,7 +5,7 @@ import CallToAction from '../CallToAction';
 import { AppContext } from '../../utils/AppContextProvider';
 import { getBidsForUser } from '../../utils/api/bidApi';
 import { hoursDiff } from '../../utils/helperFunctions';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../utils/Button';
 import {
   shopPagePathToProduct,
@@ -13,6 +13,7 @@ import {
 } from '../../utils/paths';
 import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
 import { BUTTON_LABELS } from '../../utils/constants';
+import { toast } from 'react-toastify';
 
 const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
   const { user } = useContext(AppContext);
@@ -20,18 +21,20 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
   const [loading, setLoading] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(true);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const response = await getBidsForUser(user.id);
+        const response = await getBidsForUser();
         setBids(response.data);
         setLoading(false);
       } catch (error) {
-        console.error(error);
+        toast.error("Cant load bids at the moment.");
       }
     })();
-  }, [user.id]);
+  }, []);
 
   const getButtonLabel = (bid) => {
     switch (true) {
@@ -95,24 +98,20 @@ const BidsTab = ({ bidHeadings, headerClassNames, bodyClassNames }) => {
                   <Button className={'auction-table__button'}>
                     {getButtonLabel(bid)}
                   </Button>
-                </Link>
+              </Link>
               </td>
             </tr>
           ))
         ) : (
           <tr className='shared-style__call-to-action_position'>
             <td>
-              <Link
-                to={shopPagePathToCategory.replace(':id', '1')}
-                className='py-4 px-16 border-4 border-purple font-bold'
-              >
                 <CallToAction
                   icon={<RiAuctionFill className='shared-style--icon' />}
                   text='You don’t have any bids and there are so many cool products available for sale.'
                   buttonLabel='START BIDDING'
                   buttonClassName='shared-style__btn'
+                  onClick={(e) => navigate(shopPagePathToCategory.replace(':categoryId', '1'))}
                 />
-              </Link>
             </td>
           </tr>
         )}

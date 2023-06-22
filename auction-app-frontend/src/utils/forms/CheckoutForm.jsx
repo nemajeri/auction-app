@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PAYMENT_CURRENCY, PAYMENT_TYPE } from '../constants';
 import { toast } from 'react-toastify';
@@ -11,6 +11,7 @@ const CheckoutForm = ({ product }) => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
+  const buttonRef = useRef(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -18,6 +19,9 @@ const CheckoutForm = ({ product }) => {
     if (!stripe || !elements) {
       return;
     }
+
+    const button = buttonRef.current;
+    button.disabled = true;
 
     const cardElement = elements.getElement(CardElement);
 
@@ -30,6 +34,7 @@ const CheckoutForm = ({ product }) => {
     if (error) {
       console.log('[error]', error);
       toast.error('Payment failed. Please try again.');
+      button.disabled = false;
     } else {
       console.log('[PaymentMethod]', paymentMethod);
       toast.info('Processing payment...');
@@ -52,6 +57,7 @@ const CheckoutForm = ({ product }) => {
         }
       } catch (error) {
         toast.error('Payment failed. Please try again.');
+        button.disabled = false; 
       }
     }
   };
@@ -59,7 +65,7 @@ const CheckoutForm = ({ product }) => {
   return (
     <form onSubmit={handleSubmit} className='checkout-form'>
       <CardElement options={{ hidePostalCode: true }} />
-      <button type='submit' disabled={!stripe}>
+      <button type='submit' disabled={!stripe} ref={buttonRef}>
         Pay
       </button>
     </form>

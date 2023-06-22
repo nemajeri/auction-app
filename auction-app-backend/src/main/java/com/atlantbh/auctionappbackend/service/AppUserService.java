@@ -15,18 +15,18 @@ public class AppUserService {
 
     public AppUserResponse getUserByEmail(String email) {
         AppUser appUser = appUserRepository.getByEmail(email)
-                .orElseThrow(() -> new AppUserNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new AppUserNotFoundException("User not found"));
 
         return AppUserResponse.builder()
                 .id(appUser.getId())
                 .email(appUser.getEmail())
                 .firstName(appUser.getFirstName())
                 .lastName(appUser.getLastName())
-                .city(appUser.getCity())
-                .zipCode(appUser.getZipCode())
-                .country(appUser.getCountry())
-                .phone(appUser.getPhone())
-                .address(appUser.getAddress())
+                .city(appUser.getInfo().getCity())
+                .zipCode(appUser.getInfo().getZipCode())
+                .country(appUser.getInfo().getCountry())
+                .phone(appUser.getInfo().getPhone())
+                .address(appUser.getInfo().getAddress())
                 .build();
     }
 }

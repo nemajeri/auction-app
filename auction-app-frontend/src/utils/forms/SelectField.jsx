@@ -17,14 +17,12 @@ const SelectField = ({
       handleSortOptionChoice(option.value);
   };
 
-  const selectedOption = options.find((option) => option.value === value);
-
   return (
     <div>
       <Select
         id={name}
         name={name}
-        value={selectedOption}
+        value={options.find((option) => option.value === value)}
         options={options}
         placeholder={placeholder}
         onChange={handleChange}

@@ -14,6 +14,7 @@ import { ACTIONS } from '../../utils/appReducer';
 import { toast } from 'react-toastify';
 import NotificationsCenter from '../../components/notifications/NotificationsCenter';
 import WebSocketService from '../../services/WebSocketService';
+import { isValidRoute } from '../../utils/helperFunctions';
 
 const Navbar = () => {
   const {
@@ -121,7 +122,7 @@ const Navbar = () => {
   };
 
   return (
-    <>
+    isValidRoute(pathname) && <>
       <div className='navbar__black'>
         <div className='navbar__container'>
           <div>

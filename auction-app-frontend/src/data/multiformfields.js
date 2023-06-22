@@ -62,8 +62,9 @@ export const getStep2Fields = () => [
         label: 'Start date',
         type: 'date',
         validation: (value) => {
-          const date = moment.utc(value);
-          return value !== '' && date.isValid() && date.isSameOrAfter(START_OF_TODAY_UTC);
+          const date = moment.tz(value, moment.tz.guess());
+          const utcDate = date.clone().tz('UTC');
+          return value !== '' && date.isValid() && utcDate.isSameOrAfter(START_OF_TODAY_UTC);
         },
         errorMessage: 'Please pick a valid date!',
         placeholder: '14/04/2021'
@@ -73,9 +74,11 @@ export const getStep2Fields = () => [
         label: 'End date',
         type: 'date',
         validation: (value, startDate) => {
-          const endDate = moment.utc(value);
-          const startDateMoment = moment.utc(startDate);
-          return value !== '' && endDate.isValid() && endDate.isSameOrAfter(START_OF_TODAY_UTC) && endDate.isSameOrAfter(startDateMoment);
+          const endDate = moment.tz(value, moment.tz.guess());
+          const startDateMoment = moment.tz(startDate, moment.tz.guess());
+          const utcEndDate = endDate.clone().tz('UTC');
+          const utcStartDate = startDateMoment.clone().tz('UTC');
+          return value !== '' && endDate.isValid() && utcEndDate.isSameOrAfter(START_OF_TODAY_UTC) && utcEndDate.isSameOrAfter(utcStartDate);
         },
         errorMessage: 'End date should be after start date!',
         placeholder: '14/04/2021'

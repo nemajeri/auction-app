@@ -18,8 +18,8 @@ const ProductDetails = ({
   setBidAmount,
   bidAmount,
   onBidButtonClick,
-  userHighestBid,
-  user
+  isUserHighestBidder,
+  user,
 }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
@@ -33,11 +33,9 @@ const ProductDetails = ({
   const onClose = () => {
     setShowPaymentModal(false);
     navigate(landingPagePath);
-  }
+  };
 
   const isAuctionActive = !product.sold && timeLeft !== AUCTION_ENDED;
-  const isAuctionEnded = !product.sold && timeLeft === AUCTION_ENDED;
-  const isUserHighestBidder = userHighestBid === product.highestBid;
 
   return (
     product && (
@@ -79,11 +77,10 @@ const ProductDetails = ({
                 </Button>
               </>
             ) : (
-              isAuctionEnded &&
-              isUserHighestBidder && (
+              isUserHighestBidder &&
+              !isAuctionActive && (
                 <Button
-                  onClick={() => 
-                    setShowPaymentModal(true)}
+                  onClick={() => setShowPaymentModal(true)}
                   className={'details__button pay'}
                   isOwner={isOwner}
                 >
@@ -93,7 +90,6 @@ const ProductDetails = ({
             )}
           </div>
         )}
-
         <Tabs
           tabs={tabs}
           handleTabClick={handleTabClick}

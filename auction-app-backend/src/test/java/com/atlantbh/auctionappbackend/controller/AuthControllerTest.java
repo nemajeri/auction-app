@@ -11,6 +11,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -150,9 +151,9 @@ public class AuthControllerTest {
     @Test
     public void testLogoutAppUser_ReturnsOkResponse() throws Exception {
         String token = "my-token";
-        Cookie cookie = new Cookie("auction_app_logout_token", token);
+        Cookie cookie = new Cookie("auction_app_token", token);
 
-        when(tokenService.getJwtFromCookie(any())).thenReturn(token);
+        when(tokenService.getJwtFromCookie(any(HttpServletRequest.class))).thenReturn(token);
 
         mockMvc.perform(post("/api/v1/auth/logout")
                         .cookie(cookie)
@@ -162,7 +163,7 @@ public class AuthControllerTest {
                     MockHttpServletResponse res = result.getResponse();
                     assertNotNull(res);
                     Cookie[] cookies = res.getCookies();
-                    Optional<Cookie> jwtCookie = Arrays.stream(cookies).filter(c -> "auction_app_logout_token".equals(c.getName())).findFirst();
+                    Optional<Cookie> jwtCookie = Arrays.stream(cookies).filter(c -> "auction_app_token".equals(c.getName())).findFirst();
                     assertTrue(jwtCookie.isPresent());
                     assertEquals("", jwtCookie.get().getValue());
                     assertEquals("/", jwtCookie.get().getPath());

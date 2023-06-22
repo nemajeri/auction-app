@@ -8,7 +8,7 @@ import com.atlantbh.auctionappbackend.repository.SubcategoryRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Set;
 
 @AllArgsConstructor
 @Service
@@ -20,7 +20,7 @@ public class SubcategoryService {
 
     public Set<Subcategory> getSubcategoriesForCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryNotFoundException("Wrong category id"));
+                .orElseThrow(() -> new CategoryNotFoundException("Invalid category id"));
 
         return subcategoryRepository.findAllByCategory(category);
     }

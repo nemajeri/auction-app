@@ -1,10 +1,7 @@
 package com.atlantbh.auctionappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
@@ -33,6 +30,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonBackReference
+    @ToString.Exclude
     private List<Image> images;
 
     @Column(name = "start_date", nullable = false)
@@ -62,34 +60,10 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    private String address;
-
-    private String city;
-
-    private String zipCode;
-
-    private String country;
-
-    private String phone;
+    @Embedded
+    private ShippingInfo info;
 
     private boolean sold = false;
-
-    public Product( String productName, String description, float startPrice, List<Image> images, ZonedDateTime startDate, ZonedDateTime endDate, Category category, Subcategory subcategory, AppUser user, String address, String city, String zipCode, String country, String phone) {
-        this.productName = productName;
-        this.description = description;
-        this.startPrice = startPrice;
-        this.images = images;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.category = category;
-        this.subcategory = subcategory;
-        this.user = user;
-        this.address = address;
-        this.city = city;
-        this.zipCode = zipCode;
-        this.country = country;
-        this.phone = phone;
-    }
 
     public Float getHighestBid() {
         if (highestBid == null && numberOfBids == 0) {
@@ -105,8 +79,8 @@ public class Product {
         return this.numberOfBids;
     }
 
-    public boolean isOwner(String email) {
-        return this.user.getEmail().equals(email);
+    public boolean isOwner(Long userId) {
+        return this.user.getId().equals(userId);
     }
 
 }

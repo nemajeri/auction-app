@@ -1,31 +1,30 @@
 package com.atlantbh.auctionappbackend.service;
 
+import com.atlantbh.auctionappbackend.dto.UserMaxBidRecord;
 import com.atlantbh.auctionappbackend.enums.NotificationType;
 import com.atlantbh.auctionappbackend.exception.AppUserNotFoundException;
-import com.atlantbh.auctionappbackend.exception.BadRequestException;
+import com.atlantbh.auctionappbackend.exception.AuctionStateException;
 import com.atlantbh.auctionappbackend.exception.BidAmountException;
 import com.atlantbh.auctionappbackend.exception.ProductNotFoundException;
-import com.atlantbh.auctionappbackend.model.*;
-import com.atlantbh.auctionappbackend.repository.AppUserRepository;
+import com.atlantbh.auctionappbackend.model.AppUser;
+import com.atlantbh.auctionappbackend.model.Bid;
+import com.atlantbh.auctionappbackend.model.Image;
+import com.atlantbh.auctionappbackend.model.Product;
 import com.atlantbh.auctionappbackend.repository.BidRepository;
 import com.atlantbh.auctionappbackend.repository.ProductRepository;
-import com.atlantbh.auctionappbackend.request.UserMaxBidRequest;
 import com.atlantbh.auctionappbackend.response.AppUserBidsResponse;
 import com.atlantbh.auctionappbackend.response.NotificationResponse;
 import com.atlantbh.auctionappbackend.response.SingleProductResponse;
-import com.atlantbh.auctionappbackend.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+import javax.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,83 +40,79 @@ public class BidService {
 
     private final ProductRepository productRepository;
 
-    private final AppUserRepository appUserRepository;
-
     private final RabbitTemplate rabbitTemplate;
 
-    public List<AppUserBidsResponse> getBidsForAppUser(Long userId) {
-        List<Bid> bids = bidRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, BID_DATE));
+    private final TokenService tokenService;
+
+    public List<AppUserBidsResponse> getBidsForAppUser(HttpServletRequest request) {
+
+        AppUser user = tokenService.getAuthenticatedUser(request);
+
+        List<Bid> bids = bidRepository.findAllByUserId(user.getId(), Sort.by(Sort.Direction.DESC, BID_DATE));
 
         if (bids.isEmpty()) {
-            bids = new ArrayList<>();
+            return new ArrayList<>();
         }
 
         return bids.stream()
                 .map(bid -> new AppUserBidsResponse(
                         bid.getId(),
                         bid.getPrice(),
-                        new SingleProductResponse(
-                                bid.getProduct().getId(),
-                                bid.getProduct().getProductName(),
-                                bid.getProduct().getDescription(),
-                                bid.getProduct().getStartPrice(),
-                                bid.getProduct().getImages().stream().map(Image::getImageUrl).toList(),
-                                bid.getProduct().getEndDate(),
-                                bid.getProduct().getNumberOfBids(),
-                                bid.getProduct().getHighestBid(),
-                                bid.getProduct().isSold(),
-                                bid.getProduct().getUser().getId()
-                        ),
+                        SingleProductResponse.builder()
+                                .id(bid.getProduct().getId())
+                                .productName(bid.getProduct().getProductName())
+                                .description(bid.getProduct().getDescription())
+                                .startPrice(bid.getProduct().getStartPrice())
+                                .images(bid.getProduct().getImages().stream().map(Image::getImageUrl).toList())
+                                .endDate(bid.getProduct().getEndDate())
+                                .numberOfBids(bid.getProduct().getNumberOfBids())
+                                .highestBid(bid.getProduct().getHighestBid())
+                                .sold(bid.getProduct().isSold())
+                                .build(),
                         bid.getUser().getId()
-                ))
-                .toList();
+                )).toList();
     }
 
-    @Transactional
-    public void createBid(Long productId, float amount) throws ProductNotFoundException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
-
-        AppUser appUser = appUserRepository.getByEmail(email)
-                .orElseThrow(() -> new AppUserNotFoundException("User with email " + email + " not found"));
+    @Transactional(rollbackFor = {Exception.class, DataAccessException.class, AmqpException.class})
+    public void createBidAndPublishToQueue(Long productId, float amount, HttpServletRequest request) throws ProductNotFoundException, AppUserNotFoundException {
+        AppUser user = tokenService.getAuthenticatedUser(request);
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        validateBidAmount(product, amount, appUser);
+        validateBidAmount(product, amount, user);
 
         PageRequest pageable = PageRequest.of(0, 1);
-        List<UserMaxBidRequest> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(productId, pageable);
+        List<UserMaxBidRecord> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(productId, pageable);
 
         Long highestBidUserId = null;
 
         if (!userWithHighestBid.isEmpty()) {
             highestBidUserId = userWithHighestBid.get(0).getUserId();
         }
-        try {
 
-            Bid bid = Bid.builder().user(appUser).bidDate(ZonedDateTime.now()).product(product).price(amount).build();
-            bidRepository.save(bid);
+        saveBidAndPublishNotification(user, product, amount, highestBidUserId);
 
-            if (highestBidUserId != null && !highestBidUserId.equals(appUser.getId())) {
+    }
 
-                UUID uuid = UUID.randomUUID();
+    private void saveBidAndPublishNotification(AppUser appUser, Product product, float amount, Long highestBidUserId) {
+        Bid bid = Bid.builder().user(appUser).bidDate(ZonedDateTime.now()).product(product).price(amount).build();
+        bidRepository.save(bid);
 
-                NotificationResponse response = NotificationResponse.builder()
-                        .id(uuid)
-                        .date(ZonedDateTime.now())
-                        .userId(highestBidUserId)
-                        .productId(product.getId())
-                        .description("You've been outbid on " + product.getProductName())
-                        .type(NotificationType.OUTBID)
-                        .build();
+        if (highestBidUserId != null && !highestBidUserId.equals(appUser.getId())) {
 
-                rabbitTemplate.convertAndSend(OUTBID_EXCHANGE, OUTBID_ROUTING_KEY, response);
-            }
-        } catch (DataAccessException | AmqpException e) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            throw e;
+            UUID uuid = UUID.randomUUID();
+
+            NotificationResponse response = NotificationResponse.builder()
+                    .id(uuid)
+                    .date(ZonedDateTime.now())
+                    .userId(highestBidUserId)
+                    .productId(product.getId())
+                    .description("You've been outbid on " + product.getProductName())
+                    .type(NotificationType.OUTBID)
+                    .build();
+
+            rabbitTemplate.convertAndSend(OUTBID_EXCHANGE, OUTBID_ROUTING_KEY, response);
         }
     }
 
@@ -134,15 +129,15 @@ public class BidService {
         }
 
         if (product.getStartDate().isAfter(ZonedDateTime.now())) {
-            throw new BadRequestException("Auction is yet to start for this product");
+            throw new AuctionStateException("Auction is yet to start for this product");
         }
 
         if (product.getEndDate().isBefore(ZonedDateTime.now())) {
-            throw new BadRequestException("Auction ended for this product");
+            throw new AuctionStateException("Auction ended for this product");
         }
 
-        if (product.isOwner(appUser.getEmail())) {
-            throw new BadRequestException("You can't bid on your own product");
+        if (product.isOwner(appUser.getId())) {
+            throw new IllegalStateException("You can't bid on your own product");
         }
     }
 }

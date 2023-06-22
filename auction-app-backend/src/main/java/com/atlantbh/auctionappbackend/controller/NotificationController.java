@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
 import java.util.Optional;
 
 import static com.atlantbh.auctionappbackend.utils.Constants.AUCTION_FINISHED_QUEUE;
@@ -33,7 +34,7 @@ public class NotificationController {
                     notification
             );
         } else {
-            log.debug("No user found for id " + notification.getUserId() + ", skipping...");
+            log.debug("No user found for id {}, skipping...", notification.getUserId());
         }
     }
 
@@ -46,7 +47,7 @@ public class NotificationController {
                     notification
             );
         } else {
-            log.debug("No user found for id " + notification.getUserId() + ", skipping...");
+            log.debug("No user found for id {}, skipping...", notification.getUserId());
         }
     }
 }

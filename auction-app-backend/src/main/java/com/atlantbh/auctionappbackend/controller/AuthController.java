@@ -5,26 +5,32 @@ import com.atlantbh.auctionappbackend.request.OAuth2LoginRequest;
 import com.atlantbh.auctionappbackend.request.RegisterRequest;
 import com.atlantbh.auctionappbackend.service.AuthService;
 import com.atlantbh.auctionappbackend.service.TokenService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.atlantbh.auctionappbackend.utils.Constants.*;
+import static com.atlantbh.auctionappbackend.utils.Constants.COOKIE_NAME;
+import static com.atlantbh.auctionappbackend.utils.Constants.LOGOUT_COOKIE_MAX_AGE;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
-
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Api(value = "Authentication Controller")
 public class AuthController {
 
     private final AuthService authService;
@@ -34,11 +40,6 @@ public class AuthController {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 
-    @Autowired
-    public AuthController(AuthService authService, TokenService tokenService) {
-        this.authService = authService;
-        this.tokenService = tokenService;
-    }
 
     @ApiOperation(value = "Register a new user")
     @ApiResponses(value = {
@@ -71,15 +72,20 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         String token = tokenService.getJwtFromCookie(request);
-        tokenService.invalidateToken(token);
+        if(StringUtils.hasText(token)) {
+            tokenService.invalidateToken(token);
 
-        Cookie cookie = new Cookie(COOKIE_NAME, "");
-        cookie.setMaxAge(LOGOUT_COOKIE_MAX_AGE);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+            Cookie cookie = new Cookie(COOKIE_NAME, "");
+            cookie.setMaxAge(LOGOUT_COOKIE_MAX_AGE);
+            cookie.setPath("/");
+            response.addCookie(cookie);
 
-        return new ResponseEntity<>(OK);
+            return new ResponseEntity<>(OK);
+        } else {
+            return new ResponseEntity<>(UNAUTHORIZED);
+        }
     }
+
 
     @ApiOperation(value = "User login with Google or Facebook")
     @ApiResponses(value = {

@@ -24,7 +24,7 @@ const ProductOverviewPage = () => {
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(null);
   const [bidAmount, setBidAmount] = useState(EMPTY_STRING);
-  const [userHighestBid, setUserHighestBid] = useState(null);
+  const [isUserHighestBidder, setIsUserHighestBidder] = useState(null);
   const { id } = useParams();
   const { user } = useContext(AppContext);
 
@@ -36,9 +36,9 @@ const ProductOverviewPage = () => {
         setImages(response.data.images);
         setTimeLeft(calculateTimeLeft(response.data));
         setIsOwner(response.data.owner);
-        setUserHighestBid(response.data.userHighestBid);
+        setIsUserHighestBidder(response.data.userHighestBidder);
       } catch (error) {
-        
+        toast.error("Cannot load the product.")
       } finally {
         setLoading(false);
       }
@@ -61,26 +61,9 @@ const ProductOverviewPage = () => {
       await updateBid(id, bidAmount);
       const updatedProduct = await getProduct(id);
       setProduct(updatedProduct.data);
-
       toast.success('Congrats! You are the highest bidder!');
     } catch (error) {
-      let message = 'An error occurred while placing your bid.';
-
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        const errorMessage = error.response.data.message;
-        if (errorMessage === 'Place bid that is higher than the current one') {
-          message = 'There are higher bids than yours. You could give a second try!';
-          toast.warning(message);
-        } else {
-          toast.error(message);
-        }
-      } else {
-        toast.error(message);
-      }
+        toast.error(error.response.data.message);
     } finally {
       setBidAmount(EMPTY_STRING);
     }
@@ -103,7 +86,7 @@ const ProductOverviewPage = () => {
               setBidAmount={setBidAmount}
               onBidButtonClick={onBidButtonClick}
               bidAmount={bidAmount}
-              userHighestBid={userHighestBid}
+              isUserHighestBidder={isUserHighestBidder}
               user={user}
             />
           </section>

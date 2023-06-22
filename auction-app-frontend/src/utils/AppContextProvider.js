@@ -12,7 +12,7 @@ export const AppContext = createContext();
 const initialState = {
   searchTerm: EMPTY_STRING,
   suggestion: EMPTY_STRING,
-  searchedProducts: null,
+  searchedProducts: [],
   pageNumber: 0,
   loading: false,
   activeCategory: null,

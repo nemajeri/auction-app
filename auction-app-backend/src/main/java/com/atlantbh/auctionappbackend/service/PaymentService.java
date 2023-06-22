@@ -7,11 +7,9 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-
-import org.slf4j.Logger;
 
 @Service
 @AllArgsConstructor
@@ -32,21 +30,21 @@ public class PaymentService {
         try {
             PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-            if (paymentIntent.getStatus().equals(PaymentStatus.SUCCESS.toString())) {
+            if (paymentIntent.getStatus().equals(PaymentStatus.SUCCESS.getStatus())) {
                 productRepository.findById(productId).ifPresent(product -> {
                     product.setSold(true);
                     productRepository.save(product);
                 });
 
-                return new PaymentResponse(paymentIntent.getId(), PaymentStatus.SUCCESS, paymentIntent.getAmount(), paymentIntent.getCurrency());
+                return new PaymentResponse(paymentIntent.getId(), PaymentStatus.SUCCESS.getStatus(), paymentIntent.getAmount(), paymentIntent.getCurrency());
             }
 
         } catch (StripeException e) {
             log.error("Stripe payment error", e);
-            return new PaymentResponse(null, PaymentStatus.ERROR, null, null);
+            return new PaymentResponse(null, PaymentStatus.ERROR.getStatus(), null, null);
         }
 
-        return new PaymentResponse(null, PaymentStatus.FAILED, null, null);
+        return new PaymentResponse(null, PaymentStatus.FAILED.getStatus(), null, null);
     }
 }
 

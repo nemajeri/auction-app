@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.atlantbh.auctionappbackend.utils.Constants.FACEBOOK_GRAPH_API_URL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -77,10 +80,6 @@ public class AuthServiceTest {
                 "Doe",
                 "john.doe@example.com",
                 passwordEncoder.encode("password123"),
-                null,
-                null,
-                null,
-                null,
                 null
         );
 
@@ -130,7 +129,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should generate a cookie with jwt token when user logs in with google")
+    @DisplayName("Should generate a cookie with jwt token when user logs in with Facebook")
     public void processOAuth2Login_FacebookProvider() {
         String provider = "facebook";
         String token = "test-token";
@@ -142,10 +141,10 @@ public class AuthServiceTest {
         facebookResponseMap.put("first_name", "John");
         facebookResponseMap.put("last_name", "Doe");
 
-        ResponseEntity<Map> facebookResponse = new ResponseEntity<>(facebookResponseMap, HttpStatus.OK);
-        when(restTemplate.getForEntity(anyString(), eq(Map.class))).thenReturn(facebookResponse);
+        String facebookGraphApiUrl = FACEBOOK_GRAPH_API_URL + oauth2LoginRequest.getToken();
 
-        ReflectionTestUtils.setField(authService, "restTemplate", restTemplate, RestTemplate.class);
+        ResponseEntity<Map<String, Object>> facebookResponse = new ResponseEntity<>(facebookResponseMap, HttpStatus.OK);
+        when(restTemplate.exchange(eq(facebookGraphApiUrl), eq(HttpMethod.GET), any(), any(ParameterizedTypeReference.class))).thenReturn(facebookResponse);
 
         Cookie expectedCookie = new Cookie("auction_app_social_media_token", "sample-jwt-token");
         expectedCookie.setPath("/");
@@ -160,7 +159,5 @@ public class AuthServiceTest {
         assertEquals("/", result.getPath());
         assertEquals(4 * 60 * 60, result.getMaxAge());
     }
-
-
 
 }

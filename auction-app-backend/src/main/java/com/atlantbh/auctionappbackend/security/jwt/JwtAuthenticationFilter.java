@@ -1,7 +1,5 @@
 package com.atlantbh.auctionappbackend.security.jwt;
 
-
-
 import com.atlantbh.auctionappbackend.service.TokenService;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

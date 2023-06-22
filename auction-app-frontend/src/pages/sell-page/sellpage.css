@@ -169,10 +169,10 @@ margin-bottom: 2rem;
 .icon-box {
   border: 1px solid var(--grey-100);
   width: 3rem;
-  height: 3rem;
+  height: 2.99rem;
   position: absolute;
-  bottom: 20.5px;
-  top: 45px;
+  bottom: 20.3px;
+  top: 45.17px;
 }
 
 #startPrice {
