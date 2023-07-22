@@ -19,8 +19,6 @@ export const ACTIONS = {
         return { ...state, searchTerm: action.payload };
       case ACTIONS.SET_SUGGESTION:
         return { ...state, suggestion: action.payload };
-      case ACTIONS.SET_SEARCHED_PRODUCTS:
-        return { ...state, searchedProducts: action.payload };
       case ACTIONS.SET_PAGE_NUMBER:
         return { ...state, pageNumber: action.payload };
       case ACTIONS.SET_LOADING:

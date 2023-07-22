@@ -12,13 +12,11 @@ export const AppContext = createContext();
 const initialState = {
   searchTerm: EMPTY_STRING,
   suggestion: EMPTY_STRING,
-  searchedProducts: [],
   pageNumber: 0,
   loading: false,
   activeCategory: null,
   products: [],
   user: null,
-  isClearButtonPressed: false,
   isUserLoading: true,
   initialLoading: true,
   currentSortOption: SORT_OPTIONS.DEFAULT_SORTING,
