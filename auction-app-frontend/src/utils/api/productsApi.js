@@ -52,7 +52,7 @@ export const getSortedProductsAccordingToDate = (
   );
 };
 
-export const getAllProductsToSeparateHighlighted = () => {
+export const getAllHighlightedProducts = () => {
   return API.get('/products/highlighted-products');
 };
 

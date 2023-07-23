@@ -16,8 +16,7 @@ const CategoriesAccordion = ({
                 className={`categories-accordion__category${
                     parseInt(openedCategoryId) === category.id ? ' opened' : ''
                 }`}
-                data-category={`${category.categoryName}`}
-                onClick={(e) => handleOpeningAndFetchingAccordingToCategory(category.id)(e)}
+                onClick={handleOpeningAndFetchingAccordingToCategory(category.id)}
               >
                 <h4>{category.categoryName}</h4>
               </div>

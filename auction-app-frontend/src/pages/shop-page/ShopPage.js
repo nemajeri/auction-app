@@ -1,59 +1,56 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import CategoriesAccordion from '../../components/shop-page/categories-accordion/CategoriesAccordion';
 import ShopPageProducts from '../../components/shop-page/shop-page-products/ShopPageProducts';
 import { useGridView } from '../../hooks/useGridView';
 import Button from '../../utils/Button';
-import { getCategories } from '../../utils/api/categoryApi';
 import { getAllProducts } from '../../utils/api/productsApi';
 import { AppContext } from '../../utils/AppContextProvider';
 import sortingField from '../../data/options';
 import { useParams } from 'react-router-dom';
-import {
-  SORT_OPTIONS,
-  PAGE_SIZE,
-  ALL_CATEGORIES_ID,
-} from '../../utils/constants';
+import { PAGE_SIZE, ALL_CATEGORIES_ID } from '../../utils/constants';
+import { ACTIONS } from '../../utils/appReducer';
 import { usePageLoading } from '../../hooks/usePageLoading';
 import SelectField from '../../utils/forms/SelectField';
-import axios from 'axios';
 
 import './shopPage.css';
 
 const ShopPage = () => {
-  const { searchTerm } = useContext(AppContext);
+  const {
+    searchTerm,
+    sortBy,
+    activeCategory,
+    totalPages,
+    dispatch,
+    products,
+    categories
+  } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState([]);
+  const currentPageNumber = useRef(0);
   const { categoryId } = useParams();
 
   usePageLoading();
 
-  const [filters, setFilters] = useState({
-    sortBy: SORT_OPTIONS.DEFAULT_SORTING,
-    activeCategory: null,
-    pageNumber: 0,
-    totalPages: 0,
-  });
-
-  const updateFilters = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
   const handleOpeningAndFetchingAccordingToCategory = useCallback(
-    (categoryId) => async (event) => {
-      updateFilters('activeCategory', categoryId);
+    (categoryId) => async () => {
+      dispatch({ type: ACTIONS.SET_ACTIVE_CATEGORY, payload: categoryId });
       try {
         setLoading(true);
         const response = await getAllProducts(
-          0,
+          currentPageNumber.current = 0,
           PAGE_SIZE,
           searchTerm,
           categoryId,
-          filters.sortBy
+          sortBy
         );
-        setProducts(response.data.content);
-        updateFilters('totalPages', response.data.totalPages - 1);
+        dispatch({
+          type: ACTIONS.SET_INITIAL_PRODUCTS,
+          payload: response.data.content,
+        });
+        dispatch({
+          type: ACTIONS.SET_TOTAL_PAGES,
+          payload: response.data.totalPages - 1,
+        });
       } catch (error) {
         console.error(
           'Error during fetching of products according to categories'.error
@@ -63,62 +60,33 @@ const ShopPage = () => {
         setLoading(false);
       }
     },
-    [searchTerm, filters.sortBy]
+    [searchTerm, sortBy, dispatch]
   );
-
+  
   const onExploreMoreBtnClick = () => {
-    const nextPageNumber = filters.pageNumber + 1;
+    currentPageNumber.current += 1;
 
-    getAllProducts(
-      nextPageNumber,
-      PAGE_SIZE,
-      searchTerm,
-      filters.activeCategory
-    )
+    getAllProducts(currentPageNumber.current, PAGE_SIZE, searchTerm, activeCategory)
       .then((response) => {
         const { content } = response.data;
-        setProducts((prevState) => [...prevState, ...content]);
+        dispatch({
+          type: ACTIONS.SET_PRODUCTS,
+          payload: content,
+        });
       })
-      .catch((error) => {});
-
-    updateFilters('pageNumber', nextPageNumber);
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   useEffect(() => {
-    setFilters((prev) => ({ ...prev, pageNumber: 0 }));
-  }, [filters.activeCategory]);
-
-  useEffect(() => {
-    const CancelToken = axios.CancelToken;
-    const source = CancelToken.source();
-
-    (async () => {
-      setLoading(true);
-      try {
-        const response = await getCategories(source.token);
-        setCategories(response.data);
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          return;
-        } else {
-          console.error('Error fetching categories' + error)
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-
     if (categoryId) {
       handleOpeningAndFetchingAccordingToCategory(categoryId)();
-    } else if (filters.activeCategory) {
-      handleOpeningAndFetchingAccordingToCategory(filters.activeCategory)();
+    } else if (activeCategory) {
+      handleOpeningAndFetchingAccordingToCategory(activeCategory)();
     } else {
       handleOpeningAndFetchingAccordingToCategory(ALL_CATEGORIES_ID)();
     }
-
-    return () => {
-      source.cancel('Operation cancelled by the user.');
-    };
     // eslint-disable-next-line
   }, [handleOpeningAndFetchingAccordingToCategory, categoryId]);
 
@@ -127,17 +95,14 @@ const ShopPage = () => {
       <div className='container'>
         <div className='shop-page__content'>
           <CategoriesAccordion
-            openedCategoryId={filters.activeCategory}
+            openedCategoryId={activeCategory}
             categories={categories}
             handleOpeningAndFetchingAccordingToCategory={
               handleOpeningAndFetchingAccordingToCategory
             }
           />
           <div className='shop-page__products'>
-            <SelectField
-              field={sortingField}
-              handleSortOptionChoice={updateFilters}
-            />
+            <SelectField field={sortingField} dispatch={dispatch} />
             {products && products?.content?.length === 0 ? (
               <div className='shop-page__no-products'>
                 <h4>No products found.</h4>
@@ -153,7 +118,7 @@ const ShopPage = () => {
                 />
               </>
             )}
-            {filters.pageNumber < filters.totalPages && (
+            {currentPageNumber.current < totalPages && (
               <Button
                 Icon={null}
                 onClick={onExploreMoreBtnClick}
