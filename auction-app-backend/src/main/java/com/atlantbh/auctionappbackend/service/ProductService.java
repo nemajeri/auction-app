@@ -227,19 +227,21 @@ public class ProductService {
                 .sold(product.isSold());
 
         AppUser user = tokenService.getAuthenticatedUser(request);
-        boolean isOwner = product.isOwner(user.getId());
-        responseBuilder.isOwner(isOwner);
-        PageRequest page = PageRequest.of(0, 1);
+        if (user != null) {
+            boolean isOwner = product.isOwner(user.getId());
+            responseBuilder.isOwner(isOwner);
+            PageRequest page = PageRequest.of(0, 1);
 
-        List<UserMaxBidRecord> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(productId, page);
+            List<UserMaxBidRecord> userWithHighestBid = bidRepository.findHighestBidAndUserByProduct(productId, page);
 
-        Long highestBidUserId = null;
+            Long highestBidUserId = null;
 
-        if (!userWithHighestBid.isEmpty()) {
-            highestBidUserId = userWithHighestBid.get(0).getUserId();
+            if (!userWithHighestBid.isEmpty()) {
+                highestBidUserId = userWithHighestBid.get(0).getUserId();
+            }
+
+            responseBuilder.isUserHighestBidder(highestBidUserId != null && highestBidUserId.equals(user.getId()));
         }
-
-        responseBuilder.isUserHighestBidder(highestBidUserId != null && highestBidUserId.equals(user.getId()));
 
         return responseBuilder.build();
     }

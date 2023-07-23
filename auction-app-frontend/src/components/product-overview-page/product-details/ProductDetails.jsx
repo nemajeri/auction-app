@@ -35,7 +35,7 @@ const ProductDetails = ({
     navigate(landingPagePath);
   };
 
-  const isAuctionActive = !product.sold && timeLeft !== AUCTION_ENDED;
+  const isAuctionActive = !product?.sold && timeLeft !== AUCTION_ENDED;
 
   return (
     product && (

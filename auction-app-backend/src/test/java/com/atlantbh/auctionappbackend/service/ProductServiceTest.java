@@ -67,6 +67,8 @@ class ProductServiceTest {
     private RestTemplate restTemplate;
     @Mock
     private CsvToBeanParser productCsvParser;
+    @Mock
+    private HttpServletRequest httpServletRequest;
     @InjectMocks
     private ProductService underTest;
 
@@ -280,8 +282,6 @@ class ProductServiceTest {
         AppUser appUser = new AppUser();
         appUser.setId(userId);
 
-        HttpServletRequest httpServletRequest = new MockHttpServletRequest();
-
         Product product1 = Product.builder()
                 .id(1L)
                 .productName("Shoes Collection")
@@ -321,8 +321,6 @@ class ProductServiceTest {
         Long id = 1L;
         Long userId = 2L;
 
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
         AppUser appUser = new AppUser();
         appUser.setId(userId);
         appUser.setEmail("testuser@gmail.com");
@@ -339,12 +337,12 @@ class ProductServiceTest {
         product.setHighestBid(25.00f);
         product.setUser(appUser);
 
-        when(productRepository.findById(any(Long.class))).thenReturn(Optional.of(product));
+        when(productRepository.findById(eq(id))).thenReturn(Optional.of(product));
         when(tokenService.getAuthenticatedUser(any(HttpServletRequest.class))).thenReturn(appUser);
         when(bidRepository.findHighestBidAndUserByProduct(any(Long.class), any(PageRequest.class)))
                 .thenReturn(Collections.emptyList());
 
-        SingleProductResponse actualProduct = underTest.getProductById(id, request);
+        SingleProductResponse actualProduct = underTest.getProductById(id, httpServletRequest);
 
         SingleProductResponse expectedProduct = SingleProductResponse.builder()
                 .id(id)
@@ -364,7 +362,50 @@ class ProductServiceTest {
         assertEquals(expectedProduct, actualProduct);
     }
 
+    @Test
+    @DisplayName("Test should return a product with the given Id for user who is not authenticated")
+    void testGetProductByIdForUnauthenticatedUser_ReturnsProduct() throws ProductNotFoundException {
+        Long id = 1L;
+        Long userId = 2L;
 
+        AppUser owner = new AppUser();
+        owner.setId(userId);
+        owner.setEmail("testuser@gmail.com");
+
+        Product product = new Product();
+        product.setId(id);
+        product.setProductName("Shoes Collection");
+        product.setDescription("New shoes collection");
+        product.setStartPrice(10.00f);
+        product.setImages(Collections.singletonList(new Image(id, "/images/shoe-4.jpg", product)));
+        product.setStartDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")));
+        product.setEndDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")));
+        product.setNumberOfBids(5);
+        product.setHighestBid(25.00f);
+        product.setUser(owner);
+
+        when(productRepository.findById(eq(id))).thenReturn(Optional.of(product));
+        when(tokenService.getAuthenticatedUser(any(HttpServletRequest.class))).thenReturn(null);
+
+        SingleProductResponse actualProduct = underTest.getProductById(id, httpServletRequest);
+
+        SingleProductResponse expectedProduct = SingleProductResponse.builder()
+                .id(id)
+                .productName("Shoes Collection")
+                .description("New shoes collection")
+                .startPrice(10.00f)
+                .images(Collections.singletonList("/images/shoe-4.jpg"))
+                .startDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")))
+                .endDate(ZonedDateTime.of(LocalDateTime.of(2023, 3, 23, 0, 0), ZoneId.of("Europe/Paris")))
+                .numberOfBids(5)
+                .highestBid(25.00f)
+                .userId(userId)
+                .isOwner(false)
+                .isUserHighestBidder(false)
+                .build();
+
+        assertEquals(expectedProduct, actualProduct);
+    }
 
     @Test
     @DisplayName("Test should return new arrival products")
@@ -529,7 +570,6 @@ class ProductServiceTest {
 
         List<MultipartFile> images = List.of(image1, image2);
 
-        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
         when(tokenService.getAuthenticatedUser(httpServletRequest)).thenReturn(appUser);
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
@@ -584,7 +624,6 @@ class ProductServiceTest {
     @Test
     void processCsvFileToCreateProducts_ValidInput_ProcessesCorrectly() throws Exception {
         Reader reader = new StringReader("Csv input");
-        HttpServletRequest request = mock(HttpServletRequest.class);
 
         AppUser user = new AppUser();
         user.setId(1L);
@@ -611,7 +650,7 @@ class ProductServiceTest {
         byte[] imageBytes = "image bytes".getBytes();
         String s3Url = "http://s3Url";
 
-        when(tokenService.getAuthenticatedUser(request)).thenReturn(user);
+        when(tokenService.getAuthenticatedUser(httpServletRequest)).thenReturn(user);
         when(productCsvParser.parse(any(Reader.class), eq(ProductCsvImport.class))).thenReturn(productsFromCsvFile);
         when(categoryRepository.findByCategoryName(any())).thenReturn(Optional.of(category));
         when(subcategoryRepository.findBysubCategoryName(any())).thenReturn(Optional.of(subcategory));
@@ -623,7 +662,7 @@ class ProductServiceTest {
             return p;
         });
 
-        underTest.processCsvFileToCreateProducts(reader, request);
+        underTest.processCsvFileToCreateProducts(reader, httpServletRequest);
 
         verify(productRepository, times(2)).save(any());
     }
