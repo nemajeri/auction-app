@@ -1,40 +1,24 @@
 import React from 'react';
 import { customStyles } from '../styles';
 import Select from 'react-select';
+import { ACTIONS } from '../appReducer';
 
-const SelectField = ({
-  field: { name, placeholder, options },
-  onChange,
-  value,
-  error,
-  handleSortOptionChoice = () => {}
-}) => {
-  
-  const handleChange = (option) => {
-    if (onChange) {
-      onChange(name, option.value);
-    }
-      handleSortOptionChoice(option.value);
-  };
+const SelectField = ({ field: { name, placeholder, options }, dispatch }) => {
+  const onChange = (option) =>
+    dispatch({ type: ACTIONS.SET_SORT_BY, payload: option.value });
 
   return (
     <div>
       <Select
         id={name}
         name={name}
-        value={options.find((option) => option.value === value)}
         options={options}
         placeholder={placeholder}
-        onChange={handleChange}
+        onChange={onChange}
         styles={customStyles}
         isSearchable={false}
         components={{ IndicatorSeparator: () => null }}
       />
-      {error && (
-        <div className='error-message'>
-          <p>{error}</p>
-        </div>
-      )}
     </div>
   );
 };

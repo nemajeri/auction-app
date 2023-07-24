@@ -1,20 +1,20 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import './search-field.css';
 import { GrFormClose } from 'react-icons/gr';
 import { ACTIONS } from '../../utils/appReducer';
-import { AppContext } from '../../utils/AppContextProvider';
 import { EMPTY_STRING } from '../../utils/constants';
 
-const SearchField = ({ categoryId, pathname, navigate }) => {
-  const {
-    dispatch,
-    searchTerm,
-    onSearchIconClick,
-    onSearchTermChange,
-    currentSortOption,
-  } = useContext(AppContext);
-
+const SearchField = ({
+  categoryId,
+  pathname,
+  navigate,
+  searchTerm,
+  dispatch,
+  onSearchIconClick,
+  onSearchTermChange,
+  sortBy,
+}) => {
   return (
     <div className='search'>
       <input
@@ -25,14 +25,7 @@ const SearchField = ({ categoryId, pathname, navigate }) => {
         onChange={onSearchTermChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            onSearchIconClick(
-              e,
-              categoryId,
-              null,
-              navigate,
-              pathname,
-              currentSortOption
-            );
+            onSearchIconClick(e, categoryId, null, navigate, pathname, sortBy);
           }
         }}
       />
@@ -41,10 +34,6 @@ const SearchField = ({ categoryId, pathname, navigate }) => {
           className='delete__icon'
           onClick={() => {
             dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: EMPTY_STRING });
-            dispatch({
-              type: ACTIONS.SET_SEARCHED_PRODUCTS,
-              payload: null,
-            });
             dispatch({
               type: ACTIONS.SET_PRODUCTS,
               payload: [],
@@ -59,14 +48,7 @@ const SearchField = ({ categoryId, pathname, navigate }) => {
       <AiOutlineSearch
         className='search__icon'
         onClick={(event) =>
-          onSearchIconClick(
-            event,
-            categoryId,
-            null,
-            navigate,
-            pathname,
-            currentSortOption
-          )
+          onSearchIconClick(event, categoryId, null, navigate, pathname, sortBy)
         }
       />
     </div>

@@ -1,285 +1,109 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
-import './shopPage.css';
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import CategoriesAccordion from '../../components/shop-page/categories-accordion/CategoriesAccordion';
 import ShopPageProducts from '../../components/shop-page/shop-page-products/ShopPageProducts';
 import { useGridView } from '../../hooks/useGridView';
 import Button from '../../utils/Button';
-import { getCategories } from '../../utils/api/categoryApi';
 import { getAllProducts } from '../../utils/api/productsApi';
 import { AppContext } from '../../utils/AppContextProvider';
-import { getTotalPages } from '../../utils/helperFunctions';
+import sortingField from '../../data/options';
 import { useParams } from 'react-router-dom';
-import SelectField from '../../utils/forms/SelectField';
-import {
-  FIELD_NAME,
-  FIELD_PLACEHOLDER,
-  SORT_OPTIONS,
-  PAGE_SIZE,
-  ALL_CATEGORIES_ID,
-  EMPTY_STRING,
-} from '../../utils/constants';
-import LoadingSpinner from '../../components/loading-spinner/LoadingSpinner';
-import { usePageLoading } from '../../hooks/usePageLoading';
+import { PAGE_SIZE, ALL_CATEGORIES_ID } from '../../utils/constants';
 import { ACTIONS } from '../../utils/appReducer';
-import axios from 'axios';
+import { usePageLoading } from '../../hooks/usePageLoading';
+import SelectField from '../../utils/forms/SelectField';
 
-const field = {
-  name: FIELD_NAME,
-  placeholder: FIELD_PLACEHOLDER,
-  options: [
-    { label: 'Default sorting', value: SORT_OPTIONS.DEFAULT_SORTING },
-    { label: 'Sort By Newness', value: SORT_OPTIONS.START_DATE },
-    { label: 'Sort By Time Left', value: SORT_OPTIONS.END_DATE },
-    {
-      label: 'Sort By Price: Low to High',
-      value: SORT_OPTIONS.PRICE_LOW_TO_HIGH,
-    },
-    {
-      label: 'Sort By Price: High to Low',
-      value: SORT_OPTIONS.PRICE_HIGH_TO_LOW,
-    },
-  ],
-};
+import './shopPage.css';
 
 const ShopPage = () => {
   const {
-    dispatch,
     searchTerm,
-    searchedProducts,
-    pageNumber,
+    sortBy,
     activeCategory,
+    totalPages,
+    dispatch,
     products,
-    isClearButtonPressed,
-    initialLoading,
-    currentSortOption,
+    categories
   } = useContext(AppContext);
   const GridViewProducts = useGridView(ShopPageProducts);
-  const [openedCategory, setOpenedCategory] = useState({});
-  const [categories, setCategories] = useState([]);
-  const [productsByCategories, setProductsByCategories] = useState({
-    content: [],
-    totalElements: 0,
-  });
   const [loading, setLoading] = useState(false);
+  const currentPageNumber = useRef(0);
   const { categoryId } = useParams();
+
   usePageLoading();
 
-  useEffect(() => {
-    const resetStatesOnUnmount = () => {
-      dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: EMPTY_STRING });
-      setProductsByCategories({ content: [], totalElements: 0 });
-      dispatch({ type: ACTIONS.SET_SEARCHED_PRODUCTS, payload: null });
-      dispatch({ type: ACTIONS.SET_PRODUCTS, payload: [] });
-    };
-
-    return () => {
-      resetStatesOnUnmount();
-    };
-  }, [dispatch, setProductsByCategories]);
-
-  useEffect(() => {
-    const CancelToken = axios.CancelToken;
-    const source = CancelToken.source();
-
-    (async () => {
-      setLoading(true);
-      try {
-        const response = await getCategories(source.token);
-        setCategories(response.data);
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          return;
-        } else {
-          console.error('Error fetching categories: ' + error);
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-
-    return () => {
-      source.cancel('Operation cancelled by the user.');
-    };
-  }, []);
-
-  const handleOpeningAndFetchingCategories = useCallback(
-    (categoryId) => async (event) => {
-      const category = event?.currentTarget.dataset.category;
-      const isOpening = category ? !openedCategory[category] : true;
-
-      if (!event && isOpening && category) {
-        setOpenedCategory((prevState) => ({
-          ...prevState,
-          [category]: false,
-        }));
-        dispatch({ type: ACTIONS.SET_ACTIVE_CATEGORY, payload: null });
-        return;
-      }
-
+  const handleOpeningAndFetchingAccordingToCategory = useCallback(
+    (categoryId) => async () => {
+      dispatch({ type: ACTIONS.SET_ACTIVE_CATEGORY, payload: categoryId });
       try {
         setLoading(true);
-        dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: 0 });
-
-        const productsResponse = await getAllProducts(
-          0,
+        const response = await getAllProducts(
+          currentPageNumber.current = 0,
           PAGE_SIZE,
           searchTerm,
-          categoryId === ALL_CATEGORIES_ID ? null : categoryId,
-          currentSortOption
+          categoryId,
+          sortBy
         );
-
-        const { content, totalElements } = productsResponse.data;
-        if(searchedProducts) {
-          dispatch({ type: ACTIONS.SET_SEARCHED_PRODUCTS, payload: content });
-        }
-        dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
-        setProductsByCategories({ content, totalElements });
+        dispatch({
+          type: ACTIONS.SET_INITIAL_PRODUCTS,
+          payload: response.data.content,
+        });
+        dispatch({
+          type: ACTIONS.SET_TOTAL_PAGES,
+          payload: response.data.totalPages - 1,
+        });
       } catch (error) {
-        console.error(error);
+        console.error(
+          'Error during fetching of products according to categories'.error
+        );
+        throw error;
       } finally {
         setLoading(false);
       }
-
-      if (category) {
-        setOpenedCategory((prevState) => {
-          const updatedState = Object.keys(prevState).reduce(
-            (acc, categoryName) => {
-              acc[categoryName] = false;
-              return acc;
-            },
-            {}
-          );
-
-          return {
-            ...updatedState,
-            [category]: isOpening,
-          };
-        });
-        dispatch({
-          type: ACTIONS.SET_ACTIVE_CATEGORY,
-          payload: isOpening ? categoryId : null,
-        });
-      }
     },
-    [searchTerm, currentSortOption, openedCategory, searchedProducts, dispatch]
+    [searchTerm, sortBy, dispatch]
   );
-
-  useEffect(() => {
-    if (!loading && searchedProducts) {
-      dispatch({
-        type: ACTIONS.SET_PRODUCTS,
-        payload: searchedProducts.content,
-      });
-    }
-
-    if (isClearButtonPressed) {
-      handleOpeningAndFetchingCategories(activeCategory)();
-      dispatch({ type: ACTIONS.SET_CLEAR_BUTTON_PRESSED, payload: false });
-    }
-  }, [
-    loading,
-    searchedProducts,
-    isClearButtonPressed,
-    dispatch,
-    activeCategory,
-    handleOpeningAndFetchingCategories,
-  ]);
-
-  useEffect(() => {
-    if (categoryId && categories) {
-      const firstLoadedCategory = categories.find(
-        (category) => category.id === parseInt(categoryId)
-      );
-
-      if (firstLoadedCategory) {
-        setOpenedCategory({ [firstLoadedCategory.categoryName]: true });
-        dispatch({
-          type: ACTIONS.SET_ACTIVE_CATEGORY,
-          payload: firstLoadedCategory.id,
-        });
-      }
-      handleOpeningAndFetchingCategories(parseInt(categoryId))();
-    }
-    // eslint-disable-next-line 
-  }, [categoryId, categories, dispatch]);
-
+  
   const onExploreMoreBtnClick = () => {
-    const nextPageNumber = pageNumber + 1;
-    const categoryId =
-      activeCategory === ALL_CATEGORIES_ID || !activeCategory
-        ? null
-        : activeCategory;
+    currentPageNumber.current += 1;
 
-    getAllProducts(
-      nextPageNumber,
-      PAGE_SIZE,
-      searchTerm,
-      categoryId,
-      currentSortOption
-    )
+    getAllProducts(currentPageNumber.current, PAGE_SIZE, searchTerm, activeCategory)
       .then((response) => {
         const { content } = response.data;
         dispatch({
           type: ACTIONS.SET_PRODUCTS,
-          payload: products.concat(content),
+          payload: content,
         });
       })
       .catch((error) => {
         console.error(error);
       });
-
-    dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: nextPageNumber });
   };
 
-  const totalPages = getTotalPages(
-    searchedProducts?.pageData || productsByCategories?.totalElements,
-    PAGE_SIZE
-  );
-
-  const handleSortOptionChoice = async (chosenSortOption) => {
-    setLoading(true);
-    dispatch({ type: ACTIONS.SET_SORT_OPTION, payload: chosenSortOption });
-    try {
-      const response = await getAllProducts(
-        0,
-        PAGE_SIZE,
-        undefined,
-        activeCategory !== null ? activeCategory : ALL_CATEGORIES_ID,
-        chosenSortOption
-      );
-      const { content, totalElements } = response.data;
-      dispatch({ type: ACTIONS.SET_PRODUCTS, payload: content });
-      setProductsByCategories({ content, totalElements });
-      dispatch({ type: ACTIONS.SET_PAGE_NUMBER, payload: 0})
-    } catch (error) {
-      console.error('Error while sorting products');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (categoryId) {
+      handleOpeningAndFetchingAccordingToCategory(categoryId)();
+    } else if (activeCategory) {
+      handleOpeningAndFetchingAccordingToCategory(activeCategory)();
+    } else {
+      handleOpeningAndFetchingAccordingToCategory(ALL_CATEGORIES_ID)();
     }
-  };
-
-  if (initialLoading) {
-    return <LoadingSpinner pageSpinner={true} />;
-  }
+    // eslint-disable-next-line
+  }, [handleOpeningAndFetchingAccordingToCategory, categoryId]);
 
   return (
     <div className='wrapper shop-page__wrapper'>
       <div className='container'>
         <div className='shop-page__content'>
           <CategoriesAccordion
-            openedCategory={openedCategory}
-            setOpenedCategory={setOpenedCategory}
+            openedCategoryId={activeCategory}
             categories={categories}
-            handleOpeningAndFetchingCategories={
-              handleOpeningAndFetchingCategories
+            handleOpeningAndFetchingAccordingToCategory={
+              handleOpeningAndFetchingAccordingToCategory
             }
           />
           <div className='shop-page__products'>
-            <SelectField
-              field={field}
-              handleSortOptionChoice={handleSortOptionChoice}
-            />
-            {searchedProducts && searchedProducts?.content?.length === 0 ? (
+            <SelectField field={sortingField} dispatch={dispatch} />
+            {products && products?.content?.length === 0 ? (
               <div className='shop-page__no-products'>
                 <h4>No products found.</h4>
                 <p>Please try a different search or filter by category.</p>
@@ -290,24 +114,20 @@ const ShopPage = () => {
                   className={'shop-page__grid-view'}
                   products={products}
                   currentLocation={'shop'}
+                  loading={loading}
                 />
               </>
             )}
-            {((searchedProducts
-              ? pageNumber < searchedProducts?.pageData?.totalPages - 1
-              : pageNumber < totalPages - 1) ||
-              (productsByCategories.totalElements > PAGE_SIZE &&
-                products.length < productsByCategories.totalElements)) &&
-              products.length >= PAGE_SIZE && (
-                <Button
-                  onClick={onExploreMoreBtnClick}
-                  Icon={null}
-                  className={'shop-page__explore--more_button'}
-                  iconClassName={null}
-                >
-                  Explore more
-                </Button>
-              )}
+            {currentPageNumber.current < totalPages && (
+              <Button
+                Icon={null}
+                onClick={onExploreMoreBtnClick}
+                className={'shop-page__explore--more_button'}
+                iconClassName={null}
+              >
+                Explore more
+              </Button>
+            )}
           </div>
         </div>
       </div>

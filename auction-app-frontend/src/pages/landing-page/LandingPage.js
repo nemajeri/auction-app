@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
 import {
   Categories,
   HighlightedProduct,
@@ -7,10 +7,9 @@ import {
 import './landingPage.css';
 import {
   getSortedProductsAccordingToDate,
-  getAllProductsToSeparateHighlighted,
+  getAllHighlightedProducts,
   getRecommendedProducts,
 } from '../../utils/api/productsApi';
-import { getCategories } from '../../utils/api/categoryApi';
 import Tabs from '../../components/tabs/Tabs';
 import { AppContext } from '../../utils/AppContextProvider';
 import RecommendedProducts from '../../components/landing-page/recommended-products/RecommendedProducts.jsx';
@@ -20,24 +19,44 @@ import { usePageLoading } from '../../hooks/usePageLoading';
 
 import { landingPageProductClassName } from '../../utils/styles';
 import { homeTabs } from '../../data/tabs';
+import { ACTIONS } from '../../utils/appReducer';
 
 const LandingPage = () => {
   const [selectedTab, setSelectedTab] = useState(homeTabs[0].id);
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [highlightedProducts, setHighlightedProducts] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const currentPageNumber = useRef(0);
-  const { user, initialLoading } = useContext(AppContext);
+  const { user, initialLoading, products, categories, dispatch } =
+    useContext(AppContext);
   const GridViewRecommendedProducts = useGridView(RecommendedProducts);
+
+  const fetchProducts = useCallback(async (filter, currentPageNumber) => {
+    try {
+
+      let sortedProducts = await getSortedProductsAccordingToDate(
+        filter,
+        currentPageNumber
+      );
+
+      let highlightedProducts = await getAllHighlightedProducts();
+
+      setHighlightedProducts(highlightedProducts.data);
+      dispatch({type: ACTIONS.SET_INITIAL_PRODUCTS ,payload: sortedProducts.data.content});
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [dispatch]);
+
+
   useEffect(() => {
     const selectedFilter = homeTabs.find(
       (tab) => tab.id === selectedTab
     ).filter;
-    fetchProductsAndCategories(selectedFilter, currentPageNumber.current);
-  }, [selectedTab]);
+    fetchProducts(selectedFilter, currentPageNumber.current);
+  }, [selectedTab, fetchProducts]);
 
   usePageLoading();
 
@@ -54,34 +73,18 @@ const LandingPage = () => {
     })();
   }, [user]);
 
-  const fetchProductsAndCategories = async (filter, currentPageNumber) => {
-    let categories = await getCategories();
-    setCategories(categories.data);
-
-    let sortedProducts = await getSortedProductsAccordingToDate(
-      filter,
-      currentPageNumber
-    );
-
-    let highlightedProducts = await getAllProductsToSeparateHighlighted();
-
-    setHighlightedProducts(highlightedProducts.data);
-    setProducts(sortedProducts.data.content);
-    setLoading(false);
-  };
-
   const handleTabClick = async (id) => {
     setLoading(true);
     setSelectedTab(id);
     currentPageNumber.current = 0;
     setHasMore(true);
 
-    setProducts([]);
+    dispatch({type: ACTIONS.SET_INITIAL_PRODUCTS ,payload: []});
 
     const selectedFilter = homeTabs.find((tab) => tab.id === id).filter;
     const response = await getSortedProductsAccordingToDate(selectedFilter, 0);
 
-    setProducts(response.data.content);
+    dispatch({type: ACTIONS.SET_INITIAL_PRODUCTS ,payload: response.data.content});
     setLoading(false);
   };
 
@@ -96,7 +99,7 @@ const LandingPage = () => {
       selectedFilter,
       currentPageNumber.current
     );
-    setProducts((prevProducts) => [...prevProducts, ...response.data.content]);
+    dispatch({type: ACTIONS.SET_PRODUCTS ,payload: response.data.content});
   };
 
   if (initialLoading) {

@@ -17,6 +17,11 @@
     text-decoration: none;
     color: var(--black);
     font-weight: bold;
+    display: inline-block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product__details p {

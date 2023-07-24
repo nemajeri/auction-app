@@ -56,7 +56,7 @@ export const START_OF_TODAY_UTC =  getStartOfTodayUTC();
 
 export const AUCTION_ENDED = "Auction ended";
 
-export const COOKIE_NAME ="auction_app_token";
+export const COOKIE_NAME = "auction_app_token";
 
 export const PAYMENT_CURRENCY ="usd";
 

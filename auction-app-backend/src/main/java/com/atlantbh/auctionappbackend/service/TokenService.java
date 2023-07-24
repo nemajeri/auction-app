@@ -195,7 +195,7 @@ public class TokenService {
         String token = getJwtFromCookie(request);
 
         if (!StringUtils.hasText(token)) {
-            throw new IllegalStateException("No token found in request");
+            return null;
         }
 
         if (!validateToken(token)) {

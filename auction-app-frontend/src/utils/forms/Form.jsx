@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import './form.css';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { callOAuth2LoginSuccess } from '../api/authApi';
-import { useNavigate } from 'react-router-dom';
 import useFacebookSDK from '../../hooks/useFacebookSDK';
 import useGoogleSDK from '../../hooks/useGoogleSDK';
 import SelectField from './SelectField';
@@ -48,7 +47,6 @@ const Form = ({
         ...prevErrors,
         [field.name]: field.errorMessage,
       }));
-      return;
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, [field.name]: undefined }));
     }
@@ -91,7 +89,7 @@ const Form = ({
   };
 
   const handleGsiEvent = (response) => {
-    if (response && response.credential) {
+    if (response?.credential) {
       callOAuth2LoginSuccess(
         'google',
         response.credential,
