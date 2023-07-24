@@ -66,7 +66,7 @@ const ShopPage = () => {
   const onExploreMoreBtnClick = () => {
     currentPageNumber.current += 1;
 
-    getAllProducts(currentPageNumber.current, PAGE_SIZE, searchTerm, activeCategory)
+    getAllProducts(currentPageNumber.current, PAGE_SIZE, searchTerm, activeCategory, sortBy)
       .then((response) => {
         const { content } = response.data;
         dispatch({
