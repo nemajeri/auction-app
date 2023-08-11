@@ -3,12 +3,25 @@
     max-width: 28rem;
 }
 
+.details__watch-button {
+    background-color: white;
+    border-color: var(--purple);
+    color: var(--purple);
+    padding: 10px 25px;
+}
+
+.details__watch-button span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .details h1 {
     line-height: 3rem;
     font-size: 1.9rem;
 }
 
-.details > p span {
+.details>p span {
     color: var(--purple);
     font-weight: bold;
 }
@@ -64,7 +77,7 @@
     gap: 12px;
 }
 
-.details__button span > p {
+.details__button span>p {
     width: 6rem;
     font-weight: bold;
     font-size: 1rem;

@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useReducer,
   useCallback,
+  useRef,
 } from 'react';
 import { getAllProducts, getSearchSuggestion } from '../utils/api/productsApi';
 import { getUserByEmail } from '../utils/api/userApi';
@@ -34,10 +35,15 @@ const initialState = {
   isClearButtonPressed: false,
   sortBy: SORT_OPTIONS.DEFAULT_SORTING,
   categories: [],
+  notifications: [],
 };
 
 export const AppContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const subscriptionRef = useRef(null);
+  const webSocketServiceRef = useRef(null);
+  const watchersSubscriptionRef = useRef(null);
+  const watchersWebSocketServiceRef = useRef(null);
 
   const onSearchTermChange = useCallback((event) => {
     const searchTerm = event.target.value;
@@ -136,9 +142,29 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [state.searchTerm]);
 
+  const disconnectUser = useCallback((subscription, webSocketService) => {
+    if (subscription) {
+      subscription.unsubscribe();
+    }
+    if (webSocketService) {
+      webSocketService.disconnect();
+    }
+    dispatch({ type: ACTIONS.SET_NOTIFICATIONS, payload: [] });
+  }, []);
+
   const contextValue = useMemo(() => {
-    return { dispatch, ...state, onSearchTermChange, onSearchIconClick };
-  }, [dispatch, state, onSearchTermChange, onSearchIconClick]);
+    return {
+      dispatch,
+      ...state,
+      onSearchTermChange,
+      onSearchIconClick,
+      webSocketServiceRef,
+      subscriptionRef,
+      disconnectUser,
+      watchersSubscriptionRef,
+      watchersWebSocketServiceRef,
+    };
+  }, [dispatch, state, onSearchTermChange, onSearchIconClick, disconnectUser]);
 
   return (
     <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>

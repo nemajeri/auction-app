@@ -12,6 +12,7 @@ export const ACTIONS = {
   SET_TOTAL_PAGES: 'set_total_pages',
   SET_INITIAL_PRODUCTS: 'set_initial_products',
   SET_CATEGORIES: 'set_categories',
+  SET_NOTIFICATIONS: 'set_notifications',
 };
 
 export const appReducer = (state, action) => {
@@ -42,6 +43,8 @@ export const appReducer = (state, action) => {
         return { ...state, categories: action.payload };
     case ACTIONS.SET_INITIAL_LOADING:
       return { ...state, initialLoading: action.payload };
+    case ACTIONS.SET_NOTIFICATIONS:
+      return {...state, notifications: [...state.notifications, action.payload]}  
     default:
       return state;
   }

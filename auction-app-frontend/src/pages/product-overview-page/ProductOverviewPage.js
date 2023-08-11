@@ -26,7 +26,7 @@ const ProductOverviewPage = () => {
   const [bidAmount, setBidAmount] = useState(EMPTY_STRING);
   const [isUserHighestBidder, setIsUserHighestBidder] = useState(null);
   const { id } = useParams();
-  const { user } = useContext(AppContext);
+  const { user, watchersWebSocketServiceRef, watchersSubscriptionRef , dispatch } = useContext(AppContext);
 
   useEffect(() => {
     (async () => {
@@ -38,7 +38,7 @@ const ProductOverviewPage = () => {
         setIsOwner(response.data.owner);
         setIsUserHighestBidder(response.data.userHighestBidder);
       } catch (error) {
-        toast.error("Cannot load the product.")
+        toast.error('Cannot load the product.');
       } finally {
         setLoading(false);
       }
@@ -63,7 +63,7 @@ const ProductOverviewPage = () => {
       setProduct(updatedProduct.data);
       toast.success('Congrats! You are the highest bidder!');
     } catch (error) {
-        toast.error(error.response.data.message);
+      toast.error(error.response.data.message);
     } finally {
       setBidAmount(EMPTY_STRING);
     }
@@ -88,6 +88,9 @@ const ProductOverviewPage = () => {
               bidAmount={bidAmount}
               isUserHighestBidder={isUserHighestBidder}
               user={user}
+              watchersWebSocketServiceRef={watchersWebSocketServiceRef}
+              watchersSubscriptionRef={watchersSubscriptionRef}
+              dispatch={dispatch}
             />
           </section>
         </div>

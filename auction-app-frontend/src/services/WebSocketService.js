@@ -2,32 +2,35 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 class WebSocketService {
-  constructor() {
-    this.socket = new SockJS(process.env.REACT_APP_BASE_URL.replace('/api/v1', '/ws/notifications'));
+  constructor(connectionString) {
+    this.socket = new SockJS(process.env.REACT_APP_BASE_URL.replace('/api/v1', connectionString));
     this.stompClient = new Client({
       webSocketFactory: () => this.socket,
     });
+    console.log("WebSocket URL:", this.socket.url);
   }
 
   connect(onConnect) {
     this.stompClient.onConnect = () => {
-      onConnect();
+      setTimeout(() => {
+        onConnect();
+    }, 1000);  
     };
 
-    this.stompClient.onStompError = function (frame) {
+    this.stompClient.onStompError = (frame) =>  {
       console.log('Broker reported error: ' + frame.headers['message']);
       console.log('Additional details: ' + frame.body);
     };
 
-    this.stompClient.onDisconnect = function (frame) {
+    this.stompClient.onDisconnect = (frame) => {
       console.log('Disconnected: ' + frame);
     };
 
-    this.stompClient.onWebSocketClose = function (event) {
+    this.stompClient.onWebSocketClose = (event) => {
       console.log('Websocket closed. Event: ' + event);
     };
 
-    this.stompClient.onWebSocketError = function (event) {
+    this.stompClient.onWebSocketError = (event) => {
       console.log('Websocket error. Event: ' + event);
     };
 
@@ -40,8 +43,8 @@ class WebSocketService {
     }
   }
 
-  subscribe(destination, callback) {
-    return this.stompClient.subscribe(destination, callback);
+  subscribe(destination, callback, headers) {
+    return this.stompClient.subscribe(destination, callback, headers);
   }
 
   send(destination, body, headers = {}) {

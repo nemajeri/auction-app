@@ -7,6 +7,8 @@ import StripeCheckout from '../../stripe-checkout/StripeCheckout';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { landingPagePath } from '../../../utils/paths';
 import { AUCTION_ENDED } from '../../../utils/constants';
+import { LiaEyeSolid } from 'react-icons/lia';
+import WebSocketService from '../../../services/WebSocketService';
 
 const ProductDetails = ({
   tabs,
@@ -19,9 +21,12 @@ const ProductDetails = ({
   bidAmount,
   onBidButtonClick,
   isUserHighestBidder,
+  watchersWebSocketServiceRef,
+  watchersSubscriptionRef,
   user,
 }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [watchersCount, setWatchersCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
@@ -29,6 +34,41 @@ const ProductDetails = ({
       setShowPaymentModal(true);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (user) {
+      watchersWebSocketServiceRef.current = new WebSocketService(
+        '/ws/watchers'
+      );
+
+      watchersWebSocketServiceRef.current.connect(() => {
+        if (watchersWebSocketServiceRef.current.stompClient.connected) {
+          watchersSubscriptionRef.current =
+            watchersWebSocketServiceRef.current.subscribe(
+              `/topic/watching/count`,
+              (message) => {
+                const count = JSON.parse(message.body);
+                setWatchersCount(count);
+              }
+            );
+          watchersWebSocketServiceRef.current.send(
+            '/app/watching/start',
+            { productId: product.id },
+            { userId: user.id }
+          );
+
+          watchersWebSocketServiceRef.current.send(
+            `/app/watching/count`,
+            null,
+            { productId: product.id }
+          );
+        } else {
+          console.error('STOMP client is not connected.');
+        }
+      });
+    }
+    //eslint-disable-next-line
+  }, [user, product.id]);
 
   const onClose = () => {
     setShowPaymentModal(false);
@@ -44,6 +84,15 @@ const ProductDetails = ({
         <p className='details__start--price'>
           Starts from <span>${product.startPrice.toFixed(2)}</span>
         </p>
+        {isAuctionActive && (
+          <Button
+            className={'details__watch-button'}
+            SocialMediaIcon={LiaEyeSolid}
+          >
+            Watching &nbsp;&nbsp;
+            {watchersCount}
+          </Button>
+        )}
         <div className='details__offer'>
           <p>
             Highest bid: <span>{product.highestBid.toFixed(2)}$</span>

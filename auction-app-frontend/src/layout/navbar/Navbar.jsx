@@ -24,6 +24,9 @@ const Navbar = () => {
     onSearchTermChange,
     suggestion,
     activeCategory,
+    webSocketServiceRef,
+    subscriptionRef,
+    disconnectUser,
     user,
     sortBy,
   } = useContext(AppContext);
@@ -38,39 +41,33 @@ const Navbar = () => {
 
   useEffect(() => {
     if (user) {
-      let subscription;
+      webSocketServiceRef.current = new WebSocketService('/ws/notifications');
 
-      const webSocketService = new WebSocketService();
-
-      webSocketService.connect(() => {
-        subscription = webSocketService.subscribe(
-          `/queue/notifications-${user.id}`,
-          (message) => {
-            const newNotification = JSON.parse(message.body);
-            setNotifications((prevNotifications) => [
-              ...prevNotifications,
-              newNotification,
-            ]);
-          }
-        );
+      webSocketServiceRef.current.connect(() => {
+        if (webSocketServiceRef.current.stompClient.connected) {
+          subscriptionRef.current = webSocketServiceRef.current.subscribe(
+            `/queue/notifications-${user.id}`,
+            (message) => {
+              const newNotifications = JSON.parse(message.body);
+              console.log('New notifications: ', newNotifications);
+              dispatch({
+                type: ACTIONS.SET_NOTIFICATIONS,
+                payload: newNotifications,
+              });
+            }
+          );
+        } else {
+          console.error('STOMP client is not connected.');
+        }
       });
-
-      return () => {
-        if (subscription) {
-          subscription.unsubscribe();
-        }
-
-        if (webSocketService) {
-          webSocketService.disconnect();
-        }
-        setNotifications([]);
-      };
     }
-  }, [user]);
+    //eslint-disable-next-line
+  }, [user, dispatch]);
 
   const handleLogout = async () => {
     try {
       await logoutUser();
+      disconnectUser(subscriptionRef.current, webSocketServiceRef.current);
       dispatch({ type: ACTIONS.SET_USER, payload: null });
       navigate('/login');
     } catch (error) {
