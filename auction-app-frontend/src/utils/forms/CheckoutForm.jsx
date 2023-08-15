@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PAYMENT_CURRENCY, PAYMENT_TYPE } from '../constants';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { makePayment } from '../api/userApi';
 import { useNavigate } from 'react-router-dom';
 import { bidsPath } from '../paths';

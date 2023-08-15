@@ -14,7 +14,7 @@ export default class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return <LoadingSpinner pageSpinner={true}/>;
+      return <LoadingSpinner pageSpinner />;
     }
 
     return this.props.children;

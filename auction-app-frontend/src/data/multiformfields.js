@@ -2,10 +2,10 @@ import {
   PHONE_NUMBER_VALIDATOR,
   ZIP_CODE_VALIDATOR,
   START_PRICE_VALIDATOR,
-  START_OF_TODAY_UTC
 } from '../utils/constants';
 import { countries } from './countries';
 import moment from 'moment';
+import { getStartOfTodayUTC } from '../utils/helperFunctions';
 
 export const getStep1Fields = (categoryOptions, subcategoryOptions) => [
   {
@@ -64,7 +64,7 @@ export const getStep2Fields = () => [
         validation: (value) => {
           const date = moment.tz(value, moment.tz.guess());
           const utcDate = date.clone().tz('UTC');
-          return value !== '' && date.isValid() && utcDate.isSameOrAfter(START_OF_TODAY_UTC);
+          return value !== '' && date.isValid() && utcDate.isSameOrAfter(getStartOfTodayUTC());
         },
         errorMessage: 'Please pick a valid date!',
         placeholder: '14/04/2021'
@@ -78,7 +78,7 @@ export const getStep2Fields = () => [
           const startDateMoment = moment.tz(startDate, moment.tz.guess());
           const utcEndDate = endDate.clone().tz('UTC');
           const utcStartDate = startDateMoment.clone().tz('UTC');
-          return value !== '' && endDate.isValid() && utcEndDate.isSameOrAfter(START_OF_TODAY_UTC) && utcEndDate.isSameOrAfter(utcStartDate);
+          return value !== '' && endDate.isValid() && utcEndDate.isSameOrAfter(getStartOfTodayUTC()) && utcEndDate.isSameOrAfter(utcStartDate);
         },
         errorMessage: 'End date should be after start date!',
         placeholder: '14/04/2021'

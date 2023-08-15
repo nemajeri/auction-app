@@ -16,19 +16,17 @@ const Notification = ({
 
   const handleClick = () => {
     navigate(shopPagePathToProduct.replace(':id', productId), {
-      state: { openModal: formattedType === 'AUCTION FINISHED' },
+      state: { openModal: type === 'AUCTION_FINISHED' },
     });
     setIsOpened(false);
     removeNotificationFromState(id, productId);
   };
 
-  const formattedType = type.replace('_', ' ');
-
   return (
     <div className='notification unread' onClick={handleClick}>
       <header className='notification-header'>
         <time>{formatDate(date)}</time>
-        <span>{formattedType}</span>
+        <span>{type.replace('_',' ')}</span>
       </header>
       <section className='notification-content'>
         <p>{description}</p>

@@ -7,7 +7,6 @@ class WebSocketService {
     this.stompClient = new Client({
       webSocketFactory: () => this.socket,
     });
-    console.log("WebSocket URL:", this.socket.url);
   }
 
   connect(onConnect) {

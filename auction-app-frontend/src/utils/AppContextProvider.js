@@ -40,8 +40,8 @@ const initialState = {
 
 export const AppContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const subscriptionRef = useRef(null);
-  const webSocketServiceRef = useRef(null);
+  const notificationsSubscriptionRef = useRef(null);
+  const notificationsWebSocketServiceRef = useRef(null);
   const watchersSubscriptionRef = useRef(null);
   const watchersWebSocketServiceRef = useRef(null);
 
@@ -158,8 +158,8 @@ export const AppContextProvider = ({ children }) => {
       ...state,
       onSearchTermChange,
       onSearchIconClick,
-      webSocketServiceRef,
-      subscriptionRef,
+      notificationsWebSocketServiceRef,
+      notificationsSubscriptionRef,
       disconnectUser,
       watchersSubscriptionRef,
       watchersWebSocketServiceRef,

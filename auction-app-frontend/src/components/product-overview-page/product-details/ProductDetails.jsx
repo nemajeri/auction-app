@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../../../utils/Button';
 import Tabs from '../../tabs/Tabs';
-import './productDetails.css';
 import Modal from '../../../utils/forms/Modal';
 import StripeCheckout from '../../stripe-checkout/StripeCheckout';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -9,6 +8,8 @@ import { landingPagePath } from '../../../utils/paths';
 import { AUCTION_ENDED } from '../../../utils/constants';
 import { LiaEyeSolid } from 'react-icons/lia';
 import WebSocketService from '../../../services/WebSocketService';
+
+import './productDetails.css';
 
 const ProductDetails = ({
   tabs,
@@ -25,8 +26,8 @@ const ProductDetails = ({
   watchersSubscriptionRef,
   user,
 }) => {
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [watchersCount, setWatchersCount] = useState(0);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
@@ -42,33 +43,40 @@ const ProductDetails = ({
       );
 
       watchersWebSocketServiceRef.current.connect(() => {
-        if (watchersWebSocketServiceRef.current.stompClient.connected) {
-          watchersSubscriptionRef.current =
-            watchersWebSocketServiceRef.current.subscribe(
-              `/topic/watching/count`,
-              (message) => {
-                const count = JSON.parse(message.body);
-                setWatchersCount(count);
-              }
-            );
-          watchersWebSocketServiceRef.current.send(
-            '/app/watching/start',
-            { productId: product.id },
-            { userId: user.id }
+        watchersSubscriptionRef.current =
+          watchersWebSocketServiceRef.current.subscribe(
+            `/topic/watching/count`,
+            (message) => {
+              const count = JSON.parse(message.body);
+              setWatchersCount(count);
+            }
           );
-
-          watchersWebSocketServiceRef.current.send(
-            `/app/watching/count`,
-            null,
-            { productId: product.id }
-          );
-        } else {
-          console.error('STOMP client is not connected.');
-        }
+        watchersWebSocketServiceRef.current.send(
+          '/app/watching/start',
+          { productId: product.id },
+          { userId: user.id }
+        );
+        watchersWebSocketServiceRef.current.send(`/app/watching/count`, null, {
+          productId: product.id,
+        });
       });
     }
+
+    return () => {
+      if (user && watchersWebSocketServiceRef.current.stompClient.connected) {
+        watchersWebSocketServiceRef.current.send(
+          '/app/watching/stop',
+          { productId: product.id },
+          { userId: user.id }
+        );
+        if (watchersSubscriptionRef.current) {
+          watchersSubscriptionRef.current.unsubscribe();
+        }
+        watchersWebSocketServiceRef.current.disconnect();
+      }
+    };
     //eslint-disable-next-line
-  }, [user, product.id]);
+  }, [user, product?.id]);
 
   const onClose = () => {
     setShowPaymentModal(false);
@@ -84,7 +92,7 @@ const ProductDetails = ({
         <p className='details__start--price'>
           Starts from <span>${product.startPrice.toFixed(2)}</span>
         </p>
-        {isAuctionActive && (
+        {isAuctionActive && user && (
           <Button
             className={'details__watch-button'}
             SocialMediaIcon={LiaEyeSolid}

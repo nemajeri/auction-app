@@ -24,14 +24,14 @@ const Navbar = () => {
     onSearchTermChange,
     suggestion,
     activeCategory,
-    webSocketServiceRef,
-    subscriptionRef,
+    notificationsWebSocketServiceRef,
+    notificationsSubscriptionRef,
     disconnectUser,
     user,
     sortBy,
+    notifications,
   } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState('home');
-  const [notifications, setNotifications] = useState([]);
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -41,24 +41,19 @@ const Navbar = () => {
 
   useEffect(() => {
     if (user) {
-      webSocketServiceRef.current = new WebSocketService('/ws/notifications');
-
-      webSocketServiceRef.current.connect(() => {
-        if (webSocketServiceRef.current.stompClient.connected) {
-          subscriptionRef.current = webSocketServiceRef.current.subscribe(
-            `/queue/notifications-${user.id}`,
-            (message) => {
-              const newNotifications = JSON.parse(message.body);
-              console.log('New notifications: ', newNotifications);
-              dispatch({
-                type: ACTIONS.SET_NOTIFICATIONS,
-                payload: newNotifications,
-              });
-            }
-          );
-        } else {
-          console.error('STOMP client is not connected.');
-        }
+      notificationsWebSocketServiceRef.current = new WebSocketService('/ws/notifications');
+      notificationsWebSocketServiceRef.current.connect(() => {
+        notificationsSubscriptionRef.current = notificationsWebSocketServiceRef.current.subscribe(
+          `/queue/notifications-${user.id}`,
+          (message) => {
+            const newNotifications = JSON.parse(message.body);
+            
+            dispatch({
+              type: ACTIONS.SET_NEW_NOTIFICATIONS,
+              payload: newNotifications,
+            });
+          }
+        );
       });
     }
     //eslint-disable-next-line
@@ -67,7 +62,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logoutUser();
-      disconnectUser(subscriptionRef.current, webSocketServiceRef.current);
+      disconnectUser(notificationsSubscriptionRef.current, notificationsWebSocketServiceRef.current);
       dispatch({ type: ACTIONS.SET_USER, payload: null });
       navigate('/login');
     } catch (error) {
@@ -137,7 +132,7 @@ const Navbar = () => {
                 {notifications?.length > 0 && (
                   <NotificationsCenter
                     notifications={notifications}
-                    setNotifications={setNotifications}
+                    dispatch={dispatch}
                   />
                 )}
                 <p>

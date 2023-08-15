@@ -13,6 +13,7 @@ export const ACTIONS = {
   SET_INITIAL_PRODUCTS: 'set_initial_products',
   SET_CATEGORIES: 'set_categories',
   SET_NOTIFICATIONS: 'set_notifications',
+  SET_NEW_NOTIFICATIONS: 'set_new_notifications',
 };
 
 export const appReducer = (state, action) => {
@@ -39,12 +40,26 @@ export const appReducer = (state, action) => {
       return { ...state, totalPages: action.payload };
     case ACTIONS.SET_IS_USER_LOADING:
       return { ...state, isUserLoading: action.payload };
-      case ACTIONS.SET_CATEGORIES:
-        return { ...state, categories: action.payload };
+    case ACTIONS.SET_CATEGORIES:
+      return { ...state, categories: action.payload };
     case ACTIONS.SET_INITIAL_LOADING:
       return { ...state, initialLoading: action.payload };
+    case ACTIONS.SET_NEW_NOTIFICATIONS:
+      return {
+        ...state,
+        notifications: [...state.notifications, action.payload]
+      };
     case ACTIONS.SET_NOTIFICATIONS:
-      return {...state, notifications: [...state.notifications, action.payload]}  
+      return {
+        ...state,
+        notifications: state.notifications.filter(
+          (notification) =>
+            !(
+              notification.id === action.payload.notificationId &&
+              notification.productId === action.payload.productId
+            )
+        ),
+      };
     default:
       return state;
   }

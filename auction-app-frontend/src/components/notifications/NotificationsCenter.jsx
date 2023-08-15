@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { IoNotifications } from 'react-icons/io5';
 import Notification from './Notification';
+import { ACTIONS } from '../../utils/appReducer';
 import './notifications-center.css';
 
-const NotificationsCenter = ({ notifications, setNotifications }) => {
+const NotificationsCenter = ({ notifications, dispatch }) => {
   const [isOpened, setIsOpened] = useState(false);
   const ref = useRef(null);
 
@@ -12,13 +13,10 @@ const NotificationsCenter = ({ notifications, setNotifications }) => {
   };
 
   const removeNotificationFromState = (notificationId, productId) => {
-    setNotifications(
-      notifications.filter(
-        (notification) =>
-          notification.id !== notificationId &&
-          notification.productId !== productId
-      )
-    );
+    dispatch({
+      type: ACTIONS.SET_NOTIFICATIONS,
+      payload: { notificationId, productId }
+    });
   };
 
   useEffect(() => {
@@ -43,7 +41,7 @@ const NotificationsCenter = ({ notifications, setNotifications }) => {
         <div className='red-dot'>
           <p>{notifications.length}</p>
         </div>
-        <IoNotifications className='bell-icon' />
+        <IoNotifications className='bell-icon' data-testid="notifications-bell" />
       </div>
       {isOpened && (
         <div>

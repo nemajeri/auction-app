@@ -28,7 +28,6 @@ public class NotificationController {
     @RabbitListener(queues = AUCTION_FINISHED_QUEUE)
     public void receiveAuctionFinishedNotification(NotificationResponse notification) {
         Optional<AppUser> userOpt = appUserRepository.findById(notification.getUserId());
-        log.debug("User for notification pushed to queue: {}", userOpt);
         if (userOpt.isPresent()) {
             this.template.convertAndSend(
                     "/queue/notifications-" + userOpt.get().getId(),
@@ -42,7 +41,6 @@ public class NotificationController {
     @RabbitListener(queues = OUTBID_QUEUE)
     public void receiveOutbidNotification(NotificationResponse notification) {
         Optional<AppUser> userOpt = appUserRepository.findById(notification.getUserId());
-        log.debug("Outbid user for notification pushed to queue: {}", userOpt);
         if (userOpt.isPresent()) {
             this.template.convertAndSend(
                     "/queue/notifications-" + userOpt.get().getId(),
